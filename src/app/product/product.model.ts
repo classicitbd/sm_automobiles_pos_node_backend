@@ -1,0 +1,69 @@
+import { Schema, model } from "mongoose";
+import { IProductInterface } from "./product.interface";
+
+// Product Schema
+const productSchema = new Schema<IProductInterface>(
+  {
+    product_name: {
+      required: true,
+      type: String,
+    },
+    product_status: {
+      type: String,
+      enum: ["active", "in-active"],
+      default: "active",
+    },
+    product_image: {
+      type: String,
+      required: true,
+    },
+    product_image_key: {
+      type: String,
+    },
+    product_details: {
+      type: String,
+    },
+    category_id: {
+      type: Schema.Types.ObjectId,
+      ref: "categories",
+      required: true,
+    },
+    brand_id: {
+      type: Schema.Types.ObjectId,
+      ref: "brands",
+    },
+    product_price: {
+      required: true,
+      type: Number,
+    },
+    product_buying_price: {
+      type: Number,
+    },
+    product_quantity: {
+      required: true,
+      type: Number,
+    },
+    product_previous_quantity: {
+      type: Number,
+    },
+    product_stock_low_alert: {
+      type: Number,
+    },
+    product_publisher_id: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
+    },
+    product_updated_by: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const ProductModel = model<IProductInterface>("products", productSchema);
+
+export default ProductModel;
