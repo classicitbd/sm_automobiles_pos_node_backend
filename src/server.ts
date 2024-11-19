@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const uri = `mongodb+srv://smautomobiles:0iEJhBz5WFBfHAlg@cluster0.p8qnexq.mongodb.net/smautomobiles?retryWrites=true&w=majority&appName=Cluster0`;
+
 function connectDB() {
   mongoose.set("strictQuery", false);
   const time = new Date().toLocaleTimeString();
