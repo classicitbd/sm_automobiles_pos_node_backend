@@ -21,6 +21,9 @@ const purchaseSchema = new Schema<IPurchaseInterface>(
     purchase_voucher: {
       type: String,
     },
+    purchase_voucher_key: {
+      type: String,
+    },
     purchase_bank_id: {
       type: Schema.Types.ObjectId,
       ref: "banks",

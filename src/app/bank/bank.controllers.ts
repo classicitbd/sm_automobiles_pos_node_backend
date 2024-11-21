@@ -2,50 +2,45 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import ApiError from "../../errors/ApiError";
-import { brandSearchableField, IBrandInterface } from "./brand.interface";
-import BrandModel from "./brand.model";
-import {
-  findAllBrandServices,
-  findAllDashboardBrandServices,
-  postBrandServices,
-  updateBrandServices,
-} from "./brand.services";
+import { bankSearchableField, IBankInterface } from "./bank.interface";
+import { findAllBankServices, findAllDashboardBankServices, postBankServices, updateBankServices } from "./bank.services";
+import BankModel from "./bank.model";
 
-// Add A Brand
-export const postBrand: RequestHandler = async (
+// Add A Bank
+export const postBank: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<IBrandInterface | any> => {
+): Promise<IBankInterface | any> => {
   try {
     const requestData = req.body;
-    const result: IBrandInterface | {} = await postBrandServices(requestData);
+    const result: IBankInterface | {} = await postBankServices(requestData);
     if (result) {
-      return sendResponse<IBrandInterface>(res, {
+      return sendResponse<IBankInterface>(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Brand Added Successfully !",
+        message: "Bank Added Successfully !",
       });
     } else {
-      throw new ApiError(400, "Brand Added Failed !");
+      throw new ApiError(400, "Bank Added Failed !");
     }
   } catch (error: any) {
     next(error);
   }
 };
 
-// Find All Brand
-export const findAllBrand: RequestHandler = async (
+// Find All Bank
+export const findAllBank: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<IBrandInterface | any> => {
+): Promise<IBankInterface | any> => {
   try {
-    const result: IBrandInterface[] | any = await findAllBrandServices();
-    return sendResponse<IBrandInterface>(res, {
+    const result: IBankInterface[] | any = await findAllBankServices();
+    return sendResponse<IBankInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Brand Found Successfully !",
+      message: "Bank Found Successfully !",
       data: result,
     });
   } catch (error: any) {
@@ -53,18 +48,18 @@ export const findAllBrand: RequestHandler = async (
   }
 };
 
-// Find All dashboard Brand
-export const findAllDashboardBrand: RequestHandler = async (
+// Find All dashboard Bank
+export const findAllDashboardBank: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<IBrandInterface | any> => {
+): Promise<IBankInterface | any> => {
   try {
     const { page, limit, searchTerm } = req.query;
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: IBrandInterface[] | any = await findAllDashboardBrandServices(
+    const result: IBankInterface[] | any = await findAllDashboardBankServices(
       limitNumber,
       skip,
       searchTerm
@@ -72,7 +67,7 @@ export const findAllDashboardBrand: RequestHandler = async (
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
-        $or: brandSearchableField.map((field) => ({
+        $or: bankSearchableField.map((field) => ({
           [field]: {
             $regex: searchTerm,
             $options: "i",
@@ -82,11 +77,11 @@ export const findAllDashboardBrand: RequestHandler = async (
     }
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
-    const total = await BrandModel.countDocuments(whereCondition);
-    return sendResponse<IBrandInterface>(res, {
+    const total = await BankModel.countDocuments(whereCondition);
+    return sendResponse<IBankInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Brand Found Successfully !",
+      message: "Bank Found Successfully !",
       data: result,
       totalData: total,
     });
@@ -95,26 +90,26 @@ export const findAllDashboardBrand: RequestHandler = async (
   }
 };
 
-// Update A Brand
-export const updateBrand: RequestHandler = async (
+// Update A Bank
+export const updateBank: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<IBrandInterface | any> => {
+): Promise<IBankInterface | any> => {
   try {
     const requestData = req.body;
-    const result: IBrandInterface | any = await updateBrandServices(
+    const result: IBankInterface | any = await updateBankServices(
       requestData,
       requestData?._id
     );
     if (result?.modifiedCount > 0) {
-      return sendResponse<IBrandInterface>(res, {
+      return sendResponse<IBankInterface>(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Brand Update Successfully !",
+        message: "Bank Update Successfully !",
       });
     } else {
-      throw new ApiError(400, "Brand Update Failed !");
+      throw new ApiError(400, "Bank Update Failed !");
     }
   } catch (error: any) {
     next(error);

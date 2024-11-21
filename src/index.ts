@@ -4,37 +4,23 @@ import connectDB from "./server";
 import httpStatus from "http-status";
 import routes from "./routes/routes";
 import globalErrorHandler from "./middlewares/global.error.handler";
-const cookieParser = require('cookie-parser');
-// import nodemailer from "nodemailer";
+const cookieParser = require("cookie-parser");
+require('dotenv').config();
 
 const app: Application = express();
 
 app.use(express.json());
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+  origin: ["http://localhost:3000", "http://localhost:3001"], // Allow only this origin
+  credentials: true, // Allow credentials
+};
+
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
-// const transporter = nodemailer.createTransport({
-//   host: "mail.classicitltd.com",
-//   port: 465,
-//   secure: true, // true for port 465, false for other ports
-//   auth: {
-//     user: "info@classicitltd.com",
-//     pass: "2]cpy-&Gv[c4",
-//   },
-// });
-
 app.get("/", async (req: Request, res: Response) => {
-   // send mail with defined transport object
-  //  const info = await transporter.sendMail({
-  //   from: '"Maddison Foo Koch 👻" <info@classicitltd.com>', // sender address
-  //   to: "nazmulbhuyian000@gmail.com", // list of receivers
-  //   subject: "Hello hjsiodgfioeryhtgiouerujgoipuehg ✔", // Subject line
-  //   text: "Hello worlddsfoipoiufouipygfperohgiuhioehgihgrr?", // plain text body
-  //   html: "<b>Hello world?</b>", // html body
-  // });
-  // console.log("Message sent: %s", info);
   res.send("Classic Ecommerce App is working! YaY!");
 });
 
@@ -62,7 +48,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 //connect to db
 connectDB();
 
-const port: number = 5000 || 8080;
+const port: number | any = process.env.PORT || 8080;
 const time = new Date().toLocaleTimeString();
 const date = new Date().toLocaleString("en-us", {
   weekday: "short",
@@ -78,6 +64,6 @@ app.listen(port, () => {
     time,
     ":",
     date,
-    `: Classic Ecommerce app listening on port ${port}`
+    `: SM Automobile app listening on port ${port}`
   );
 });

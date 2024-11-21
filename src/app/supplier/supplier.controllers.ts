@@ -7,9 +7,7 @@ import {
   supplierSearchableField,
 } from "./supplier.interface";
 import {
-  deleteSupplierServices,
   findAllDashboardSupplierServices,
-  findAllSelfDashboardSupplierServices,
   findAllSupplierServices,
   postSupplierServices,
   updateSupplierServices,
@@ -79,53 +77,6 @@ export const findAllDashboardSupplier: RequestHandler = async (
   }
 };
 
-// Find All self dashboard Supplier
-export const findAllSelfDashboardSupplier: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<ISupplierInterface | any> => {
-  try {
-    const { page, limit, searchTerm } = req.query;
-    const panel_owner_id = req.params.panel_owner_id;
-    const pageNumber = Number(page);
-    const limitNumber = Number(limit);
-    const skip = (pageNumber - 1) * limitNumber;
-    const result: ISupplierInterface[] | any =
-      await findAllSelfDashboardSupplierServices(
-        limitNumber,
-        skip,
-        searchTerm,
-        panel_owner_id
-      );
-    const panelOwnerIdCondition = Types.ObjectId.isValid(panel_owner_id)
-      ? { panel_owner_id: new Types.ObjectId(panel_owner_id) }
-      : { panel_owner_id };
-
-    const andCondition: any[] = [panelOwnerIdCondition];
-    if (searchTerm) {
-      andCondition.push({
-        $or: supplierSearchableField.map((field) => ({
-          [field]: { $regex: searchTerm, $options: "i" },
-        })),
-      });
-    }
-
-    const whereCondition: any =
-      andCondition.length > 0 ? { $and: andCondition } : {};
-    const total = await SupplierModel.countDocuments(whereCondition);
-    return sendResponse<ISupplierInterface>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Supplier Found Successfully !",
-      data: result,
-      totalData: total,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
-
 // Find All Supplier
 export const findAllSupplier: RequestHandler = async (
   req: Request,
@@ -133,10 +84,7 @@ export const findAllSupplier: RequestHandler = async (
   next: NextFunction
 ): Promise<ISupplierInterface | any> => {
   try {
-    const panel_owner_id = req.query.panel_owner_id;
-    const result: ISupplierInterface[] | any = await findAllSupplierServices(
-      panel_owner_id
-    );
+    const result: ISupplierInterface[] | any = await findAllSupplierServices();
     return sendResponse<ISupplierInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -170,29 +118,6 @@ export const updateSupplier: RequestHandler = async (
       throw new ApiError(400, "Supplier Update Failed !");
     }
   } catch (error: any) {
-    next(error);
-  }
-};
-
-// delete A Supplier item
-export const deleteASupplierInfo = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const _id = req.body._id;
-    const result = await deleteSupplierServices(_id);
-    if (result?.deletedCount > 0) {
-      return sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Supplier Delete Successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Supplier Delete Failed !");
-    }
-  } catch (error) {
     next(error);
   }
 };

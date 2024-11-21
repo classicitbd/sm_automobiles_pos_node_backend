@@ -1,3 +1,4 @@
+import ApiError from "../../errors/ApiError";
 import {
   ICategoryInterface,
   categorySearchableField,
@@ -14,130 +15,6 @@ export const postCategoryServices = async (
   return createCategory;
 };
 
-// find category sub category child category
-export const getCategorySubChildCategoryServices = async (): Promise<any[]> => {
-  const sendData = await CategoryModel.aggregate([
-    {
-      $match: {
-        category_status: { $ne: "in-active" }, // Include only active categories
-      },
-    },
-    {
-      $lookup: {
-        from: "subcategories", // Link subcategories to categories
-        localField: "_id",
-        foreignField: "category_id",
-        as: "sub_categories",
-      },
-    },
-    {
-      $unwind: {
-        path: "$sub_categories",
-        preserveNullAndEmptyArrays: true, // Keep categories without subcategories
-      },
-    },
-    {
-      $lookup: {
-        from: "childcategories", // Link child categories to subcategories
-        localField: "sub_categories._id",
-        foreignField: "sub_category_id",
-        as: "sub_categories.child_categories",
-      },
-    },
-    {
-      $group: {
-        _id: "$_id",
-        category: { $first: "$$ROOT" }, // Retain the main category details
-        sub_categories: { $push: "$sub_categories" }, // Group subcategories
-      },
-    },
-    {
-      $addFields: {
-        "category.sub_categories": "$sub_categories",
-      },
-    },
-    {
-      $unset: ["category.sub_categories"], // Exclude sub_categories from inside the category object
-    },
-    {
-      $sort: { "category.category_serial": 1 }, // Sort by category serial
-    },
-  ]);
-
-  // Sort subcategories and child categories
-  sendData?.forEach((categoryData: any) => {
-    categoryData?.sub_categories?.sort(
-      (a: any, b: any) =>
-        a?.sub_category_serial - b?.sub_category_serial
-    );
-
-    categoryData?.sub_categories?.forEach(
-      (subCategoryData: any) => {
-        subCategoryData?.child_categories?.sort(
-          (a: any, b: any) => a?.child_category_serial - b?.child_category_serial
-        );
-      }
-    );
-  });
-
-  return sendData;
-};
-
-// find Six featured category
-export const getSixFeaturedCategoryServices = async (): Promise<any[]> => {
-  const sendData = await CategoryModel.aggregate([
-    {
-      $match: {
-        category_status: { $ne: "in-active" }, // Include only active categories
-        feature_category_show: true, // Include only featured categories
-      },
-    },
-    {
-      $lookup: {
-        from: "subcategories", // Link subcategories to categories
-        localField: "_id",
-        foreignField: "category_id",
-        as: "sub_categories",
-      },
-    },
-    {
-      $unwind: {
-        path: "$sub_categories",
-        preserveNullAndEmptyArrays: true, // Keep categories without subcategories
-      },
-    },
-    {
-      $group: {
-        _id: "$_id",
-        category: { $first: "$$ROOT" }, // Retain the main category details
-        sub_categories: { $push: "$sub_categories" }, // Group subcategories
-      },
-    },
-    {
-      $addFields: {
-        "category.sub_categories": "$sub_categories",
-      },
-    },
-    {
-      $unset: ["category.sub_categories"], // Exclude sub_categories from inside the category object
-    },
-    {
-      $sort: { "category.category_serial": 1 }, // Sort by category serial
-    },
-  ]);
-
-  // Sort subcategories and child categories
-  sendData?.forEach((categoryData: any) => {
-    categoryData?.sub_categories?.sort(
-      (a: any, b: any) =>
-        a?.sub_category_serial - b?.sub_category_serial
-    );
-  });
-
-  return sendData;
-};
-
-
 // Find Category
 export const findAllCategoryServices = async (): Promise<
   ICategoryInterface[] | []
@@ -145,7 +22,7 @@ export const findAllCategoryServices = async (): Promise<
   const findCategory: ICategoryInterface[] | [] = await CategoryModel.find({
     category_status: "active",
   })
-    .sort({ category_serial: 1 })
+    .sort({ _id: -1 })
     .select("-__v");
   return findCategory;
 };
@@ -171,7 +48,8 @@ export const findAllDashboardCategoryServices = async (
   const findCategory: ICategoryInterface[] | [] = await CategoryModel.find(
     whereCondition
   )
-    .sort({ category_serial: 1 })
+  .populate(["category_publisher_id", "category_updated_by"])
+    .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
     .select("-__v");
@@ -186,28 +64,10 @@ export const updateCategoryServices = async (
   const updateCategoryInfo: ICategoryInterface | null =
     await CategoryModel.findOne({ _id: _id });
   if (!updateCategoryInfo) {
-    return {};
+    throw new ApiError(400, "Category Not Found !");
   }
   const Category = await CategoryModel.updateOne({ _id: _id }, data, {
     runValidators: true,
   });
-  return Category;
-};
-
-// Delete a Category
-export const deleteCategoryServices = async (
-  _id: string
-): Promise<ICategoryInterface | any> => {
-  const updateCategoryInfo: ICategoryInterface | null =
-    await CategoryModel.findOne({ _id: _id });
-  if (!updateCategoryInfo) {
-    return {};
-  }
-  const Category = await CategoryModel.deleteOne(
-    { _id: _id },
-    {
-      runValidators: true,
-    }
-  );
   return Category;
 };

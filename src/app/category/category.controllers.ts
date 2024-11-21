@@ -6,62 +6,13 @@ import {
 import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import {
-  deleteCategoryServices,
   findAllCategoryServices,
   findAllDashboardCategoryServices,
-  getCategorySubChildCategoryServices,
-  getSixFeaturedCategoryServices,
   postCategoryServices,
   updateCategoryServices,
 } from "./category.services";
-import { FileUploadHelper } from "../../helpers/image.upload";
 import ApiError from "../../errors/ApiError";
-import * as fs from "fs";
 import CategoryModel from "./category.model";
-import SubCategoryModel from "../sub_category/sub_category.model";
-import ChildCategoryModel from "../child_category/child_category.model";
-import BrandModel from "../brand/brand.model";
-import SpecificationModel from "../specification/specification.model";
-import AttributeModel from "../attribute/attribute.model";
-import ProductModel from "../product/product.model";
-
-// Get banner match category  subCategory childCategory
-export const getCategorySubChildCategory: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<ICategoryInterface | any> => {
-  try {
-    const result: any = await getCategorySubChildCategoryServices();
-    return sendResponse<ICategoryInterface>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Category With Sub And Child Category Found Successfully !",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-// Get six featured category
-export const getSixFeaturedCategory: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<ICategoryInterface | any> => {
-  try {
-    const result: any = await getSixFeaturedCategoryServices();
-    return sendResponse<ICategoryInterface>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Six Featured Category Found Successfully !",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
 
 // Add A Category
 export const postCategory: RequestHandler = async (
@@ -70,53 +21,8 @@ export const postCategory: RequestHandler = async (
   next: NextFunction
 ): Promise<ICategoryInterface | any> => {
   try {
-    if (req.files && "category_logo" in req.files && req.body) {
       const requestData = req.body;
-      const findCategoryNameExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_slug: requestData?.category_slug,
-        });
-      if (findCategoryNameExit) {
-        fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Already Added !");
-      }
-      const findCategorySerialExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_serial: requestData?.category_serial,
-        });
-      if (findCategorySerialExit) {
-        fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Serial Number Previously Added !");
-      }
-      if (requestData?.feature_category_show == true) {
-        const findFeatureCategoryIsMoreThanSix =
-          await CategoryModel.countDocuments({ feature_category_show: true });
-        if (findFeatureCategoryIsMoreThanSix >= 6) {
-          fs.unlinkSync(req.files.category_logo[0].path);
-          throw new ApiError(400, "Already 6 Selected !");
-        }
-      }
-      if (requestData?.explore_category_show == true) {
-        const findFeatureCategoryIsMoreThanSix =
-          await CategoryModel.countDocuments({ explore_category_show: true });
-        if (findFeatureCategoryIsMoreThanSix >= 3) {
-          fs.unlinkSync(req.files.category_logo[0].path);
-          throw new ApiError(400, "Already 3 Selected !");
-        }
-      }
-      // get the category image and upload
-      let category_logo;
-      let category_logo_key;
-      if (req.files && "category_logo" in req.files) {
-        const categoryImage = req.files["category_logo"][0];
-        const category_logo_upload = await FileUploadHelper.uploadToSpaces(
-          categoryImage
-        );
-        category_logo = category_logo_upload?.Location;
-        category_logo_key = category_logo_upload?.Key;
-      }
-      const data = { ...requestData, category_logo, category_logo_key };
-      const result: ICategoryInterface | {} = await postCategoryServices(data);
+      const result: ICategoryInterface | {} = await postCategoryServices(requestData);
       if (result) {
         return sendResponse<ICategoryInterface>(res, {
           statusCode: httpStatus.OK,
@@ -126,9 +32,7 @@ export const postCategory: RequestHandler = async (
       } else {
         throw new ApiError(400, "Category Added Failed !");
       }
-    } else {
-      throw new ApiError(400, "Image Upload Failed");
-    }
+    
   } catch (error: any) {
     next(error);
   }
@@ -199,121 +103,7 @@ export const updateCategory: RequestHandler = async (
   next: NextFunction
 ): Promise<ICategoryInterface | any> => {
   try {
-    if (req.files && "category_logo" in req.files && req.body) {
       const requestData = req.body;
-      const findCategoryNameExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_slug: requestData?.category_slug,
-        });
-      if (
-        findCategoryNameExit &&
-        requestData?._id !== findCategoryNameExit?._id.toString()
-      ) {
-        fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Already Added !");
-      }
-      const findCategorySerialExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_serial: requestData?.category_serial,
-        });
-      if (
-        findCategorySerialExit &&
-        requestData?._id !== findCategorySerialExit?._id.toString()
-      ) {
-        fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Serial Number Previously Added !");
-      }
-
-      if (requestData?.feature_category_show == true) {
-        const findFeatureCategoryIsMoreThanSix = await CategoryModel.find({
-          feature_category_show: true,
-          _id: { $ne: requestData?._id },
-        }).select("_id");
-        if (findFeatureCategoryIsMoreThanSix?.length >= 6) {
-          fs.unlinkSync(req.files.category_logo[0].path);
-          throw new ApiError(400, "Already 6 Selected !");
-        }
-      }
-      if (requestData?.explore_category_show == true) {
-        const findExploreCategoryIsMoreThanThree = await CategoryModel.find({
-          explore_category_show: true,
-          _id: { $ne: requestData?._id },
-        }).select("_id");
-        if (findExploreCategoryIsMoreThanThree?.length >= 3) {
-          fs.unlinkSync(req.files.category_logo[0].path);
-          throw new ApiError(400, "Already 3 Selected !");
-        }
-      }
-      // get the category image and upload
-      let category_logo;
-      let category_logo_key;
-      if (req.files && "category_logo" in req.files) {
-        const categoryImage = req.files["category_logo"][0];
-        const category_logo_upload = await FileUploadHelper.uploadToSpaces(
-          categoryImage
-        );
-        category_logo = category_logo_upload?.Location;
-        category_logo_key = category_logo_upload?.Key;
-      }
-      const data = { ...requestData, category_logo, category_logo_key };
-      const result: ICategoryInterface | any = await updateCategoryServices(
-        data,
-        requestData?._id
-      );
-      if (result?.modifiedCount > 0) {
-        if (requestData?.category_logo_key) {
-          await FileUploadHelper.deleteFromSpaces(
-            requestData?.category_logo_key
-          );
-        }
-        return sendResponse<ICategoryInterface>(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: "Category Update Successfully !",
-        });
-      } else {
-        throw new ApiError(400, "Category Update Failed !");
-      }
-    } else {
-      const requestData = req.body;
-      const findCategoryNameExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_slug: requestData?.category_slug,
-        });
-      if (
-        findCategoryNameExit &&
-        requestData?._id !== findCategoryNameExit?._id.toString()
-      ) {
-        throw new ApiError(400, "Already Added !");
-      }
-      const findCategorySerialExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_serial: requestData?.category_serial,
-        });
-      if (
-        findCategorySerialExit &&
-        requestData?._id !== findCategorySerialExit?._id.toString()
-      ) {
-        throw new ApiError(400, "Serial Number Previously Added !");
-      }
-      if (requestData?.feature_category_show == true) {
-        const findFeatureCategoryIsMoreThanSix = await CategoryModel.find({
-          feature_category_show: true,
-          _id: { $ne: requestData?._id },
-        }).select("_id");
-        if (findFeatureCategoryIsMoreThanSix?.length >= 6) {
-          throw new ApiError(400, "Already 6 Selected !");
-        }
-      }
-      if (requestData?.explore_category_show == true) {
-        const findFeatureCategoryIsMoreThanSix = await CategoryModel.find({
-          explore_category_show: true,
-          _id: { $ne: requestData?._id },
-        }).select("_id");
-        if (findFeatureCategoryIsMoreThanSix?.length >= 3) {
-          throw new ApiError(400, "Already 3 Selected !");
-        }
-      }
       const result: ICategoryInterface | any = await updateCategoryServices(
         requestData,
         requestData?._id
@@ -327,76 +117,8 @@ export const updateCategory: RequestHandler = async (
       } else {
         throw new ApiError(400, "Category Update Failed !");
       }
-    }
   } catch (error: any) {
     next(error);
   }
 };
 
-// delete A Category item
-export const deleteACategoryInfo = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const category_id = req.body._id;
-    const findCategoryInSubCategoryExist: boolean | null | undefined | any =
-      await SubCategoryModel.exists({
-        category_id: category_id,
-      });
-    if (findCategoryInSubCategoryExist) {
-      throw new ApiError(400, "Already Added In SubCategory !");
-    }
-    const findCategoryInChildCategoryExist: boolean | null | undefined | any =
-      await ChildCategoryModel.exists({
-        category_id: category_id,
-      });
-    if (findCategoryInChildCategoryExist) {
-      throw new ApiError(400, "Already Added In ChildCategory !");
-    }
-    const findCategoryInBrandExist: boolean | null | undefined | any =
-      await BrandModel.exists({
-        category_id: category_id,
-      });
-    if (findCategoryInBrandExist) {
-      throw new ApiError(400, "Already Added In Brand !");
-    }
-    const findCategoryInSpecificationExist: boolean | null | undefined | any =
-      await SpecificationModel.exists({
-        category_id: category_id,
-      });
-    if (findCategoryInSpecificationExist) {
-      throw new ApiError(400, "Already Added In Specification !");
-    }
-    const findCategoryInAttributeExist: boolean | null | undefined | any =
-      await AttributeModel.exists({
-        category_id: category_id,
-      });
-    if (findCategoryInAttributeExist) {
-      throw new ApiError(400, "Already Added In Attribute !");
-    }
-    const findCategoryInProductExist: boolean | null | undefined | any =
-      await ProductModel.exists({
-        category_id: category_id,
-      });
-    if (findCategoryInProductExist) {
-      throw new ApiError(400, "Already Added In Product !");
-    }
-    const result = await deleteCategoryServices(category_id);
-    if (result?.deletedCount > 0) {
-      if (req.body?.category_logo_key) {
-        await FileUploadHelper.deleteFromSpaces(req.body?.category_logo_key);
-      }
-      return sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Category Delete successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Category delete failed !");
-    }
-  } catch (error) {
-    next(error);
-  }
-};

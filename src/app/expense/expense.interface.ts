@@ -9,6 +9,7 @@ export interface IExpenseInterface {
   expense_date?: string;
   expense_amount: number;
   expense_voucher?: string;
+  expense_voucher_key?: string;
   expense_bank_id?: Types.ObjectId | IBankInterface;
   expense_publisher_id: Types.ObjectId | IUserInterface;
   expense_updated_by?: Types.ObjectId | IUserInterface;

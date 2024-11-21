@@ -8,6 +8,11 @@ const categorySchema = new Schema<ICategoryInterface>(
       required: true,
       type: String,
     },
+    category_status: {
+      type: String,
+      enum: ["active", "in-active"],
+      default: "active",
+    },
     category_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

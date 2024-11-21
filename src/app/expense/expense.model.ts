@@ -21,6 +21,9 @@ const expenseSchema = new Schema<IExpenseInterface>(
     expense_voucher: {
       type: String,
     },
+    expense_voucher_key: {
+      type: String,
+    },
     expense_bank_id: {
       type: Schema.Types.ObjectId,
       ref: "banks",

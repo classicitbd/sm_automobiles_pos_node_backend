@@ -16,8 +16,7 @@ export const findAllBrandServices = async (): Promise<
   const findBrand: IBrandInterface[] | [] = await BrandModel.find({
     brand_status: "active",
   })
-    .populate("category_id")
-    .sort({ brand_serial: 1 })
+    .sort({ _id: -1 })
     .select("-__v");
   return findBrand;
 };
@@ -43,8 +42,8 @@ export const findAllDashboardBrandServices = async (
   const findBrand: IBrandInterface[] | [] = await BrandModel.find(
     whereCondition
   )
-    .populate("category_id")
-    .sort({ brand_serial: 1 })
+    .populate(["brand_publisher_id", "brand_updated_by"])
+    .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
     .select("-__v");
@@ -65,24 +64,5 @@ export const updateBrandServices = async (
   const Brand = await BrandModel.updateOne({ _id: _id }, data, {
     runValidators: true,
   });
-  return Brand;
-};
-
-// Delete a Brand
-export const deleteBrandServices = async (
-  _id: string
-): Promise<IBrandInterface | any> => {
-  const updateBrandInfo: IBrandInterface | null = await BrandModel.findOne({
-    _id: _id,
-  });
-  if (!updateBrandInfo) {
-    return {};
-  }
-  const Brand = await BrandModel.deleteOne(
-    { _id: _id },
-    {
-      runValidators: true,
-    }
-  );
   return Brand;
 };

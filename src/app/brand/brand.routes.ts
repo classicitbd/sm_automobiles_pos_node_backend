@@ -1,8 +1,6 @@
 import express from "express";
-import { FileUploadHelper } from "../../helpers/image.upload";
 import { verifyToken } from "../../middlewares/verify.token";
 import {
-  deleteABrandInfo,
   findAllBrand,
   findAllDashboardBrand,
   postBrand,
@@ -11,20 +9,7 @@ import {
 const router = express.Router();
 
 // Create, Get Brand
-router
-  .route("/")
-  .get(findAllBrand)
-  .post(
-    verifyToken,
-    FileUploadHelper.ImageUpload.fields([{ name: "brand_logo", maxCount: 1 }]),
-    postBrand
-  )
-  .patch(
-    verifyToken,
-    FileUploadHelper.ImageUpload.fields([{ name: "brand_logo", maxCount: 1 }]),
-    updateBrand
-  )
-  .delete(verifyToken, deleteABrandInfo);
+router.route("/").get(findAllBrand).post(postBrand).patch(updateBrand);
 
 // get all brand in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardBrand);

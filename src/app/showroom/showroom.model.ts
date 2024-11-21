@@ -8,6 +8,11 @@ const showroomSchema = new Schema<IShowroomInterface>(
       required: true,
       type: String,
     },
+    showroom_status: {
+      type: String,
+      enum: ["active", "in-active"],
+      default: "active",
+    },
     showroom_publisher_id: {
       required: true,
       type: Schema.Types.ObjectId,
