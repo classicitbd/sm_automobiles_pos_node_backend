@@ -8,6 +8,8 @@ import { BankRoutes } from "../app/bank/bank.routes";
 import { ExpenseRoutes } from "../app/expense/expense.routes";
 import { PurchaseRoutes } from "../app/purchase/purchase.routes";
 import { ShowroomRoutes } from "../app/showroom/showroom.routes";
+import { RoleRoutes } from "../app/role/role.routes";
+import { CustomerRoutes } from "../app/customer/customer.routes";
 
 const router = express.Router();
 
@@ -15,6 +17,14 @@ const moduleRoutes = [
   {
     path: "/user",
     route: UserRegRoutes,
+  },
+  {
+    path: "/role",
+    route: RoleRoutes,
+  },
+  {
+    path: "/customer",
+    route: CustomerRoutes,
   },
   {
     path: "/supplier",

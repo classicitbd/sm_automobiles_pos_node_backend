@@ -1,6 +1,7 @@
 
-import { IUserInterface } from "../userReg/user.interface";
-import UserModel from "../userReg/user.model";
+import ApiError from "../../errors/ApiError";
+import { IUserInterface } from "../user/user.interface";
+import UserModel from "../user/user.model";
 import { IRoleInterface } from "./role.interface";
 import RoleModel from "./role.model";
 
@@ -28,7 +29,7 @@ export const postRoleServices = async (
 export const findAllDashboardRoleServices = async (
 ): Promise<IRoleInterface[] | []> => {
   const findRole: IRoleInterface[] | [] = await RoleModel.find(
-  )
+  ).populate(["role_publisher_id", "role_updated_by"])
     .sort({ _id: -1 })
     .select("-__v");
   return findRole;
@@ -42,7 +43,7 @@ export const updateRoleServices = async (
   const updateRoleInfo: IRoleInterface | null =
     await RoleModel.findOne({ _id: _id });
   if (!updateRoleInfo) {
-    return {};
+   throw new ApiError(400, "Role Not Found !");
   }
   const Role = await RoleModel.updateOne({ _id: _id }, data, {
     runValidators: true,
@@ -68,7 +69,7 @@ export const deleteRoleServices = async (
   const deleteRoleInfo: IRoleInterface | null =
     await RoleModel.findOne({ _id: _id });
   if (!deleteRoleInfo) {
-    return {};
+    throw new ApiError(400, "Role Not Found !");
   }
   const Role = await RoleModel.deleteOne(
     { _id: _id },

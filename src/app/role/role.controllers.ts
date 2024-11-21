@@ -12,7 +12,7 @@ import {
   updateRoleServices,
 } from "./role.services";
 import RoleModel from "./role.model";
-import { IUserInterface } from "../userReg/user.interface";
+import { IUserInterface } from "../user/user.interface";
 
 // Add A Role
 export const postRole: RequestHandler = async (
