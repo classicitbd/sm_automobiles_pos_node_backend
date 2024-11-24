@@ -38,9 +38,9 @@ const customerPaymentSchema = new Schema<ICustomerPaymentInterface>(
   }
 );
 
-const CustomerPaymentsModel = model<ICustomerPaymentInterface>(
+const CustomerPaymentModel = model<ICustomerPaymentInterface>(
   "customerpayments",
   customerPaymentSchema
 );
 
-export default CustomerPaymentsModel;
+export default CustomerPaymentModel;

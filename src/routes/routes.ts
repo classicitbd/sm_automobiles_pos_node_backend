@@ -10,6 +10,9 @@ import { PurchaseRoutes } from "../app/purchase/purchase.routes";
 import { ShowroomRoutes } from "../app/showroom/showroom.routes";
 import { RoleRoutes } from "../app/role/role.routes";
 import { CustomerRoutes } from "../app/customer/customer.routes";
+import { SupplierPaymentRoutes } from "../app/supplier_payment/supplier_payment.routes";
+import { CustomerDueRoutes } from "../app/customer_due/customer_due.routes";
+import { CustomerPaymentRoutes } from "../app/customer_payment/customer_payment.routes";
 
 const router = express.Router();
 
@@ -27,8 +30,20 @@ const moduleRoutes = [
     route: CustomerRoutes,
   },
   {
+    path: "/customer_due",
+    route: CustomerDueRoutes,
+  },
+  {
+    path: "/customer_payment",
+    route: CustomerPaymentRoutes,
+  },
+  {
     path: "/supplier",
     route: SupplierRoutes,
+  },
+  {
+    path: "/supplier_payment",
+    route: SupplierPaymentRoutes,
   },
   {
     path: "/brand",

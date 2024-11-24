@@ -29,6 +29,9 @@ const userSchema = new Schema<IUserInterface>(
     user_image_key: {
       type: String,
     },
+    red_alert_number: {
+      type: Number,
+    },
     user_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

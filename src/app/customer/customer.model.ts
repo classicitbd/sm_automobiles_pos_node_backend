@@ -23,6 +23,9 @@ const customerSchema = new Schema<ICustomerInterface>(
     previous_advance: {
       type: Number,
     },
+    red_alert_number: {
+      type: Number,
+    },
     customer_status: {
       type: String,
       enum: ["active", "in-active"],

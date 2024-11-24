@@ -12,6 +12,7 @@ export interface IUserInterface {
   user_address?: string;
   user_image?: string;
   user_image_key?: string;
+  red_alert_number?: number;
   user_publisher_id: Types.ObjectId | IUserInterface;
   user_updated_by?: Types.ObjectId | IUserInterface;
   user_role_id?: Types.ObjectId | IRoleInterface;

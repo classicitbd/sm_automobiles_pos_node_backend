@@ -11,6 +11,7 @@ export interface ICustomerInterface {
   previous_advance?: number;
   customer_status: "active" | "in-active";
   first_payment_status: "active" | "in-active";
+  red_alert_number?: number;
   customer_publisher_id: Types.ObjectId | IUserInterface;
   customer_updated_by?: Types.ObjectId | IUserInterface;
 }
