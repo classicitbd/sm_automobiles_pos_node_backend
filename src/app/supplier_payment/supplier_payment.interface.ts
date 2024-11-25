@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { IUserInterface } from "../user/user.interface";
 import { ISupplierInterface } from "../supplier/supplier.interface";
+import { IBankInterface } from "../bank/bank.interface";
 
 export interface ISupplierPaymentInterface {
   _id?: any;
@@ -9,6 +10,8 @@ export interface ISupplierPaymentInterface {
   supplier_payment_date?: string;
   supplier_payment_amount: number;
   supplier_id: Types.ObjectId | ISupplierInterface;
+  payment_bank_id?: Types.ObjectId | IBankInterface;
+  transaction_id?: string;
   supplier_payment_publisher_id: Types.ObjectId | IUserInterface;
   supplier_payment_updated_by?: Types.ObjectId | IUserInterface;
 }
