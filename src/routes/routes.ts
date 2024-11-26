@@ -13,6 +13,7 @@ import { CustomerRoutes } from "../app/customer/customer.routes";
 import { SupplierPaymentRoutes } from "../app/supplier_payment/supplier_payment.routes";
 import { CustomerDueRoutes } from "../app/customer_due/customer_due.routes";
 import { CustomerPaymentRoutes } from "../app/customer_payment/customer_payment.routes";
+import { UserGetMeRoutes } from "../app/getme/getme.routes";
 
 const router = express.Router();
 
@@ -24,6 +25,10 @@ const moduleRoutes = [
   {
     path: "/role",
     route: RoleRoutes,
+  },
+  {
+    path: "/get_me",
+    route: UserGetMeRoutes,
   },
   {
     path: "/customer",

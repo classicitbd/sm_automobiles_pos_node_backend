@@ -29,7 +29,7 @@ export const findAllDashboardUserServices = async (
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findUser: IUserInterface[] | [] = await UserModel.find(whereCondition)
     .populate([
-      "role_id",
+      "user_role_id",
       "user_publisher_id",
       "user_updated_by"
     ])

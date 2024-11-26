@@ -29,7 +29,7 @@ export const postUser: RequestHandler = async (
     if (!requestData?.user_phone && !requestData?.user_email) {
       throw new ApiError(400, "User Phone Or Email Required !");
     }
-    if (!requestData?.role_id) {
+    if (!requestData?.user_role_id) {
       throw new ApiError(400, "User Role Required !");
     }
     const orCondition = [];

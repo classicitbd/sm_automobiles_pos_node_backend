@@ -40,8 +40,8 @@ export const verifyToken: RequestHandler = async (
 
   //   const verifyUser = await checkAUserExitsForVerify(user_phone);
 
-  //   // Check if the role_type value in verifyUser.role_id is true
-  //   const isRoleTypeAllowed = verifyUser.role_id[role_type] === true;
+  //   // Check if the role_type value in verifyUser.user_role_id is true
+  //   const isRoleTypeAllowed = verifyUser.user_role_id[role_type] === true;
 
   //   if (
   //     verifyUser?.user_phone == user_phone &&

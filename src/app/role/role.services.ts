@@ -55,10 +55,10 @@ export const updateRoleServices = async (
 
 // Find A Role in user Registration
 export const findARoleInUserServices = async (
-  role_id: string
+  user_role_id: string
 ): Promise<IUserInterface | null> => {
   const findRole: IUserInterface | null = await UserModel.findOne({
-    role_id: role_id,
+    user_role_id: user_role_id,
   });
   return findRole;
 };
