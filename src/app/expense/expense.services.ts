@@ -1,4 +1,3 @@
-
 import { expenseSearchableField, IExpenseInterface } from "./expense.interface";
 import ExpenseModel from "./expense.model";
 import ApiError from "../../errors/ApiError";
@@ -32,7 +31,7 @@ export const findAllDashboardExpenseServices = async (
   const findExpense: IExpenseInterface[] | [] = await ExpenseModel.find(
     whereCondition
   )
-    .populate(["expense_publisher_id", "expense_updated_by"])
+    .populate(["expense_publisher_id", "expense_updated_by", "expense_bank_id"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -52,8 +51,31 @@ export const updateExpenseServices = async (
   if (!updateExpenseInfo) {
     throw new ApiError(400, "Expense Not Found !");
   }
-  const Expense = await ExpenseModel.updateOne({ _id: _id }, data, {
-    runValidators: true,
-  });
+
+  // আপডেট করার ডেটা তৈরি করা হচ্ছে
+  const updateData: any = { ...data };
+
+  // যদি `expense_bank_id` পাঠানো না হয়, তাহলে সেটি ডিলিট করা হবে
+  const unsetData: any = {};
+  if (!data.hasOwnProperty("expense_bank_id")) {
+    unsetData.expense_bank_id = "";
+  }
+  if (!data.hasOwnProperty("expense_voucher")) {
+    unsetData.expense_voucher = "";
+  }
+  if (!data.hasOwnProperty("expense_voucher_key")) {
+    unsetData.expense_voucher_key = "";
+  }
+
+  const Expense = await ExpenseModel.updateOne(
+    { _id: _id },
+    {
+      $set: updateData, // পাঠানো ফিল্ড আপডেট করা
+      $unset: unsetData, // পাঠানো না হলে ফিল্ডগুলো মুছে ফেলা
+    },
+    {
+      runValidators: true,
+    }
+  );
   return Expense;
 };
