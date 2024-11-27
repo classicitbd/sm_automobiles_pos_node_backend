@@ -37,8 +37,7 @@ export const findAllDashboardSupplierServices = async (
   const findSupplier = SupplierModel.find(whereCondition)
     .populate([
       "supplier_publisher_id",
-      "supplier_updated_by",
-      "panel_owner_id",
+      "supplier_updated_by"
     ])
     .sort({ _id: -1 })
     .skip(skip)
