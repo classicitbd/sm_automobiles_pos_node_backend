@@ -23,6 +23,13 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
       ref: "suppliers",
       required: true,
     },
+    payment_bank_id: {
+      type: Schema.Types.ObjectId,
+      ref: "banks",
+    },
+    transaction_id: {
+      type: String,
+    },
     supplier_payment_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

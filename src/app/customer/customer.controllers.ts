@@ -2,8 +2,16 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import ApiError from "../../errors/ApiError";
-import { customerSearchableField, ICustomerInterface } from "./customer.interface";
-import { findAllDashboardCustomerServices, postCustomerServices, updateCustomerServices } from "./customer.services";
+import {
+  customerSearchableField,
+  ICustomerInterface,
+} from "./customer.interface";
+import {
+  findAllActiveCustomerServices,
+  findAllDashboardCustomerServices,
+  postCustomerServices,
+  updateCustomerServices,
+} from "./customer.services";
 import CustomerModel from "./customer.model";
 
 // Add A Customer
@@ -13,18 +21,39 @@ export const postCustomer: RequestHandler = async (
   next: NextFunction
 ): Promise<ICustomerInterface | any> => {
   try {
-      const requestData = req.body;
-      const result: ICustomerInterface | {} = await postCustomerServices(requestData);
-      if (result) {
-        return sendResponse<ICustomerInterface>(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: "Customer Added Successfully !",
-        });
-      } else {
-        throw new ApiError(400, "Customer Added Failed !");
-      }
-    
+    const requestData = req.body;
+    const result: ICustomerInterface | {} = await postCustomerServices(
+      requestData
+    );
+    if (result) {
+      return sendResponse<ICustomerInterface>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Customer Added Successfully !",
+      });
+    } else {
+      throw new ApiError(400, "Customer Added Failed !");
+    }
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// find all active customer
+export const findAllActiveCustomer: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ICustomerInterface | any> => {
+  try {
+    const result: ICustomerInterface[] | [] | any =
+      await findAllActiveCustomerServices();
+    return sendResponse<ICustomerInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Customer Added Successfully !",
+      data: result,
+    });
   } catch (error: any) {
     next(error);
   }
@@ -76,22 +105,21 @@ export const updateCustomer: RequestHandler = async (
   next: NextFunction
 ): Promise<ICustomerInterface | any> => {
   try {
-      const requestData = req.body;
-      const result: ICustomerInterface | any = await updateCustomerServices(
-        requestData,
-        requestData?._id
-      );
-      if (result?.modifiedCount > 0) {
-        return sendResponse<ICustomerInterface>(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: "Customer Update Successfully !",
-        });
-      } else {
-        throw new ApiError(400, "Customer Update Failed !");
-      }
+    const requestData = req.body;
+    const result: ICustomerInterface | any = await updateCustomerServices(
+      requestData,
+      requestData?._id
+    );
+    if (result?.modifiedCount > 0) {
+      return sendResponse<ICustomerInterface>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Customer Update Successfully !",
+      });
+    } else {
+      throw new ApiError(400, "Customer Update Failed !");
+    }
   } catch (error: any) {
     next(error);
   }
 };
-

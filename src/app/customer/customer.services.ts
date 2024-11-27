@@ -1,5 +1,8 @@
 import ApiError from "../../errors/ApiError";
-import { customerSearchableField, ICustomerInterface } from "./customer.interface";
+import {
+  customerSearchableField,
+  ICustomerInterface,
+} from "./customer.interface";
 import CustomerModel from "./customer.model";
 
 // Create A Customer
@@ -10,6 +13,16 @@ export const postCustomerServices = async (
     data
   );
   return createCustomer;
+};
+
+// find all active Customer
+export const findAllActiveCustomerServices = async (): Promise<
+  ICustomerInterface | {}
+> => {
+  const findCustomer: ICustomerInterface[] | [] = await CustomerModel.find({
+    customer_status: "active",
+  });
+  return findCustomer;
 };
 
 // Find all dashboard Customer
@@ -33,7 +46,7 @@ export const findAllDashboardCustomerServices = async (
   const findCustomer: ICustomerInterface[] | [] = await CustomerModel.find(
     whereCondition
   )
-  .populate(["customer_publisher_id", "customer_updated_by"])
+    .populate(["customer_publisher_id", "customer_updated_by"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)

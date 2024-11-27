@@ -11,6 +11,12 @@ const customerDueSchema = new Schema<ICustomerDueInterface>(
       required: true,
       type: Number,
     },
+    previous_due: {
+      type: Number,
+    },
+    previous_advance: {
+      type: Number,
+    },
     customer_id: {
       type: Schema.Types.ObjectId,
       ref: "customers",

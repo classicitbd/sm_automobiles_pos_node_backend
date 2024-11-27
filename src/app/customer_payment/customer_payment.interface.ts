@@ -8,6 +8,8 @@ export interface ICustomerPaymentInterface {
   transaction_id?: string;
   payment_note?: string;
   payment_amount: number;
+  previous_due?: number;
+  previous_advance?: number;
   customer_id: Types.ObjectId | ICustomerInterface;
   payment_bank_id?: Types.ObjectId | IBankInterface;
   customer_payment_publisher_id: Types.ObjectId | IUserInterface;
