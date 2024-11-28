@@ -33,18 +33,27 @@ const productSchema = new Schema<IProductInterface>(
       ref: "brands",
     },
     product_price: {
-      required: true,
       type: Number,
     },
     product_buying_price: {
       type: Number,
     },
     product_quantity: {
-      required: true,
       type: Number,
     },
-    product_previous_quantity: {
-      type: Number,
+    product_barcode: {
+      type: String,
+      required: true,
+    },
+    product_barcode_image: {
+      type: String,
+    },
+    product_id: {
+      type: String,
+      required: true,
+    },
+    product_unit: {
+      type: String,
     },
     product_stock_low_alert: {
       type: Number,

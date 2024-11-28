@@ -14,10 +14,20 @@ import { SupplierPaymentRoutes } from "../app/supplier_payment/supplier_payment.
 import { CustomerDueRoutes } from "../app/customer_due/customer_due.routes";
 import { CustomerPaymentRoutes } from "../app/customer_payment/customer_payment.routes";
 import { UserGetMeRoutes } from "../app/getme/getme.routes";
+import { ProductRoutes } from "../app/product/product.routes";
+import { StockManageRoutes } from "../app/stock_manage/stock_manage.routes";
 
 const router = express.Router();
 
 const moduleRoutes = [
+  {
+    path: "/product",
+    route: ProductRoutes,
+  },
+  {
+    path: "/stock_manage",
+    route: StockManageRoutes,
+  },
   {
     path: "/user",
     route: UserRegRoutes,

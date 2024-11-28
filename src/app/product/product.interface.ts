@@ -12,10 +12,9 @@ export interface IProductInterface {
   product_details?: string;
   category_id: Types.ObjectId | ICategoryInterface;
   brand_id?: Types.ObjectId | IBrandInterface;
-  product_price: number;
-  product_buying_price: number;
-  product_quantity: number;
-  product_previous_quantity?: number;
+  product_price?: number;
+  product_buying_price?: number;
+  product_quantity?: number;
   product_stock_low_alert?: number;
   product_barcode: string;
   product_barcode_image?: string;
