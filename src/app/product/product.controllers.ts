@@ -154,12 +154,67 @@ export const findAllProduct: RequestHandler = async (
   next: NextFunction
 ): Promise<IProductInterface | any> => {
   try {
-    const result: IProductInterface[] | any = await findAllProductServices();
+    const {
+      category_id,
+      brand_id,
+      product_barcode,
+      searchTerm,
+      page,
+      limit,
+    }: any = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IProductInterface[] | any = await findAllProductServices(
+      category_id,
+      brand_id,
+      product_barcode,
+      limit,
+      skip,
+      searchTerm
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: productSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    if (
+      category_id !== null &&
+      category_id !== undefined &&
+      category_id !== "" &&
+      category_id !== "null" &&
+      category_id !== "undefined"
+    ) {
+      andCondition.push({
+        category_id: category_id,
+      });
+    }
+    if (
+      brand_id !== null &&
+      brand_id !== undefined &&
+      brand_id !== "" &&
+      brand_id !== "null" &&
+      brand_id !== "undefined"
+    ) {
+      andCondition.push({
+        brand_id: brand_id,
+      });
+    }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await ProductModel.countDocuments(whereCondition);
     return sendResponse<IProductInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "Product Found Successfully !",
       data: result,
+      totalData: total,
     });
   } catch (error: any) {
     next(error);

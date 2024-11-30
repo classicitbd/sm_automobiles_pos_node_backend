@@ -26,12 +26,70 @@ export const findAProductDetailsServices = async (
 };
 
 // Find all  Product
-export const findAllProductServices = async (): Promise<
-  IProductInterface[] | []
-> => {
-  const findProduct: IProductInterface[] | [] = await ProductModel.find({
-    product_status: "active",
-  }).select("-__v");
+export const findAllProductServices = async (
+  category_id: any,
+  brand_id: any,
+  product_barcode: any,
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IProductInterface[] | []> => {
+  if (product_barcode) {
+    const findProduct: IProductInterface[] | any | null | IProductInterface | {} | [] = await ProductModel.find({
+      product_barcode: product_barcode,
+      product_status: "active",
+    }).select("-__v");
+    if (!findProduct) throw new ApiError(400, "Product Not Found !");
+    return findProduct;
+  }
+
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: productSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  if (
+    category_id !== null &&
+    category_id !== undefined &&
+    category_id !== "" &&
+    category_id !== "null" &&
+    category_id !== "undefined"
+  ) {
+    andCondition.push({
+      category_id: category_id,
+    });
+  }
+  if (
+    brand_id !== null &&
+    brand_id !== undefined &&
+    brand_id !== "" &&
+    brand_id !== "null" &&
+    brand_id !== "undefined"
+  ) {
+    andCondition.push({
+      brand_id: brand_id,
+    });
+  }
+  andCondition.push({ product_status: "active" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findProduct: IProductInterface[] | [] = await ProductModel.find(
+    whereCondition
+  )
+  .populate([
+    "category_id",
+    "brand_id",
+  ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+
   return findProduct;
 };
 
