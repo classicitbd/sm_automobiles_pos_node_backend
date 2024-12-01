@@ -18,23 +18,21 @@ export interface IOrderInterface {
   order_status:
     | "pending"
     | "processing"
-    | "shipped"
     | "confirmed"
     | "cancelled"
     | "returned";
   customer_id: Types.ObjectId | ICustomerInterface;
   customer_previous_due?: number;
   customer_previous_advance?: number;
+  payment_type: "full-payment" | "partial-payment" | "due-payment";
+  payment_bank_id?: Types.ObjectId | IBankInterface;
+  payment_transaction_id?: string;
   sub_total_amount: number;
   discount_percent_amount?: number;
-  grand_total_amount: number;
-  payment_type: "full-payment" | "partial-payment" | "due-payment";
-  partial_payment_amount?: number;
-  partial_payment_bank_id?: Types.ObjectId | IBankInterface;
-  partial_payment_transaction_id?: string;
   received_amount: number;
   due_amount: number;
-  final_total_amount: number;
+  grand_total_amount: number;
+  order_note?: string;
   order_products: IOrderProductInterface[];
   order_publisher_id: Types.ObjectId | IUserInterface;
   order_updated_by?: Types.ObjectId | IUserInterface;
@@ -42,7 +40,8 @@ export interface IOrderInterface {
 
 export const orderSearchableField = [
   "payment_type",
-  "partial_payment_transaction_id",
+  "payment_transaction_id",
   "order_id",
-  "order_status"
+  "order_status",
+  "order_note"
 ];

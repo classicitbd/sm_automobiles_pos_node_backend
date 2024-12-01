@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import ApiError from "../../errors/ApiError";
 import { customerPaymentSearchableField, ICustomerPaymentInterface } from "./customer_payment.interface";
 import CustomerPaymentModel from "./customer_payment.model";
@@ -10,6 +11,15 @@ export const postCustomerPaymentServices = async (
     data
   );
   return createCustomerPayment;
+};
+
+// update customer Payment when order placed
+export const postCustomerPaymentWhenOrderServices = async (
+  data: ICustomerPaymentInterface | any,
+  session?: mongoose.ClientSession
+): Promise<ICustomerPaymentInterface | {}> => {
+  const createOrder: ICustomerPaymentInterface | {} = await CustomerPaymentModel.create([data], { session });
+  return createOrder;
 };
 
 // Find all dashboard CustomerPayment

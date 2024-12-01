@@ -35,14 +35,11 @@ const orderSchema = new Schema<IOrderInterface>(
       enum: ["full-payment", "partial-payment", "due-payment"],
       default: "due-payment",
     },
-    partial_payment_amount: {
-      type: Number,
-    },
-    partial_payment_bank_id: {
+    payment_bank_id: {
       type: Schema.Types.ObjectId,
       ref: "banks",
     },
-    partial_payment_transaction_id: {
+    payment_transaction_id: {
       type: String,
     },
     order_status: {
@@ -50,7 +47,6 @@ const orderSchema = new Schema<IOrderInterface>(
       enum: [
         "pending",
         "processing",
-        "shipped",
         "confirmed",
         "cancelled",
         "returned",
@@ -65,9 +61,8 @@ const orderSchema = new Schema<IOrderInterface>(
       required: true,
       type: Number,
     },
-    final_total_amount: {
-      required: true,
-      type: Number,
+    order_note: {
+      type: String,
     },
     order_products: [
       {

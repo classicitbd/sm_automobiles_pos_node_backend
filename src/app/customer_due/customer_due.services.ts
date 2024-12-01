@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import ApiError from "../../errors/ApiError";
 import { customerDueSearchableField, ICustomerDueInterface } from "./customer_due.interface";
 import CustomerDueModel from "./customer_due.model";
@@ -10,6 +11,15 @@ export const postCustomerDueServices = async (
     data
   );
   return createCustomerDue;
+};
+
+// update customer due when order placed
+export const postCustomerDueWhenOrderServices = async (
+  data: ICustomerDueInterface | any,
+  session?: mongoose.ClientSession
+): Promise<ICustomerDueInterface | {}> => {
+  const createOrder: ICustomerDueInterface | {} = await CustomerDueModel.create([data], { session });
+  return createOrder;
 };
 
 // Find all dashboard CustomerDue

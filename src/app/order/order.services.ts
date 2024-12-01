@@ -1,14 +1,22 @@
+import mongoose from "mongoose";
 import ApiError from "../../errors/ApiError";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
 
 // Create A Order
 export const postOrderServices = async (
-  data: IOrderInterface
+  data: IOrderInterface,
+  session?: mongoose.ClientSession
 ): Promise<IOrderInterface | {}> => {
-  const createOrder: IOrderInterface | {} = await OrderModel.create(data);
+  const createOrder: IOrderInterface | {} = await OrderModel.create([data], { session });
   return createOrder;
 };
+// export const postOrderServices = async (
+//   data: IOrderInterface
+// ): Promise<IOrderInterface | {}> => {
+//   const createOrder: IOrderInterface | {} = await OrderModel.create(data);
+//   return createOrder;
+// };
 
 // Find all dashboard Order
 export const findAllDashboardOrderServices = async (

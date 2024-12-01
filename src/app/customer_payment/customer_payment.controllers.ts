@@ -30,6 +30,12 @@ export const postCustomerPayment: RequestHandler = async (
       payment_bank_id,
     } = req.body;
 
+    const findTnxId = await CustomerPaymentModel.findOne({
+      transaction_id: transaction_id,
+    });
+    if (findTnxId) {
+      throw new ApiError(400, "Transaction ID Found !");
+    }
     const findCustomer = await CustomerModel.findOne({ _id: customer_id });
     if (!findCustomer) {
       throw new ApiError(400, "Customer Not Found !");
@@ -54,16 +60,16 @@ export const postCustomerPayment: RequestHandler = async (
           runValidators: true,
         });
       }
-    }else{
-        const data = {
-          previous_due: 0,
-          previous_advance: findCustomer?.previous_advance
-            ? findCustomer?.previous_advance + parseInt(payment_amount)
-            : parseInt(payment_amount),
-        };
-        await CustomerModel.updateOne({ _id: customer_id }, data, {
-          runValidators: true,
-        });
+    } else {
+      const data = {
+        previous_due: 0,
+        previous_advance: findCustomer?.previous_advance
+          ? findCustomer?.previous_advance + parseInt(payment_amount)
+          : parseInt(payment_amount),
+      };
+      await CustomerModel.updateOne({ _id: customer_id }, data, {
+        runValidators: true,
+      });
     }
 
     const sendData = {
