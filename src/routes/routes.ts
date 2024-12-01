@@ -16,6 +16,7 @@ import { CustomerPaymentRoutes } from "../app/customer_payment/customer_payment.
 import { UserGetMeRoutes } from "../app/getme/getme.routes";
 import { ProductRoutes } from "../app/product/product.routes";
 import { StockManageRoutes } from "../app/stock_manage/stock_manage.routes";
+import { OrderRoutes } from "../app/order/order.routes";
 
 const router = express.Router();
 
@@ -23,6 +24,10 @@ const moduleRoutes = [
   {
     path: "/product",
     route: ProductRoutes,
+  },
+  {
+    path: "/order",
+    route: OrderRoutes,
   },
   {
     path: "/stock_manage",
