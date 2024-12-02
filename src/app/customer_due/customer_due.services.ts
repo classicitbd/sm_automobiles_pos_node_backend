@@ -1,15 +1,17 @@
 import mongoose from "mongoose";
 import ApiError from "../../errors/ApiError";
-import { customerDueSearchableField, ICustomerDueInterface } from "./customer_due.interface";
+import {
+  customerDueSearchableField,
+  ICustomerDueInterface,
+} from "./customer_due.interface";
 import CustomerDueModel from "./customer_due.model";
 
 // Create A CustomerDue
 export const postCustomerDueServices = async (
   data: ICustomerDueInterface
 ): Promise<ICustomerDueInterface | {}> => {
-  const createCustomerDue: ICustomerDueInterface | {} = await CustomerDueModel.create(
-    data
-  );
+  const createCustomerDue: ICustomerDueInterface | {} =
+    await CustomerDueModel.create(data);
   return createCustomerDue;
 };
 
@@ -18,7 +20,10 @@ export const postCustomerDueWhenOrderServices = async (
   data: ICustomerDueInterface | any,
   session?: mongoose.ClientSession
 ): Promise<ICustomerDueInterface | {}> => {
-  const createOrder: ICustomerDueInterface | {} = await CustomerDueModel.create([data], { session });
+  const createOrder: ICustomerDueInterface | {} = await CustomerDueModel.create(
+    [data],
+    { session }
+  );
   return createOrder;
 };
 
@@ -40,14 +45,13 @@ export const findAllDashboardCustomerDueServices = async (
     });
   }
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
-  const findCustomerDue: ICustomerDueInterface[] | [] = await CustomerDueModel.find(
-    whereCondition
-  )
-  .populate(["customer_due_publisher_id", "customer_due_updated_by"])
-    .sort({ _id: -1 })
-    .skip(skip)
-    .limit(limit)
-    .select("-__v");
+  const findCustomerDue: ICustomerDueInterface[] | [] =
+    await CustomerDueModel.find(whereCondition)
+      .populate(["customer_due_publisher_id", "customer_due_updated_by"])
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-__v");
   return findCustomerDue;
 };
 

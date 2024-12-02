@@ -132,8 +132,8 @@ export const findAProductDetails: RequestHandler = async (
   next: NextFunction
 ): Promise<IProductInterface | any> => {
   try {
-    const _id = req.params.id;
-    const result: IProductInterface[] | any = await findAProductDetailsServices(
+    const _id = req.params.product_id;
+    const result: IProductInterface | any = await findAProductDetailsServices(
       _id
     );
     return sendResponse<IProductInterface>(res, {

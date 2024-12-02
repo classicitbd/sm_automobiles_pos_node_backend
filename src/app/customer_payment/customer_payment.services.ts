@@ -13,14 +13,14 @@ export const postCustomerPaymentServices = async (
   return createCustomerPayment;
 };
 
-// update customer Payment when order placed
-export const postCustomerPaymentWhenOrderServices = async (
-  data: ICustomerPaymentInterface | any,
-  session?: mongoose.ClientSession
-): Promise<ICustomerPaymentInterface | {}> => {
-  const createOrder: ICustomerPaymentInterface | {} = await CustomerPaymentModel.create([data], { session });
-  return createOrder;
-};
+// // update customer Payment when order placed
+// export const postCustomerPaymentWhenOrderServices = async (
+//   data: ICustomerPaymentInterface | any,
+//   session?: mongoose.ClientSession
+// ): Promise<ICustomerPaymentInterface | {}> => {
+//   const createOrder: ICustomerPaymentInterface | {} = await CustomerPaymentModel.create([data], { session });
+//   return createOrder;
+// };
 
 // Find all dashboard CustomerPayment
 export const findAllDashboardCustomerPaymentServices = async (

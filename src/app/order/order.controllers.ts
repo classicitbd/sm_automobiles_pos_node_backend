@@ -14,9 +14,8 @@ import mongoose from "mongoose";
 import {
   generateOrderId,
   handleDuePayment,
-  handleFullPayment,
-  handlePartialPayment,
   handleProductQuantity,
+  handleReturnOrCancelOrderIncrementProductQuantity,
 } from "./order.helpers";
 
 // Add A Order
@@ -30,15 +29,10 @@ export const postOrder: RequestHandler = async (
 
   try {
     const {
-      payment_type,
       customer_id,
       grand_total_amount,
-      payment_transaction_id,
-      payment_bank_id,
-      received_amount,
-      due_amount,
-      first_payment_status,
       order_products,
+      order_publisher_id,
     } = req.body;
 
     // Validate customer existence
@@ -62,58 +56,14 @@ export const postOrder: RequestHandler = async (
     // modify product quantity
     await handleProductQuantity(order_products, session);
 
-    // Update customer status if first payment is inactive
-    if (
-      first_payment_status === "in-active" &&
-      (payment_type === "full-payment" || payment_type === "partial-payment")
-    ) {
-      await CustomerModel.updateOne(
-        { _id: customer_id },
-        {
-          first_payment_status: "active",
-          customer_status: "active",
-        },
-        { session, runValidators: true }
-      );
-    }
-
-    // Handle payment types
-    switch (payment_type) {
-      case "due-payment":
-        await handleDuePayment(
-          customer_id,
-          grand_total_amount,
-          findCustomer,
-          session
-        );
-        break;
-
-      case "full-payment":
-        await handleFullPayment(
-          customer_id,
-          payment_transaction_id,
-          payment_bank_id,
-          grand_total_amount,
-          findCustomer,
-          session
-        );
-        break;
-
-      case "partial-payment":
-        await handlePartialPayment(
-          customer_id,
-          payment_transaction_id,
-          payment_bank_id,
-          received_amount,
-          due_amount,
-          findCustomer,
-          session
-        );
-        break;
-
-      default:
-        throw new ApiError(400, "Invalid Payment Type!");
-    }
+    // handle customer due add
+    await handleDuePayment(
+      customer_id,
+      grand_total_amount,
+      findCustomer,
+      session,
+      order_publisher_id
+    );
 
     // Commit transaction
     await session.commitTransaction();
@@ -182,6 +132,16 @@ export const updateOrder: RequestHandler = async (
 ): Promise<IOrderInterface | any> => {
   try {
     const requestData = req.body;
+    if (
+      requestData &&
+      (requestData?.order_status == "cancelled" ||
+        requestData?.order_status == "returned") &&
+      requestData?.order_status_update == true
+    ) {
+      await handleReturnOrCancelOrderIncrementProductQuantity(
+        requestData?.order_products
+      );
+    }
     const result: IOrderInterface | any = await updateOrderServices(
       requestData,
       requestData?._id

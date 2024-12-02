@@ -40,6 +40,16 @@ export const postCustomerPayment: RequestHandler = async (
     if (!findCustomer) {
       throw new ApiError(400, "Customer Not Found !");
     }
+    if (findCustomer?.first_payment_status !== "active") {
+      await CustomerModel.updateOne(
+        { _id: customer_id },
+        {
+          first_payment_status: "active",
+          customer_status: "active",
+        },
+        { runValidators: true }
+      );
+    }
     if (findCustomer?.previous_due) {
       if (findCustomer?.previous_due > parseInt(payment_amount)) {
         const data = {

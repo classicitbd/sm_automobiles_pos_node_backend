@@ -4,6 +4,12 @@ import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
 
 // Create A Order
+// export const postOrderServices = async (
+//   data: IOrderInterface
+// ): Promise<IOrderInterface | {}> => {
+//   const createOrder: IOrderInterface | {} = await OrderModel.create(data);
+//   return createOrder;
+// };
 export const postOrderServices = async (
   data: IOrderInterface,
   session?: mongoose.ClientSession
@@ -11,12 +17,6 @@ export const postOrderServices = async (
   const createOrder: IOrderInterface | {} = await OrderModel.create([data], { session });
   return createOrder;
 };
-// export const postOrderServices = async (
-//   data: IOrderInterface
-// ): Promise<IOrderInterface | {}> => {
-//   const createOrder: IOrderInterface | {} = await OrderModel.create(data);
-//   return createOrder;
-// };
 
 // Find all dashboard Order
 export const findAllDashboardOrderServices = async (
@@ -41,7 +41,6 @@ export const findAllDashboardOrderServices = async (
   )
     .populate([
       "customer_id",
-      "partial_payment_bank_id",
       "order_publisher_id",
       "order_updated_by",
       {
