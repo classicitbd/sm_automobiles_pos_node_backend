@@ -14,8 +14,39 @@ export const postOrderServices = async (
   data: IOrderInterface,
   session?: mongoose.ClientSession
 ): Promise<IOrderInterface | {}> => {
-  const createOrder: IOrderInterface | {} = await OrderModel.create([data], { session });
+  const createOrder: IOrderInterface | {} = await OrderModel.create([data], {
+    session,
+  });
   return createOrder;
+};
+
+// Update a Order
+export const findAOrderServices = async (
+  _id: any
+): Promise<IOrderInterface | any> => {
+  const findAOrder: IOrderInterface | {} | null = await OrderModel.findOne({
+    _id,
+  }).populate([
+    "customer_id",
+    {
+      path: "order_products.product_id",
+      model: "products",
+      populate: [
+        {
+          path: "brand_id",
+          model: "brands",
+        },
+        {
+          path: "category_id", // Corrected typo from "ategory_id" to "category_id"
+          model: "categories",
+        },
+      ],
+    },
+  ]);
+  if (!findAOrder) {
+    throw new ApiError(400, "Order Not Found !");
+  }
+  return findAOrder;
 };
 
 // Find all dashboard Order
@@ -68,16 +99,18 @@ export const findAllDashboardOrderServices = async (
 // Update a Order
 export const updateOrderServices = async (
   data: IOrderInterface,
-  _id: string
+  _id: string,
+  session: mongoose.ClientSession
 ): Promise<IOrderInterface | any> => {
   const updateOrderInfo: IOrderInterface | null = await OrderModel.findOne({
     _id: _id,
-  });
+  }).session(session);
   if (!updateOrderInfo) {
     throw new ApiError(400, "Order Not Found !");
   }
   const Order = await OrderModel.updateOne({ _id: _id }, data, {
     runValidators: true,
+    session,
   });
   return Order;
 };

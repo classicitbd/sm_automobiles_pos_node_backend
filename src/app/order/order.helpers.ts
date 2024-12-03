@@ -4,6 +4,8 @@ import CustomerModel from "../customer/customer.model";
 import { postCustomerDueWhenOrderServices } from "../customer_due/customer_due.services";
 // import { postCustomerPaymentWhenOrderServices } from "../customer_payment/customer_payment.services";
 import ProductModel from "../product/product.model";
+import ApiError from "../../errors/ApiError";
+import QRCode from "qrcode";
 
 // Generate a unique Order ID
 export const generateOrderId = async () => {
@@ -32,6 +34,19 @@ export const generateOrderId = async () => {
   return uniqueOrderId;
 };
 
+// Generate bar code image
+export const generateBarcodeImage = async (order_id: any) => {
+  try {
+    const order_barcode_image = await QRCode.toDataURL(order_id);
+
+    // Use the barcode image URL wherever needed
+    return order_barcode_image;
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+    throw error;
+  }
+};
+
 // Helper functions
 export const handleProductQuantity = async (
   order_products: any,
@@ -50,16 +65,62 @@ export const handleProductQuantity = async (
 
 // handle cancel or returned order then increase product quantity
 export const handleReturnOrCancelOrderIncrementProductQuantity = async (
-  order_products: any
+  order_products: any,
+  customer_id: string,
+  grand_total_amount: number,
+  session: mongoose.ClientSession
 ) => {
   await Promise.all(
     order_products?.map((product: any) =>
       ProductModel.updateOne(
         { _id: product?.product_id },
-        { $inc: { product_quantity: +product?.product_quantity } }
+        { $inc: { product_quantity: +product?.product_quantity } },
+        { session }
       )
     )
   );
+
+  const findCustomer = await CustomerModel.findOne({ _id: customer_id }).session(
+    session
+  );
+    if (!findCustomer) {
+      throw new ApiError(400, "Customer Not Found !");
+    }
+
+  if (findCustomer?.previous_due) {
+    if (findCustomer?.previous_due > grand_total_amount) {
+      const data = {
+        previous_due: findCustomer?.previous_due - grand_total_amount,
+      };
+      await CustomerModel.updateOne({ _id: customer_id }, data, {
+        runValidators: true,
+        session
+      });
+    } else {
+      const advance = grand_total_amount - findCustomer?.previous_due;
+      const data = {
+        previous_due: 0,
+        previous_advance: findCustomer?.previous_advance
+          ? findCustomer?.previous_advance + advance
+          : advance,
+      };
+      await CustomerModel.updateOne({ _id: customer_id }, data, {
+        runValidators: true,
+        session
+      });
+    }
+  } else {
+    const data = {
+      previous_due: 0,
+      previous_advance: findCustomer?.previous_advance
+        ? findCustomer?.previous_advance + grand_total_amount
+        : grand_total_amount,
+    };
+    await CustomerModel.updateOne({ _id: customer_id }, data, {
+      runValidators: true,
+      session
+    });
+  }
 };
 
 export const handleDuePayment = async (

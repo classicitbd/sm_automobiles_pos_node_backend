@@ -5,6 +5,7 @@ import ApiError from "../../errors/ApiError";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import {
   findAllDashboardOrderServices,
+  findAOrderServices,
   postOrderServices,
   updateOrderServices,
 } from "./order.services";
@@ -12,6 +13,7 @@ import OrderModel from "./order.model";
 import CustomerModel from "../customer/customer.model";
 import mongoose from "mongoose";
 import {
+  generateBarcodeImage,
   generateOrderId,
   handleDuePayment,
   handleProductQuantity,
@@ -46,6 +48,8 @@ export const postOrder: RequestHandler = async (
     // Generate order ID and add to request data
     const order_id = await generateOrderId();
     req.body.order_id = order_id;
+    req.body.order_barcode = order_id;
+    req.body.order_barcode_image = await generateBarcodeImage(order_id);
 
     // Save order in database
     const result = await postOrderServices(req.body, session);
@@ -78,6 +82,29 @@ export const postOrder: RequestHandler = async (
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
+    next(error);
+  }
+};
+
+// Find A Order
+export const findAOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { _id } = req.params;
+    if (!_id) {
+      throw new ApiError(400, "ID Not Found !");
+    }
+    const result: IOrderInterface | any = await findAOrderServices(_id);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
     next(error);
   }
 };
@@ -130,6 +157,9 @@ export const updateOrder: RequestHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<IOrderInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const requestData = req.body;
     if (
@@ -139,14 +169,21 @@ export const updateOrder: RequestHandler = async (
       requestData?.order_status_update == true
     ) {
       await handleReturnOrCancelOrderIncrementProductQuantity(
-        requestData?.order_products
+        requestData?.order_products,
+        requestData?.customer_id,
+        requestData?.grand_total_amount,
+        session
       );
     }
     const result: IOrderInterface | any = await updateOrderServices(
       requestData,
-      requestData?._id
+      requestData?._id,
+      session
     );
     if (result?.modifiedCount > 0) {
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
       return sendResponse<IOrderInterface>(res, {
         statusCode: httpStatus.OK,
         success: true,
@@ -156,6 +193,8 @@ export const updateOrder: RequestHandler = async (
       throw new ApiError(400, "Order Update Failed !");
     }
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };

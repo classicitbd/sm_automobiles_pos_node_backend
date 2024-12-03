@@ -32,16 +32,16 @@ const orderSchema = new Schema<IOrderInterface>(
     },
     order_status: {
       type: String,
-      enum: [
-        "pending",
-        "processing",
-        "confirmed",
-        "cancelled",
-        "returned",
-      ],
+      enum: ["pending", "processing", "confirmed", "cancelled", "returned"],
       default: "pending",
     },
     order_note: {
+      type: String,
+    },
+    order_barcode: {
+      type: String,
+    },
+    order_barcode_image: {
       type: String,
     },
     order_products: [
@@ -87,8 +87,6 @@ const orderSchema = new Schema<IOrderInterface>(
 const OrderModel = model<IOrderInterface>("orders", orderSchema);
 
 export default OrderModel;
-
-
 
 // import mongoose, { Schema, model } from "mongoose";
 // import { IOrderInterface } from "./order.interface";

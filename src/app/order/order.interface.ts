@@ -27,6 +27,8 @@ export interface IOrderInterface {
   discount_percent_amount?: number;
   grand_total_amount: number;
   order_note?: string;
+  order_barcode?: string;
+  order_barcode_image?: string;
   order_products: IOrderProductInterface[];
   order_publisher_id: Types.ObjectId | IUserInterface;
   order_updated_by?: Types.ObjectId | IUserInterface;
