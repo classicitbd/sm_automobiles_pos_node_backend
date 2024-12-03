@@ -3,9 +3,9 @@ import UserModel from "../user/user.model";
 
 // Check a user is exists?
 export const findUserInfoServices = async (
-  login_credentials: string
+  user_phone: string
 ): Promise<IUserInterface | null> => {
-  const user = await UserModel.findOne({ login_credentials: login_credentials })
+  const user = await UserModel.findOne({ user_phone: user_phone })
     .populate([
       "user_role_id",
       "user_publisher_id",

@@ -1,57 +1,58 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
-import {
-  ISupplierPaymentInterface,
-  supplierPaymentSearchableField,
-} from "./supplier_payment.interface";
-import {
-  findAllDashboardSupplierPaymentServices,
-  findASupplierPaymentHistoryServices,
-  postSupplierPaymentServices,
-  updateSupplierPaymentServices,
-} from "./supplier_payment.services";
 import ApiError from "../../errors/ApiError";
-import SupplierPaymentModel from "./supplier_payment.model";
 import { Types } from "mongoose";
+import {
+  ISupplierDueInterface,
+  supplierDueSearchableField,
+} from "./supplier_due.interface";
+import {
+  findAllDashboardSupplierDueServices,
+  findASupplierDueHistoryServices,
+  postSupplierDueServices,
+  updateSupplierDueServices,
+} from "./supplier_due.services";
+import SupplierDueModel from "./supplier_due.model";
 
-// Add A SupplierPayment
-export const postSupplierPayment: RequestHandler = async (
+// Add A SupplierDue
+export const postSupplierDue: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<ISupplierPaymentInterface | any> => {
+): Promise<ISupplierDueInterface | any> => {
   try {
     const requestData = req.body;
-    const result: ISupplierPaymentInterface | {} =
-      await postSupplierPaymentServices(requestData);
+    const result: ISupplierDueInterface | {} = await postSupplierDueServices(
+      requestData
+    );
     if (result) {
-      return sendResponse<ISupplierPaymentInterface>(res, {
+      return sendResponse<ISupplierDueInterface>(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Supplier Payment Added Successfully !",
+        message: "Supplier Due Added Successfully !",
       });
     } else {
-      throw new ApiError(400, "Supplier Payment Added Failed !");
+      throw new ApiError(400, "Supplier Due Added Failed !");
     }
   } catch (error: any) {
     next(error);
   }
 };
 
-// Find A SupplierPaymentHistory
-export const findASupplierPaymentHistory: RequestHandler = async (
+// Find A SupplierDueHistory
+export const findASupplierDueHistory: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<ISupplierPaymentInterface | any> => {
+): Promise<ISupplierDueInterface | any> => {
   try {
     const { page, limit, searchTerm, supplier_id }: any = req.query;
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: ISupplierPaymentInterface[] | any =
-      await findASupplierPaymentHistoryServices(
+    const result: ISupplierDueInterface[] | any =
+      await findASupplierDueHistoryServices(
         limitNumber,
         skip,
         searchTerm,
@@ -64,7 +65,7 @@ export const findASupplierPaymentHistory: RequestHandler = async (
     const andCondition: any[] = [supplierObjectId];
     if (searchTerm) {
       andCondition.push({
-        $or: supplierPaymentSearchableField.map((field) => ({
+        $or: supplierDueSearchableField.map((field) => ({
           [field]: {
             $regex: searchTerm,
             $options: "i",
@@ -74,11 +75,11 @@ export const findASupplierPaymentHistory: RequestHandler = async (
     }
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
-    const total = await SupplierPaymentModel.countDocuments(whereCondition);
-    return sendResponse<ISupplierPaymentInterface>(res, {
+    const total = await SupplierDueModel.countDocuments(whereCondition);
+    return sendResponse<ISupplierDueInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Supplier Payment Found Successfully !",
+      message: "Supplier Due Found Successfully !",
       data: result,
       totalData: total,
     });
@@ -87,27 +88,23 @@ export const findASupplierPaymentHistory: RequestHandler = async (
   }
 };
 
-// Find All dashboard SupplierPayment
-export const findAllDashboardSupplierPayment: RequestHandler = async (
+// Find All dashboard SupplierDue
+export const findAllDashboardSupplierDue: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<ISupplierPaymentInterface | any> => {
+): Promise<ISupplierDueInterface | any> => {
   try {
     const { page, limit, searchTerm } = req.query;
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: ISupplierPaymentInterface[] | any =
-      await findAllDashboardSupplierPaymentServices(
-        limitNumber,
-        skip,
-        searchTerm
-      );
+    const result: ISupplierDueInterface[] | any =
+      await findAllDashboardSupplierDueServices(limitNumber, skip, searchTerm);
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
-        $or: supplierPaymentSearchableField.map((field) => ({
+        $or: supplierDueSearchableField.map((field) => ({
           [field]: {
             $regex: searchTerm,
             $options: "i",
@@ -117,11 +114,11 @@ export const findAllDashboardSupplierPayment: RequestHandler = async (
     }
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
-    const total = await SupplierPaymentModel.countDocuments(whereCondition);
-    return sendResponse<ISupplierPaymentInterface>(res, {
+    const total = await SupplierDueModel.countDocuments(whereCondition);
+    return sendResponse<ISupplierDueInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Supplier Payment Found Successfully !",
+      message: "Supplier Due Found Successfully !",
       data: result,
       totalData: total,
     });
@@ -130,24 +127,26 @@ export const findAllDashboardSupplierPayment: RequestHandler = async (
   }
 };
 
-// Update A SupplierPayment
-export const updateSupplierPayment: RequestHandler = async (
+// Update A SupplierDue
+export const updateSupplierDue: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<ISupplierPaymentInterface | any> => {
+): Promise<ISupplierDueInterface | any> => {
   try {
     const requestData = req.body;
-    const result: ISupplierPaymentInterface | any =
-      await updateSupplierPaymentServices(requestData, requestData?._id);
+    const result: ISupplierDueInterface | any = await updateSupplierDueServices(
+      requestData,
+      requestData?._id
+    );
     if (result?.modifiedCount > 0) {
-      return sendResponse<ISupplierPaymentInterface>(res, {
+      return sendResponse<ISupplierDueInterface>(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Supplier Payment Update Successfully !",
+        message: "Supplier Due Update Successfully !",
       });
     } else {
-      throw new ApiError(400, "Supplier Payment Update Failed !");
+      throw new ApiError(400, "Supplier Due Update Failed !");
     }
   } catch (error: any) {
     next(error);

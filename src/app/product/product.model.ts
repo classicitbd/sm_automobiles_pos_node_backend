@@ -52,9 +52,6 @@ const productSchema = new Schema<IProductInterface>(
       type: String,
       required: true,
     },
-    product_unit: {
-      type: String,
-    },
     product_stock_low_alert: {
       type: Number,
     },

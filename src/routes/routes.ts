@@ -6,8 +6,6 @@ import { BrandRoutes } from "../app/brand/brand.routes";
 import { CategoryRoutes } from "../app/category/category.routes";
 import { BankRoutes } from "../app/bank/bank.routes";
 import { ExpenseRoutes } from "../app/expense/expense.routes";
-import { PurchaseRoutes } from "../app/purchase/purchase.routes";
-import { ShowroomRoutes } from "../app/showroom/showroom.routes";
 import { RoleRoutes } from "../app/role/role.routes";
 import { CustomerRoutes } from "../app/customer/customer.routes";
 import { SupplierPaymentRoutes } from "../app/supplier_payment/supplier_payment.routes";
@@ -17,6 +15,8 @@ import { UserGetMeRoutes } from "../app/getme/getme.routes";
 import { ProductRoutes } from "../app/product/product.routes";
 import { StockManageRoutes } from "../app/stock_manage/stock_manage.routes";
 import { OrderRoutes } from "../app/order/order.routes";
+import { ProductUnitRoutes } from "../app/showroom/unit.routes";
+import { SupplierDueRoutes } from "../app/supplier_due/supplier_due.routes";
 
 const router = express.Router();
 
@@ -66,6 +66,10 @@ const moduleRoutes = [
     route: SupplierPaymentRoutes,
   },
   {
+    path: "/supplier_due",
+    route: SupplierDueRoutes,
+  },
+  {
     path: "/brand",
     route: BrandRoutes,
   },
@@ -82,12 +86,8 @@ const moduleRoutes = [
     route: ExpenseRoutes,
   },
   {
-    path: "/purchase",
-    route: PurchaseRoutes,
-  },
-  {
-    path: "/showroom",
-    route: ShowroomRoutes,
+    path: "/product_unit",
+    route: ProductUnitRoutes,
   },
   {
     path: "/image_upload",

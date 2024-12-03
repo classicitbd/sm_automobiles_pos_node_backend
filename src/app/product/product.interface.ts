@@ -19,7 +19,6 @@ export interface IProductInterface {
   product_barcode: string;
   product_barcode_image?: string;
   product_id: string;
-  product_unit?: string;
   product_publisher_id: Types.ObjectId | IUserInterface;
   product_updated_by?: Types.ObjectId | IUserInterface;
 }

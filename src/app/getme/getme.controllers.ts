@@ -24,7 +24,7 @@ export const getMeUser: RequestHandler = async (
     );
     // const decode = await promisify(jwt.verify)(token, process.env.ACCESS_TOKEN);
 
-    const user = await findUserInfoServices(decode.login_credentials);
+    const user = await findUserInfoServices(decode.user_phone);
 
     if (user) {
       return sendResponse(res, {

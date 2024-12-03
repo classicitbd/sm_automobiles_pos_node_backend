@@ -5,7 +5,6 @@ export interface ICustomerInterface {
   _id?: any;
   customer_name: string;
   customer_phone?: string;
-  customer_email?: string;
   customer_address?: string;
   previous_due?: number;
   previous_advance?: number;
@@ -22,6 +21,5 @@ export const customerSearchableField = [
   "first_payment_status",
   "customer_details",
   "customer_phone",
-  "customer_email",
   "customer_address",
 ];

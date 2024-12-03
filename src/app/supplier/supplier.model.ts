@@ -8,16 +8,21 @@ const supplierSchema = new Schema<ISupplierInterface>(
       required: true,
       type: String,
     },
-    supplier_email: {
-      type: String,
+    supplier_wallet_amount: {
+      required: true,
+      type: Number,
+      default: 0,
     },
     supplier_phone: {
+      required: true,
       type: String,
     },
     supplier_address: {
+      required: true,
       type: String,
     },
     supplier_status: {
+      required: true,
       type: String,
       enum: ["active", "in-active"],
       default: "active",

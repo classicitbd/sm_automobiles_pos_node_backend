@@ -11,9 +11,6 @@ const customerSchema = new Schema<ICustomerInterface>(
     customer_phone: {
       type: String,
     },
-    customer_email: {
-      type: String,
-    },
     customer_address: {
       type: String,
     },

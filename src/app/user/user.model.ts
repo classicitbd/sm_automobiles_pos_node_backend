@@ -4,29 +4,16 @@ import { IUserInterface } from "./user.interface";
 // User Schema
 const userSchema = new Schema<IUserInterface>(
   {
-    login_credentials: {
-      required: true,
-      type: String,
-    },
     user_name: {
       type: String,
     },
     user_phone: {
       type: String,
     },
-    user_email: {
-      type: String,
-    },
     user_password: {
       type: String,
     },
     user_address: {
-      type: String,
-    },
-    user_image: {
-      type: String,
-    },
-    user_image_key: {
       type: String,
     },
     red_alert_number: {

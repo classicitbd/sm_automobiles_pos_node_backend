@@ -8,10 +8,13 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
       required: true,
       type: String,
     },
-    supplier_payment_description: {
+    supplier_payment_status: {
       type: String,
+      enum: ["active", "in-active"],
+      default: "in-active",
     },
     supplier_payment_date: {
+      required: true,
       type: String,
     },
     supplier_payment_amount: {
@@ -26,9 +29,11 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
     payment_bank_id: {
       type: Schema.Types.ObjectId,
       ref: "banks",
+      required: true,
     },
-    transaction_id: {
+    reference_id: {
       type: String,
+      required: true,
     },
     supplier_payment_publisher_id: {
       type: Schema.Types.ObjectId,
@@ -38,13 +43,16 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
     supplier_payment_updated_by: {
       type: Schema.Types.ObjectId,
       ref: "users",
-    }
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const SupplierPaymentModel = model<ISupplierPaymentInterface>("supplierpayments", supplierPaymentSchema);
+const SupplierPaymentModel = model<ISupplierPaymentInterface>(
+  "supplierpayments",
+  supplierPaymentSchema
+);
 
 export default SupplierPaymentModel;
