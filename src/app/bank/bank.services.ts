@@ -13,9 +13,7 @@ export const postBankServices = async (
 export const findAllBankServices = async (): Promise<
   IBankInterface[] | []
 > => {
-  const findBank: IBankInterface[] | [] = await BankModel.find({
-    bank_status: "active",
-  })
+  const findBank: IBankInterface[] | [] = await BankModel.find({})
     .sort({ _id: -1 })
     .select("-__v");
   return findBank;

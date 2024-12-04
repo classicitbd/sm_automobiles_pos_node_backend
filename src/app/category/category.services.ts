@@ -15,20 +15,8 @@ export const postCategoryServices = async (
   return createCategory;
 };
 
-// Find Category
-export const findAllCategoryServices = async (): Promise<
-  ICategoryInterface[] | []
-> => {
-  const findCategory: ICategoryInterface[] | [] = await CategoryModel.find({
-    category_status: "active",
-  })
-    .sort({ _id: -1 })
-    .select("-__v");
-  return findCategory;
-};
-
-// Find all dashboard Category
-export const findAllDashboardCategoryServices = async (
+// Find all Category
+export const findAllCategoryServices = async (
   limit: number,
   skip: number,
   searchTerm: any

@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import ApiError from "../../errors/ApiError";
 import {
   ISupplierPaymentInterface,
@@ -9,10 +9,13 @@ import SupplierModel from "../supplier/supplier.model";
 
 // Create A SupplierPayment
 export const postSupplierPaymentServices = async (
-  data: ISupplierPaymentInterface
+  data: ISupplierPaymentInterface,
+  session?: mongoose.ClientSession
 ): Promise<ISupplierPaymentInterface | {}> => {
   const createSupplierPayment: ISupplierPaymentInterface | {} =
-    await SupplierPaymentModel.create(data);
+    await SupplierPaymentModel.create([data], {
+      session,
+    });
   return createSupplierPayment;
 };
 
@@ -91,24 +94,4 @@ export const findAllDashboardSupplierPaymentServices = async (
       .limit(limit)
       .select("-__v");
   return findSupplierPayment;
-};
-
-// Update a SupplierPayment
-export const updateSupplierPaymentServices = async (
-  data: ISupplierPaymentInterface,
-  _id: string
-): Promise<ISupplierPaymentInterface | any> => {
-  const updateSupplierPaymentInfo: ISupplierPaymentInterface | null =
-    await SupplierPaymentModel.findOne({ _id: _id });
-  if (!updateSupplierPaymentInfo) {
-    throw new ApiError(400, "Supplier Payment Not Found !");
-  }
-  const SupplierPayment = await SupplierPaymentModel.updateOne(
-    { _id: _id },
-    data,
-    {
-      runValidators: true,
-    }
-  );
-  return SupplierPayment;
 };

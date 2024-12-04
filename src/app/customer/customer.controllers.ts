@@ -22,6 +22,12 @@ export const postCustomer: RequestHandler = async (
 ): Promise<ICustomerInterface | any> => {
   try {
     const requestData = req.body;
+    const checkCustomerExist = await CustomerModel.findOne({
+      customer_phone: requestData?.customer_phone,
+    });
+    if (checkCustomerExist) {
+      throw new ApiError(400, "Customer Already Exist !");
+    }
     const result: ICustomerInterface | {} = await postCustomerServices(
       requestData
     );
@@ -106,6 +112,15 @@ export const updateCustomer: RequestHandler = async (
 ): Promise<ICustomerInterface | any> => {
   try {
     const requestData = req.body;
+    const checkCustomerExist = await CustomerModel.findOne({
+      customer_phone: requestData?.customer_phone,
+    });
+    if (
+      checkCustomerExist &&
+      requestData?._id !== checkCustomerExist?._id?.toString()
+    ) {
+      throw new ApiError(400, "Customer Already Exist !");
+    }
     const result: ICustomerInterface | any = await updateCustomerServices(
       requestData,
       requestData?._id

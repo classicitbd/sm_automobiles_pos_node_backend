@@ -6,7 +6,6 @@ import { brandSearchableField, IBrandInterface } from "./brand.interface";
 import BrandModel from "./brand.model";
 import {
   findAllBrandServices,
-  findAllDashboardBrandServices,
   postBrandServices,
   updateBrandServices,
 } from "./brand.services";
@@ -19,6 +18,12 @@ export const postBrand: RequestHandler = async (
 ): Promise<IBrandInterface | any> => {
   try {
     const requestData = req.body;
+    const checkBrandNameExist = await BrandModel.findOne({
+      brand_name: requestData.brand_name,
+    });
+    if (checkBrandNameExist) {
+      throw new ApiError(400, "Brand Name Already Exist !");
+    }
     const result: IBrandInterface | {} = await postBrandServices(requestData);
     if (result) {
       return sendResponse<IBrandInterface>(res, {
@@ -41,30 +46,11 @@ export const findAllBrand: RequestHandler = async (
   next: NextFunction
 ): Promise<IBrandInterface | any> => {
   try {
-    const result: IBrandInterface[] | any = await findAllBrandServices();
-    return sendResponse<IBrandInterface>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Brand Found Successfully !",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-// Find All dashboard Brand
-export const findAllDashboardBrand: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IBrandInterface | any> => {
-  try {
     const { page, limit, searchTerm } = req.query;
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: IBrandInterface[] | any = await findAllDashboardBrandServices(
+    const result: IBrandInterface[] | any = await findAllBrandServices(
       limitNumber,
       skip,
       searchTerm
@@ -103,6 +89,15 @@ export const updateBrand: RequestHandler = async (
 ): Promise<IBrandInterface | any> => {
   try {
     const requestData = req.body;
+    const checkBrandNameExist = await BrandModel.findOne({
+      brand_name: requestData.brand_name,
+    });
+    if (
+      checkBrandNameExist &&
+      requestData?._id !== checkBrandNameExist?._id?.toString()
+    ) {
+      throw new ApiError(400, "Brand Name Already Exist !");
+    }
     const result: IBrandInterface | any = await updateBrandServices(
       requestData,
       requestData?._id

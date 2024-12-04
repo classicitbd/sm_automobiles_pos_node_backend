@@ -18,16 +18,11 @@ export const postProductUnitServices = async (
 export const findAllProductUnitServices = async (): Promise<
   IProductUnitInterface[] | []
 > => {
-  const findProductUnit: IProductUnitInterface[] | [] =
-    await ProductUnitModel.find({
-      product_unit_status: "active",
-    })
-      .sort({ _id: -1 })
-      .select("-__v");
+  const findProductUnit: any = await ProductUnitModel.find({}).select("-__v");
   return findProductUnit;
 };
 
-// Find all dashboard ProductUnit
+// Find DashboardProductUnit
 export const findAllDashboardProductUnitServices = async (
   limit: number,
   skip: number,

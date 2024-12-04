@@ -7,7 +7,6 @@ export interface ISupplierInterface {
   supplier_name: string;
   supplier_phone: string;
   supplier_address: string;
-  supplier_status: "active" | "in-active";
   supplier_publisher_id: Types.ObjectId | IUserInterface;
   supplier_updated_by?: Types.ObjectId | IUserInterface;
 }

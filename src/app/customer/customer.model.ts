@@ -14,21 +14,15 @@ const customerSchema = new Schema<ICustomerInterface>(
     customer_address: {
       type: String,
     },
-    previous_due: {
+    customer_wallet: {
+      required: true,
       type: Number,
-    },
-    previous_advance: {
-      type: Number,
+      default: 0,
     },
     red_alert_number: {
       type: Number,
     },
     customer_status: {
-      type: String,
-      enum: ["active", "in-active"],
-      default: "in-active",
-    },
-    first_payment_status: {
       type: String,
       enum: ["active", "in-active"],
       default: "in-active",

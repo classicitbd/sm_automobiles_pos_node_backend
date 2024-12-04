@@ -7,7 +7,6 @@ export interface IBankInterface {
   account_no: string;
   bank_name: string;
   bank_balance: number;
-  bank_status: "active" | "in-active";
   bank_publisher_id: Types.ObjectId | IUserInterface;
   bank_updated_by?: Types.ObjectId | IUserInterface;
 }

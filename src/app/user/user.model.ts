@@ -16,6 +16,10 @@ const userSchema = new Schema<IUserInterface>(
     user_address: {
       type: String,
     },
+    user_salary: {
+      type: Number,
+      default: 0,
+    },
     red_alert_number: {
       type: Number,
     },

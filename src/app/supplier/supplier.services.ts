@@ -35,10 +35,7 @@ export const findAllDashboardSupplierServices = async (
 
   // Start building the query
   const findSupplier = SupplierModel.find(whereCondition)
-    .populate([
-      "supplier_publisher_id",
-      "supplier_updated_by"
-    ])
+    .populate(["supplier_publisher_id", "supplier_updated_by"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -52,11 +49,7 @@ export const findAllSupplierServices = async (): Promise<
   ISupplierInterface[] | []
 > => {
   // Start building the query
-  const findSupplier = SupplierModel.find({
-    supplier_status: "active",
-  })
-    .sort({ _id: -1 })
-    .select("-__v");
+  const findSupplier = SupplierModel.find({}).sort({ _id: -1 }).select("-__v");
 
   return findSupplier;
 };

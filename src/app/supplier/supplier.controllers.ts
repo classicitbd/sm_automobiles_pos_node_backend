@@ -13,7 +13,6 @@ import {
   updateSupplierServices,
 } from "./supplier.services";
 import SupplierModel from "./supplier.model";
-import { Types } from "mongoose";
 
 // Add A Supplier
 export const postSupplier: RequestHandler = async (

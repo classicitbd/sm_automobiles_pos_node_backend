@@ -4,7 +4,6 @@ import {
   findAllDashboardSupplierPayment,
   findASupplierPaymentHistory,
   postSupplierPayment,
-  updateSupplierPayment,
 } from "./supplier_payment.controllers";
 const router = express.Router();
 
@@ -12,8 +11,7 @@ const router = express.Router();
 router
   .route("/")
   .get(verifyToken, findASupplierPaymentHistory)
-  .post(verifyToken, postSupplierPayment)
-  .patch(verifyToken, updateSupplierPayment);
+  .post(verifyToken, postSupplierPayment);
 
 // get all SupplierPayment in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardSupplierPayment);

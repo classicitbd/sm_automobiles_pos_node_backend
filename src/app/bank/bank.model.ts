@@ -30,11 +30,6 @@ const bankSchema = new Schema<IBankInterface>(
       type: Schema.Types.ObjectId,
       ref: "users",
     },
-    bank_status: {
-      type: String,
-      enum: ["active", "in-active"],
-      default: "active",
-    },
   },
   {
     timestamps: true,

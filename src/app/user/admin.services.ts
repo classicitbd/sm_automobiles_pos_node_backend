@@ -9,6 +9,16 @@ export const postUserServices = async (
   return createUser;
 };
 
+// Find all  User Role User
+export const findAllUserServices = async (): Promise<IUserInterface[] | []> => {
+  const findUser: IUserInterface[] | [] = await UserModel.find({
+    user_status: "active",
+  })
+    .sort({ _id: 1 })
+    .select("-__v");
+  return findUser;
+};
+
 // Find all dashboard User Role User
 export const findAllDashboardUserServices = async (
   limit: number,
@@ -28,11 +38,7 @@ export const findAllDashboardUserServices = async (
   }
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findUser: IUserInterface[] | [] = await UserModel.find(whereCondition)
-    .populate([
-      "user_role_id",
-      "user_publisher_id",
-      "user_updated_by"
-    ])
+    .populate(["user_role_id", "user_publisher_id", "user_updated_by"])
     .sort({ _id: 1 })
     .skip(skip)
     .limit(limit)

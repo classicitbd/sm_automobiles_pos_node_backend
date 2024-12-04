@@ -9,6 +9,7 @@ export interface IUserInterface {
   user_status?: "active" | "in-active";
   user_address?: string;
   red_alert_number?: number;
+  user_salary: number;
   user_publisher_id: Types.ObjectId | IUserInterface;
   user_updated_by?: Types.ObjectId | IUserInterface;
   user_role_id?: Types.ObjectId | IRoleInterface;

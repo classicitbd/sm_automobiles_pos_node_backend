@@ -11,7 +11,6 @@ export interface ISupplierPaymentInterface {
   supplier_id: Types.ObjectId | ISupplierInterface;
   payment_bank_id: Types.ObjectId | IBankInterface;
   reference_id: string;
-  supplier_payment_status: "active" | "in-active";
   supplier_payment_publisher_id: Types.ObjectId | IUserInterface;
   supplier_payment_updated_by?: Types.ObjectId | IUserInterface;
 }

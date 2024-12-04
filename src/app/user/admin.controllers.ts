@@ -6,6 +6,7 @@ import { IUserInterface, userSearchableField } from "./user.interface";
 import UserModel from "./user.model";
 import {
   findAllDashboardUserServices,
+  findAllUserServices,
   postUserServices,
   updateUserServices,
 } from "./admin.services";
@@ -112,6 +113,25 @@ export const postLogUser: RequestHandler = async (
       throw new ApiError(400, "Password not match !");
     }
   } catch (error) {
+    next(error);
+  }
+};
+
+// Find All  user
+export const findAllUser: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IUserInterface | any> => {
+  try {
+    const result: IUserInterface[] | any = await findAllUserServices();
+    return sendResponse<IUserInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "User Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
     next(error);
   }
 };

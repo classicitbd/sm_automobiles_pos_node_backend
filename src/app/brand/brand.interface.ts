@@ -4,7 +4,6 @@ import { IUserInterface } from "../user/user.interface";
 export interface IBrandInterface {
   _id?: any;
   brand_name: string;
-  brand_status: "active" | "in-active";
   brand_publisher_id: Types.ObjectId | IUserInterface;
   brand_updated_by?: Types.ObjectId | IUserInterface;
 }

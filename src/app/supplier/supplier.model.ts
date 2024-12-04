@@ -21,12 +21,6 @@ const supplierSchema = new Schema<ISupplierInterface>(
       required: true,
       type: String,
     },
-    supplier_status: {
-      required: true,
-      type: String,
-      enum: ["active", "in-active"],
-      default: "active",
-    },
     supplier_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

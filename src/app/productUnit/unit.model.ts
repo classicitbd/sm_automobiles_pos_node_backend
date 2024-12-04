@@ -8,10 +8,9 @@ const product_unitSchema = new Schema<IProductUnitInterface>(
       required: true,
       type: String,
     },
-    product_unit_status: {
-      type: String,
-      enum: ["active", "in-active"],
-      default: "active",
+    product_unit_value: {
+      required: true,
+      type: Number,
     },
     product_unit_publisher_id: {
       required: true,

@@ -8,11 +8,6 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
       required: true,
       type: String,
     },
-    supplier_payment_status: {
-      type: String,
-      enum: ["active", "in-active"],
-      default: "in-active",
-    },
     supplier_payment_date: {
       required: true,
       type: String,

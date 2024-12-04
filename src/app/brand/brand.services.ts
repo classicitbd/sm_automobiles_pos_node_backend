@@ -9,20 +9,8 @@ export const postBrandServices = async (
   return createBrand;
 };
 
-// Find Brand
-export const findAllBrandServices = async (): Promise<
-  IBrandInterface[] | []
-> => {
-  const findBrand: IBrandInterface[] | [] = await BrandModel.find({
-    brand_status: "active",
-  })
-    .sort({ _id: -1 })
-    .select("-__v");
-  return findBrand;
-};
-
-// Find all dashboard Brand
-export const findAllDashboardBrandServices = async (
+// Find all  Brand
+export const findAllBrandServices = async (
   limit: number,
   skip: number,
   searchTerm: any

@@ -3,7 +3,12 @@ import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import ApiError from "../../errors/ApiError";
 import { bankSearchableField, IBankInterface } from "./bank.interface";
-import { findAllBankServices, findAllDashboardBankServices, postBankServices, updateBankServices } from "./bank.services";
+import {
+  findAllBankServices,
+  findAllDashboardBankServices,
+  postBankServices,
+  updateBankServices,
+} from "./bank.services";
 import BankModel from "./bank.model";
 
 // Add A Bank
@@ -14,6 +19,12 @@ export const postBank: RequestHandler = async (
 ): Promise<IBankInterface | any> => {
   try {
     const requestData = req.body;
+    const checkBankExist = await BankModel.findOne({
+      account_no: requestData?.account_no,
+    });
+    if (checkBankExist) {
+      throw new ApiError(400, "Bank Account No Already Exist !");
+    }
     const result: IBankInterface | {} = await postBankServices(requestData);
     if (result) {
       return sendResponse<IBankInterface>(res, {
@@ -98,6 +109,12 @@ export const updateBank: RequestHandler = async (
 ): Promise<IBankInterface | any> => {
   try {
     const requestData = req.body;
+    const checkBankExist = await BankModel.findOne({
+      account_no: requestData?.account_no,
+    });
+    if (checkBankExist && requestData?._id !== checkBankExist?._id?.toString()) {
+      throw new ApiError(400, "Bank Account No Already Exist !");
+    }
     const result: IBankInterface | any = await updateBankServices(
       requestData,
       requestData?._id

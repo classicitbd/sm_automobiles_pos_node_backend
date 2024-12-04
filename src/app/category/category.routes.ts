@@ -1,7 +1,6 @@
 import express from "express";
 import {
   findAllCategory,
-  findAllDashboardCategory,
   postCategory,
   updateCategory,
 } from "./category.controllers";
@@ -14,8 +13,5 @@ router
   .get(findAllCategory)
   .post(verifyToken, postCategory)
   .patch(verifyToken, updateCategory);
-
-// get all category in dashboard
-router.route("/dashboard").get(verifyToken, findAllDashboardCategory);
 
 export const CategoryRoutes = router;

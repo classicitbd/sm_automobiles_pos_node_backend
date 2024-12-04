@@ -9,11 +9,13 @@ import {
   findAllDashboardSupplierPaymentServices,
   findASupplierPaymentHistoryServices,
   postSupplierPaymentServices,
-  updateSupplierPaymentServices,
 } from "./supplier_payment.services";
 import ApiError from "../../errors/ApiError";
 import SupplierPaymentModel from "./supplier_payment.model";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
+import { postBankOutServices } from "../bank_out/bank_out.services";
+import BankModel from "../bank/bank.model";
+import SupplierModel from "../supplier/supplier.model";
 
 // Add A SupplierPayment
 export const postSupplierPayment: RequestHandler = async (
@@ -21,20 +23,73 @@ export const postSupplierPayment: RequestHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<ISupplierPaymentInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const requestData = req.body;
+
+    const checkBankWithRefNoExist = await SupplierPaymentModel.findOne({
+      reference_id: requestData?.reference_id,
+      payment_bank_id: requestData?.payment_bank_id,
+    }).session(session);
+
+    if (checkBankWithRefNoExist) {
+      throw new ApiError(
+        400,
+        "Supplier Payment Already Exist With This Ref No !"
+      );
+    }
     const result: ISupplierPaymentInterface | {} =
-      await postSupplierPaymentServices(requestData);
-    if (result) {
-      return sendResponse<ISupplierPaymentInterface>(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Supplier Payment Added Successfully !",
-      });
-    } else {
+      await postSupplierPaymentServices(requestData, session);
+    if (!result) {
       throw new ApiError(400, "Supplier Payment Added Failed !");
     }
+
+    const bankOutData = {
+      bank_id: requestData?.payment_bank_id,
+      bank_out_amount: requestData?.supplier_payment_amount,
+      bank_out_title: requestData?.supplier_payment_title,
+      bank_out_ref_no: requestData?.reference_id,
+      bank_out_publisher_id: requestData?.supplier_payment_publisher_id,
+    };
+    // create a bank out data
+    await postBankOutServices(bankOutData, session);
+
+    // deduct amount from bank account
+    await BankModel.updateOne(
+      { _id: requestData?.payment_bank_id },
+      { $inc: { bank_balance: -requestData?.supplier_payment_amount } },
+      {
+        session,
+        runValidators: true,
+      }
+    );
+
+    // deduct amount from Supplier
+    await SupplierModel.updateOne(
+      { _id: requestData?.supplier_id },
+      {
+        $inc: { supplier_wallet_amount: +requestData?.supplier_payment_amount },
+      },
+      {
+        session,
+        runValidators: true,
+      }
+    );
+
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return sendResponse<ISupplierPaymentInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Supplier Payment Added Successfully !",
+    });
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };
@@ -125,30 +180,6 @@ export const findAllDashboardSupplierPayment: RequestHandler = async (
       data: result,
       totalData: total,
     });
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-// Update A SupplierPayment
-export const updateSupplierPayment: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<ISupplierPaymentInterface | any> => {
-  try {
-    const requestData = req.body;
-    const result: ISupplierPaymentInterface | any =
-      await updateSupplierPaymentServices(requestData, requestData?._id);
-    if (result?.modifiedCount > 0) {
-      return sendResponse<ISupplierPaymentInterface>(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Supplier Payment Update Successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Supplier Payment Update Failed !");
-    }
   } catch (error: any) {
     next(error);
   }

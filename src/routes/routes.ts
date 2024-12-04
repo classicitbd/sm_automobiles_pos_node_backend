@@ -15,12 +15,62 @@ import { UserGetMeRoutes } from "../app/getme/getme.routes";
 import { ProductRoutes } from "../app/product/product.routes";
 import { StockManageRoutes } from "../app/stock_manage/stock_manage.routes";
 import { OrderRoutes } from "../app/order/order.routes";
-import { ProductUnitRoutes } from "../app/showroom/unit.routes";
-import { SupplierDueRoutes } from "../app/supplier_due/supplier_due.routes";
+import { ProductUnitRoutes } from "../app/productUnit/unit.routes";
+import { SiteSettingRoutes } from "../app/site_setting/site_setting.routes";
+import { SaleTargetRoutes } from "../app/sale_target/sale_target.routes";
+import { BankInRoutes } from "../app/bank_in/bank_in.routes";
 
 const router = express.Router();
 
 const moduleRoutes = [
+  {
+    path: "/category",
+    route: CategoryRoutes,
+  },
+  {
+    path: "/brand",
+    route: BrandRoutes,
+  },
+  {
+    path: "/product_unit",
+    route: ProductUnitRoutes,
+  },
+  {
+    path: "/site_setting",
+    route: SiteSettingRoutes,
+  },
+  {
+    path: "/user",
+    route: UserRegRoutes,
+  },
+  {
+    path: "/sale_target",
+    route: SaleTargetRoutes,
+  },
+  {
+    path: "/supplier",
+    route: SupplierRoutes,
+  },
+  {
+    path: "/bank",
+    route: BankRoutes,
+  },
+  {
+    path: "/bank_in",
+    route: BankInRoutes,
+  },
+  {
+    path: "/supplier_payment",
+    route: SupplierPaymentRoutes,
+  },
+  {
+    path: "/customer",
+    route: CustomerRoutes,
+  },
+
+
+
+
   {
     path: "/product",
     route: ProductRoutes,
@@ -34,20 +84,12 @@ const moduleRoutes = [
     route: StockManageRoutes,
   },
   {
-    path: "/user",
-    route: UserRegRoutes,
-  },
-  {
     path: "/role",
     route: RoleRoutes,
   },
   {
     path: "/get_me",
     route: UserGetMeRoutes,
-  },
-  {
-    path: "/customer",
-    route: CustomerRoutes,
   },
   {
     path: "/customer_due",
@@ -58,36 +100,8 @@ const moduleRoutes = [
     route: CustomerPaymentRoutes,
   },
   {
-    path: "/supplier",
-    route: SupplierRoutes,
-  },
-  {
-    path: "/supplier_payment",
-    route: SupplierPaymentRoutes,
-  },
-  {
-    path: "/supplier_due",
-    route: SupplierDueRoutes,
-  },
-  {
-    path: "/brand",
-    route: BrandRoutes,
-  },
-  {
-    path: "/category",
-    route: CategoryRoutes,
-  },
-  {
-    path: "/bank",
-    route: BankRoutes,
-  },
-  {
     path: "/expense",
     route: ExpenseRoutes,
-  },
-  {
-    path: "/product_unit",
-    route: ProductUnitRoutes,
   },
   {
     path: "/image_upload",

@@ -22,6 +22,12 @@ export const postProductUnit: RequestHandler = async (
 ): Promise<IProductUnitInterface | any> => {
   try {
     const requestData = req.body;
+    const checkUnitNameExist = await ProductUnitModel.findOne({
+      product_unit_name: requestData.product_unit_name,
+    });
+    if (checkUnitNameExist) {
+      throw new ApiError(400, "Unit Name Already Exist !");
+    }
     const result: IProductUnitInterface | {} = await postProductUnitServices(
       requestData
     );
@@ -59,7 +65,7 @@ export const findAllProductUnit: RequestHandler = async (
   }
 };
 
-// Find All dashboard ProductUnit
+// Find All DashboardroductUnit
 export const findAllDashboardProductUnit: RequestHandler = async (
   req: Request,
   res: Response,
@@ -106,6 +112,15 @@ export const updateProductUnit: RequestHandler = async (
 ): Promise<IProductUnitInterface | any> => {
   try {
     const requestData = req.body;
+    const checkUnitNameExist = await ProductUnitModel.findOne({
+      product_unit_name: requestData.product_unit_name,
+    });
+    if (
+      checkUnitNameExist &&
+      requestData?._id !== checkUnitNameExist?._id?.toString()
+    ) {
+      throw new ApiError(400, "Unit Name Already Exist !");
+    }
     const result: IProductUnitInterface | any = await updateProductUnitServices(
       requestData,
       requestData?._id

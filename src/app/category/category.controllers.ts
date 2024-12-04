@@ -7,7 +7,6 @@ import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import {
   findAllCategoryServices,
-  findAllDashboardCategoryServices,
   postCategoryServices,
   updateCategoryServices,
 } from "./category.services";
@@ -21,18 +20,25 @@ export const postCategory: RequestHandler = async (
   next: NextFunction
 ): Promise<ICategoryInterface | any> => {
   try {
-      const requestData = req.body;
-      const result: ICategoryInterface | {} = await postCategoryServices(requestData);
-      if (result) {
-        return sendResponse<ICategoryInterface>(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: "Category Added Successfully !",
-        });
-      } else {
-        throw new ApiError(400, "Category Added Failed !");
-      }
-    
+    const requestData = req.body;
+    const checkCategoryNameExist = await CategoryModel.findOne({
+      category_name: requestData.category_name,
+    });
+    if (checkCategoryNameExist) {
+      throw new ApiError(400, "Category Name Already Exist !");
+    }
+    const result: ICategoryInterface | {} = await postCategoryServices(
+      requestData
+    );
+    if (result) {
+      return sendResponse<ICategoryInterface>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Category Added Successfully !",
+      });
+    } else {
+      throw new ApiError(400, "Category Added Failed !");
+    }
   } catch (error: any) {
     next(error);
   }
@@ -45,31 +51,15 @@ export const findAllCategory: RequestHandler = async (
   next: NextFunction
 ): Promise<ICategoryInterface | any> => {
   try {
-    const result: ICategoryInterface[] | any = await findAllCategoryServices();
-    return sendResponse<ICategoryInterface>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Category Found Successfully !",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-// Find All dashboard Category
-export const findAllDashboardCategory: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<ICategoryInterface | any> => {
-  try {
     const { page, limit, searchTerm } = req.query;
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: ICategoryInterface[] | any =
-      await findAllDashboardCategoryServices(limitNumber, skip, searchTerm);
+    const result: ICategoryInterface[] | any = await findAllCategoryServices(
+      limitNumber,
+      skip,
+      searchTerm
+    );
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
@@ -103,22 +93,30 @@ export const updateCategory: RequestHandler = async (
   next: NextFunction
 ): Promise<ICategoryInterface | any> => {
   try {
-      const requestData = req.body;
-      const result: ICategoryInterface | any = await updateCategoryServices(
-        requestData,
-        requestData?._id
-      );
-      if (result?.modifiedCount > 0) {
-        return sendResponse<ICategoryInterface>(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: "Category Update Successfully !",
-        });
-      } else {
-        throw new ApiError(400, "Category Update Failed !");
-      }
+    const requestData = req.body;
+    const checkCategoryNameExist = await CategoryModel.findOne({
+      category_name: requestData.category_name,
+    });
+    if (
+      checkCategoryNameExist &&
+      requestData?._id !== checkCategoryNameExist?._id.toString()
+    ) {
+      throw new ApiError(400, "Category Name Already Exist !");
+    }
+    const result: ICategoryInterface | any = await updateCategoryServices(
+      requestData,
+      requestData?._id
+    );
+    if (result?.modifiedCount > 0) {
+      return sendResponse<ICategoryInterface>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Category Update Successfully !",
+      });
+    } else {
+      throw new ApiError(400, "Category Update Failed !");
+    }
   } catch (error: any) {
     next(error);
   }
 };
-
