@@ -11,9 +11,11 @@ import {
   postStockManageServices,
   updateStockManageServices,
 } from "./stock_manage.services";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import StockManageModel from "./stock_manage.model";
 import ProductModel from "../product/product.model";
+import SupplierModel from "../supplier/supplier.model";
+import { postSupplierMoneyAddServices } from "../supplier_add_money/supplier_money_add.services";
 
 // Add A StockManage
 export const postStockManage: RequestHandler = async (
@@ -21,36 +23,73 @@ export const postStockManage: RequestHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<IStockManageInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const requestData = req.body;
     const product_id = requestData?.product_id;
     const result: IStockManageInterface | {} = await postStockManageServices(
-      requestData
+      requestData,
+      session
     );
-    if (result) {
-      const productObjectId = Types.ObjectId.isValid(product_id)
-        ? new Types.ObjectId(product_id)
-        : product_id;
-      await ProductModel.updateOne(
-        { _id: productObjectId },
-        {
-          $inc: { product_quantity: parseFloat(requestData?.product_quantity) },
-          $set: {
-            product_updated_by: requestData?.stock_publisher_id,
-            product_buying_price: parseFloat(requestData?.product_buying_price),
-            product_price: parseFloat(requestData?.product_selling_price),
-          },
-        }
-      );
-      return sendResponse<IStockManageInterface>(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Stock Added Successfully !",
-      });
-    } else {
+    if (!result) {
       throw new ApiError(400, "Stock Added Failed !");
     }
+    const productObjectId = Types.ObjectId.isValid(product_id)
+      ? new Types.ObjectId(product_id)
+      : product_id;
+    await ProductModel.updateOne(
+      { _id: productObjectId },
+      {
+        $inc: { product_quantity: parseFloat(requestData?.product_quantity) },
+        $set: {
+          product_updated_by: requestData?.stock_publisher_id,
+          product_buying_price: parseFloat(requestData?.product_buying_price),
+          product_price: parseFloat(requestData?.product_selling_price),
+        },
+      },
+      {
+        session,
+        runValidators: true,
+      }
+    );
+
+    // money add in supplier account
+    await SupplierModel.updateOne(
+      { _id: requestData?.supplier_id },
+      {
+        $inc: { supplier_wallet_amount: +requestData?.total_price },
+      },
+      {
+        session,
+        runValidators: true,
+      }
+    );
+
+    // supplier add payment history save
+    const supplierPaymentHistory = {
+      supplier_money_add_title: "Add Product",
+      supplier_money_add_amount: requestData?.total_price,
+      supplier_id: requestData?.supplier_id,
+      supplier_money_product_id: requestData?.product_id,
+      supplier_money_product_quantity: parseInt(requestData?.product_quantity),
+      supplier_money_product_price: parseInt(requestData?.product_buying_price),
+      supplier_money_add_publisher_id: requestData?.stock_publisher_id,
+    };
+    await postSupplierMoneyAddServices(supplierPaymentHistory, session);
+
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return sendResponse<IStockManageInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Stock Added Successfully !",
+    });
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };

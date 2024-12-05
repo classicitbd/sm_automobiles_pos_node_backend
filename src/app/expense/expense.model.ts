@@ -8,21 +8,13 @@ const expenseSchema = new Schema<IExpenseInterface>(
       required: true,
       type: String,
     },
-    expense_description: {
-      type: String,
-    },
-    expense_date: {
-      type: String,
+    expense_supplier_id: {
+      type: Schema.Types.ObjectId,
+      ref: "suppliers",
     },
     expense_amount: {
       required: true,
       type: Number,
-    },
-    expense_voucher: {
-      type: String,
-    },
-    expense_voucher_key: {
-      type: String,
     },
     expense_bank_id: {
       type: Schema.Types.ObjectId,

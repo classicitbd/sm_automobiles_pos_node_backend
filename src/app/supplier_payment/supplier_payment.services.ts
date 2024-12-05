@@ -95,3 +95,25 @@ export const findAllDashboardSupplierPaymentServices = async (
       .select("-__v");
   return findSupplierPayment;
 };
+
+// update A SupplierPayment status
+export const updateSupplierPaymentServices = async (
+  data: ISupplierPaymentInterface,
+  _id: string,
+  session: mongoose.ClientSession
+): Promise<ISupplierPaymentInterface | any> => {
+  const updateCustomerPaymentInfo: ISupplierPaymentInterface | null =
+    await SupplierPaymentModel.findOne({ _id: _id }).session(session);
+  if (!updateCustomerPaymentInfo) {
+    throw new ApiError(400, "Customer Not Found !");
+  }
+  const CustomerPayment = await SupplierPaymentModel.updateOne(
+    { _id: _id },
+    data,
+    {
+      session,
+      runValidators: true,
+    }
+  );
+  return CustomerPayment;
+};

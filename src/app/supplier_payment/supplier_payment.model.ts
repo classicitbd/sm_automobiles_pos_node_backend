@@ -26,6 +26,11 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
       ref: "banks",
       required: true,
     },
+    supplier_payment_status: {
+      type: String,
+      enum: ["paid", "unpaid"],
+      default: "unpaid",
+    },
     reference_id: {
       type: String,
       required: true,

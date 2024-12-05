@@ -2,6 +2,8 @@ import { Types } from "mongoose";
 import { ICategoryInterface } from "../category/category.interface";
 import { IBrandInterface } from "../brand/brand.interface";
 import { IUserInterface } from "../user/user.interface";
+import { IProductUnitInterface } from "../productUnit/unit.interface";
+import { ISupplierInterface } from "../supplier/supplier.interface";
 
 export interface IProductInterface {
   _id?: any;
@@ -12,6 +14,8 @@ export interface IProductInterface {
   product_details?: string;
   category_id: Types.ObjectId | ICategoryInterface;
   brand_id?: Types.ObjectId | IBrandInterface;
+  supplier_id: Types.ObjectId | ISupplierInterface; 
+  product_unit_id: Types.ObjectId | IProductUnitInterface;
   product_price?: number;
   product_buying_price?: number;
   product_quantity?: number;

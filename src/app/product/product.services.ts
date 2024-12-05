@@ -35,7 +35,13 @@ export const findAllProductServices = async (
   searchTerm: any
 ): Promise<IProductInterface[] | []> => {
   if (product_barcode) {
-    const findProduct: IProductInterface[] | any | null | IProductInterface | {} | [] = await ProductModel.find({
+    const findProduct:
+      | IProductInterface[]
+      | any
+      | null
+      | IProductInterface
+      | {}
+      | [] = await ProductModel.find({
       product_barcode: product_barcode,
       product_status: "active",
     }).select("-__v");
@@ -81,10 +87,7 @@ export const findAllProductServices = async (
   const findProduct: IProductInterface[] | [] = await ProductModel.find(
     whereCondition
   )
-  .populate([
-    "category_id",
-    "brand_id",
-  ])
+    .populate(["category_id", "brand_id", "product_unit_id"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -119,6 +122,8 @@ export const findAllDashboardProductServices = async (
       "product_updated_by",
       "category_id",
       "brand_id",
+      "product_unit_id",
+      "supplier_id",
     ])
     .sort({ _id: -1 })
     .skip(skip)

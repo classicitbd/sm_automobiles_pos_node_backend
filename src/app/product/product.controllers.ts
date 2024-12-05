@@ -108,15 +108,14 @@ export const postProduct: RequestHandler = async (
         product_barcode_image,
       };
       const result: IProductInterface | {} = await postProductServices(data);
-      if (result) {
-        return sendResponse<IProductInterface>(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: "Product Added Successfully !",
-        });
-      } else {
+      if (!result) {
         throw new ApiError(400, "Product Added Failed !");
       }
+      return sendResponse<IProductInterface>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Product Added Successfully !",
+      });
     } else {
       throw new ApiError(400, "Image upload failed !");
     }

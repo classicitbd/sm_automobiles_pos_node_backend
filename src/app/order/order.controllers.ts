@@ -5,6 +5,8 @@ import ApiError from "../../errors/ApiError";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import {
   findAllDashboardOrderServices,
+  findAllOrderServices,
+  findAllSelfOrderServices,
   findAOrderServices,
   postOrderServices,
   updateOrderServices,
@@ -19,6 +21,45 @@ import {
   handleProductQuantity,
   handleReturnOrCancelOrderIncrementProductQuantity,
 } from "./order.helpers";
+
+// Find All self Order for create a payment
+export const findAllSelfOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { order_publisher_id } = req.params;
+    const result: IOrderInterface[] | any = await findAllSelfOrderServices(order_publisher_id);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All Order
+export const findAllOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const result: IOrderInterface[] | any = await findAllOrderServices();
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
 
 // Add A Order
 export const postOrder: RequestHandler = async (

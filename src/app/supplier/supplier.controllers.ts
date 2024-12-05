@@ -22,6 +22,7 @@ export const postSupplier: RequestHandler = async (
 ): Promise<ISupplierInterface | any> => {
   try {
     const requestData = req.body;
+    requestData.oppening_balance = requestData?.supplier_wallet_amount;
     const result: ISupplierInterface | {} = await postSupplierServices(
       requestData
     );

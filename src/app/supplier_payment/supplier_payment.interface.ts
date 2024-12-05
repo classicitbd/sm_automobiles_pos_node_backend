@@ -8,6 +8,7 @@ export interface ISupplierPaymentInterface {
   supplier_payment_title: string;
   supplier_payment_date: string;
   supplier_payment_amount: number;
+  supplier_payment_status: "paid" | "unpaid";
   supplier_id: Types.ObjectId | ISupplierInterface;
   payment_bank_id: Types.ObjectId | IBankInterface;
   reference_id: string;

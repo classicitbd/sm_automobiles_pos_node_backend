@@ -3,6 +3,38 @@ import ApiError from "../../errors/ApiError";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
 
+// find all self order for create a payment
+export const findAllSelfOrderServices = async (
+  order_publisher_id: any
+): Promise<IOrderInterface[] | []> => {
+  const findAllOrder: IOrderInterface[] | [] = await OrderModel.find({
+    order_publisher_id: order_publisher_id,
+  }).populate([
+    "customer_id",
+    {
+      path: "order_products.product_id",
+      model: "products",
+    },
+  ]);
+  return findAllOrder;
+};
+
+// find all order
+export const findAllOrderServices = async (): Promise<
+  IOrderInterface[] | []
+> => {
+  const findAllOrder: IOrderInterface[] | [] = await OrderModel.find(
+    {}
+  ).populate([
+    "customer_id",
+    {
+      path: "order_products.product_id",
+      model: "products",
+    },
+  ]);
+  return findAllOrder;
+};
+
 // Create A Order
 // export const postOrderServices = async (
 //   data: IOrderInterface

@@ -13,6 +13,11 @@ const supplierSchema = new Schema<ISupplierInterface>(
       type: Number,
       default: 0,
     },
+    oppening_balance: {
+      required: true,
+      type: Number,
+      default: 0,
+    },
     supplier_phone: {
       required: true,
       type: String,

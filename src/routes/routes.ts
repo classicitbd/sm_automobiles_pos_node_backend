@@ -5,7 +5,6 @@ import { SupplierRoutes } from "../app/supplier/supplier.routes";
 import { BrandRoutes } from "../app/brand/brand.routes";
 import { CategoryRoutes } from "../app/category/category.routes";
 import { BankRoutes } from "../app/bank/bank.routes";
-import { ExpenseRoutes } from "../app/expense/expense.routes";
 import { RoleRoutes } from "../app/role/role.routes";
 import { CustomerRoutes } from "../app/customer/customer.routes";
 import { SupplierPaymentRoutes } from "../app/supplier_payment/supplier_payment.routes";
@@ -19,6 +18,7 @@ import { ProductUnitRoutes } from "../app/productUnit/unit.routes";
 import { SiteSettingRoutes } from "../app/site_setting/site_setting.routes";
 import { SaleTargetRoutes } from "../app/sale_target/sale_target.routes";
 import { BankInRoutes } from "../app/bank_in/bank_in.routes";
+import { CheckRoutes } from "../app/check/check.routes";
 
 const router = express.Router();
 
@@ -67,21 +67,24 @@ const moduleRoutes = [
     path: "/customer",
     route: CustomerRoutes,
   },
-
-
-
+  {
+    path: "/check",
+    route: CheckRoutes,
+  },
 
   {
     path: "/product",
     route: ProductRoutes,
   },
   {
-    path: "/order",
-    route: OrderRoutes,
-  },
-  {
     path: "/stock_manage",
     route: StockManageRoutes,
+  },
+
+
+  {
+    path: "/order",
+    route: OrderRoutes,
   },
   {
     path: "/role",
@@ -98,10 +101,6 @@ const moduleRoutes = [
   {
     path: "/customer_payment",
     route: CustomerPaymentRoutes,
-  },
-  {
-    path: "/expense",
-    route: ExpenseRoutes,
   },
   {
     path: "/image_upload",

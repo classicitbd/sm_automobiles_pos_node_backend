@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import {
   IStockManageInterface,
   stockManageSearchableField,
@@ -8,10 +8,11 @@ import ProductModel from "../product/product.model";
 
 // Create A StockManage
 export const postStockManageServices = async (
-  data: IStockManageInterface
+  data: IStockManageInterface,
+  session?: mongoose.ClientSession
 ): Promise<IStockManageInterface | {}> => {
   const createStockManage: IStockManageInterface | {} =
-    await StockManageModel.create(data);
+    await StockManageModel.create([data], { session });
   return createStockManage;
 };
 
