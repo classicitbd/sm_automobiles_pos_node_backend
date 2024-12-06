@@ -16,6 +16,12 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
       required: true,
       type: Number,
     },
+    supplier_payment_method: {
+      required: true,
+      type: String,
+      enum: ["cash", "check"],
+      default: "cash",
+    },
     supplier_id: {
       type: Schema.Types.ObjectId,
       ref: "suppliers",
@@ -24,7 +30,6 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
     payment_bank_id: {
       type: Schema.Types.ObjectId,
       ref: "banks",
-      required: true,
     },
     supplier_payment_status: {
       type: String,
@@ -33,7 +38,6 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
     },
     reference_id: {
       type: String,
-      required: true,
     },
     supplier_payment_publisher_id: {
       type: Schema.Types.ObjectId,

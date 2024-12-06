@@ -9,9 +9,10 @@ export interface ISupplierPaymentInterface {
   supplier_payment_date: string;
   supplier_payment_amount: number;
   supplier_payment_status: "paid" | "unpaid";
+  supplier_payment_method: "cash" | "check";
   supplier_id: Types.ObjectId | ISupplierInterface;
-  payment_bank_id: Types.ObjectId | IBankInterface;
-  reference_id: string;
+  payment_bank_id?: Types.ObjectId | IBankInterface;
+  reference_id?: string;
   supplier_payment_publisher_id: Types.ObjectId | IUserInterface;
   supplier_payment_updated_by?: Types.ObjectId | IUserInterface;
 }
@@ -20,4 +21,5 @@ export const supplierPaymentSearchableField = [
   "supplier_payment_title",
   "supplier_payment_date",
   "reference_id",
+  "supplier_payment_method"
 ];

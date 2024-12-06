@@ -9,11 +9,14 @@ import {
   findAllProductServices,
   findAProductDetailsServices,
   postProductServices,
+  updateProductPriceServices,
   updateProductServices,
 } from "./product.services";
 import ProductModel from "./product.model";
 import QRCode from "qrcode";
 import * as fs from "fs";
+import mongoose from "mongoose";
+import { postProductPriceUpdateHistoryServices } from "../product_price_update_history/product_price_update_history.services";
 
 // Generate bar code image
 const generateBarcodeImage = async (product_id: any) => {
@@ -266,6 +269,8 @@ export const updateProduct: RequestHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<IProductInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     if (req.files && "product_image" in req.files && req.body) {
       const requestData = req.body;
@@ -291,6 +296,9 @@ export const updateProduct: RequestHandler = async (
             requestData?.product_image_key
           );
         }
+        // Commit transaction
+        await session.commitTransaction();
+        session.endSession();
         return sendResponse<IProductInterface>(res, {
           statusCode: httpStatus.OK,
           success: true,
@@ -301,21 +309,58 @@ export const updateProduct: RequestHandler = async (
       }
     } else {
       const requestData = req.body;
-      const result: IProductInterface | any = await updateProductServices(
-        requestData,
-        requestData?._id
-      );
-      if (result?.modifiedCount > 0) {
-        return sendResponse<IProductInterface>(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: "Product Update Successfully !",
-        });
+      if (requestData?.price_update == true) {
+        const priceUpdateHistorydata = {
+          product_previous_price: requestData?.product_previous_price,
+          product_updated_price: requestData?.product_updated_price,
+          product_quantity: requestData?.product_quantity,
+          product_id: requestData?._id,
+          price_update_publisher_id: requestData?.price_update_publisher_id
+        }
+        const sendData = {
+          product_price: requestData?.product_updated_price,
+          product_updated_by: requestData?.price_update_publisher_id
+        }
+        await postProductPriceUpdateHistoryServices(priceUpdateHistorydata, session);
+        const result: IProductInterface | any = await updateProductPriceServices(
+          sendData,
+          requestData?._id,
+          session
+        );
+        if (result?.modifiedCount > 0) {
+          // Commit transaction
+          await session.commitTransaction();
+          session.endSession();
+          return sendResponse<IProductInterface>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "Product Update Successfully !",
+          });
+        } else {
+          throw new ApiError(400, "Product Update Failed !");
+        }
       } else {
-        throw new ApiError(400, "Product Update Failed !");
+        const result: IProductInterface | any = await updateProductServices(
+          requestData,
+          requestData?._id
+        );
+        if (result?.modifiedCount > 0) {
+          // Commit transaction
+          await session.commitTransaction();
+          session.endSession();
+          return sendResponse<IProductInterface>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "Product Update Successfully !",
+          });
+        } else {
+          throw new ApiError(400, "Product Update Failed !");
+        }
       }
     }
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };

@@ -65,6 +65,74 @@ export const findASupplierPaymentHistoryServices = async (
   return sendData;
 };
 
+// Find all Paid SupplierPayment
+export const findAllPaidSupplierPaymentServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<ISupplierPaymentInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: supplierPaymentSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ supplier_payment_status: "paid" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findSupplierPayment: ISupplierPaymentInterface[] | [] =
+    await SupplierPaymentModel.find(whereCondition)
+      .populate([
+        "supplier_id",
+        "payment_bank_id",
+        "supplier_payment_publisher_id",
+        "supplier_payment_updated_by",
+      ])
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-__v");
+  return findSupplierPayment;
+};
+
+// Find all UnPaid SupplierPayment
+export const findAllUnPaidSupplierPaymentServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<ISupplierPaymentInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: supplierPaymentSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ supplier_payment_status: "unpaid" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findSupplierPayment: ISupplierPaymentInterface[] | [] =
+    await SupplierPaymentModel.find(whereCondition)
+      .populate([
+        "supplier_id",
+        "payment_bank_id",
+        "supplier_payment_publisher_id",
+        "supplier_payment_updated_by",
+      ])
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-__v");
+  return findSupplierPayment;
+};
+
 // Find all dashboard SupplierPayment
 export const findAllDashboardSupplierPaymentServices = async (
   limit: number,

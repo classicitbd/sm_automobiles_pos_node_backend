@@ -7,6 +7,8 @@ import {
 } from "./supplier_payment.interface";
 import {
   findAllDashboardSupplierPaymentServices,
+  findAllPaidSupplierPaymentServices,
+  findAllUnPaidSupplierPaymentServices,
   findASupplierPaymentHistoryServices,
   postSupplierPaymentServices,
   updateSupplierPaymentServices,
@@ -31,17 +33,22 @@ export const postSupplierPayment: RequestHandler = async (
   try {
     const requestData = req.body;
 
-    const checkBankWithRefNoExist = await SupplierPaymentModel.findOne({
-      reference_id: requestData?.reference_id,
-      payment_bank_id: requestData?.payment_bank_id,
-    }).session(session);
-
-    if (checkBankWithRefNoExist) {
-      throw new ApiError(
-        400,
-        "Supplier Payment Already Exist With This Ref No !"
-      );
+    if (
+      requestData?.supplier_payment_method == "check" &&
+      requestData?.reference_id &&
+      requestData?.payment_bank_id) {
+      const checkBankWithRefNoExist = await SupplierPaymentModel.findOne({
+        reference_id: requestData?.reference_id,
+        payment_bank_id: requestData?.payment_bank_id,
+      }).session(session);
+      if (checkBankWithRefNoExist) {
+        throw new ApiError(
+          400,
+          "Supplier Payment Already Exist With This Ref No !"
+        );
+      }
     }
+
     const result: ISupplierPaymentInterface | {} =
       await postSupplierPaymentServices(requestData, session);
     if (!result) {
@@ -97,6 +104,94 @@ export const findASupplierPaymentHistory: RequestHandler = async (
         })),
       });
     }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await SupplierPaymentModel.countDocuments(whereCondition);
+    return sendResponse<ISupplierPaymentInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Supplier Payment Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All Paid SupplierPayment
+export const findAllPaidSupplierPayment: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISupplierPaymentInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ISupplierPaymentInterface[] | any =
+      await findAllPaidSupplierPaymentServices(
+        limitNumber,
+        skip,
+        searchTerm
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: supplierPaymentSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ supplier_payment_status: "paid" });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await SupplierPaymentModel.countDocuments(whereCondition);
+    return sendResponse<ISupplierPaymentInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Supplier Payment Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All UnPaid SupplierPayment
+export const findAllUnPaidSupplierPayment: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISupplierPaymentInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ISupplierPaymentInterface[] | any =
+      await findAllUnPaidSupplierPaymentServices(
+        limitNumber,
+        skip,
+        searchTerm
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: supplierPaymentSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ supplier_payment_status: "unpaid" });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
     const total = await SupplierPaymentModel.countDocuments(whereCondition);
