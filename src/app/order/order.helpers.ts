@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import OrderModel from "./order.model";
 import CustomerModel from "../customer/customer.model";
-import { postCustomerDueWhenOrderServices } from "../customer_due/customer_due.services";
+// import { postCustomerDueWhenOrderServices } from "../customer_due/customer_due.services";
 // import { postCustomerPaymentWhenOrderServices } from "../customer_payment/customer_payment.services";
 import ProductModel from "../product/product.model";
 import ApiError from "../../errors/ApiError";
@@ -87,40 +87,40 @@ export const handleReturnOrCancelOrderIncrementProductQuantity = async (
       throw new ApiError(400, "Customer Not Found !");
     }
 
-  if (findCustomer?.previous_due) {
-    if (findCustomer?.previous_due > grand_total_amount) {
-      const data = {
-        previous_due: findCustomer?.previous_due - grand_total_amount,
-      };
-      await CustomerModel.updateOne({ _id: customer_id }, data, {
-        runValidators: true,
-        session
-      });
-    } else {
-      const advance = grand_total_amount - findCustomer?.previous_due;
-      const data = {
-        previous_due: 0,
-        previous_advance: findCustomer?.previous_advance
-          ? findCustomer?.previous_advance + advance
-          : advance,
-      };
-      await CustomerModel.updateOne({ _id: customer_id }, data, {
-        runValidators: true,
-        session
-      });
-    }
-  } else {
-    const data = {
-      previous_due: 0,
-      previous_advance: findCustomer?.previous_advance
-        ? findCustomer?.previous_advance + grand_total_amount
-        : grand_total_amount,
-    };
-    await CustomerModel.updateOne({ _id: customer_id }, data, {
-      runValidators: true,
-      session
-    });
-  }
+  // if (findCustomer?.previous_due) {
+  //   if (findCustomer?.previous_due > grand_total_amount) {
+  //     const data = {
+  //       previous_due: findCustomer?.previous_due - grand_total_amount,
+  //     };
+  //     await CustomerModel.updateOne({ _id: customer_id }, data, {
+  //       runValidators: true,
+  //       session
+  //     });
+  //   } else {
+  //     const advance = grand_total_amount - findCustomer?.previous_due;
+  //     const data = {
+  //       previous_due: 0,
+  //       previous_advance: findCustomer?.previous_advance
+  //         ? findCustomer?.previous_advance + advance
+  //         : advance,
+  //     };
+  //     await CustomerModel.updateOne({ _id: customer_id }, data, {
+  //       runValidators: true,
+  //       session
+  //     });
+  //   }
+  // } else {
+  //   const data = {
+  //     previous_due: 0,
+  //     previous_advance: findCustomer?.previous_advance
+  //       ? findCustomer?.previous_advance + grand_total_amount
+  //       : grand_total_amount,
+  //   };
+  //   await CustomerModel.updateOne({ _id: customer_id }, data, {
+  //     runValidators: true,
+  //     session
+  //   });
+  // }
 };
 
 export const handleDuePayment = async (
@@ -170,7 +170,7 @@ export const handleDuePayment = async (
     previous_due: findCustomer.previous_due,
     previous_advance: findCustomer.previous_advance,
   };
-  await postCustomerDueWhenOrderServices(sendData, session);
+  // await postCustomerDueWhenOrderServices(sendData, session);
 };
 
 // export const handleFullPayment = async (

@@ -4,30 +4,38 @@ import { ICustomerPaymentInterface } from "./customer_payment.interface";
 // customer payment Schema
 const customerPaymentSchema = new Schema<ICustomerPaymentInterface>(
   {
-    transaction_id: {
-      type: String,
-    },
-    payment_note: {
+    payment_title: {
+      required: true,
       type: String,
     },
     payment_amount: {
       required: true,
       type: Number,
     },
-    previous_due: {
-      type: Number,
+    order_id: {
+      type: Schema.Types.ObjectId,
+      ref: "orders",
+      required: true,
     },
-    previous_advance: {
-      type: Number,
+    invoice_id: {
+      type: String,
+      required: true,
+    },
+    customer_phone: {
+      type: String,
+      required: true,
     },
     customer_id: {
       type: Schema.Types.ObjectId,
       ref: "customers",
       required: true,
     },
-    payment_bank_id: {
+    bank_id: {
       type: Schema.Types.ObjectId,
       ref: "banks",
+    },
+    reference_id: {
+      type: String,
     },
     customer_payment_publisher_id: {
       type: Schema.Types.ObjectId,

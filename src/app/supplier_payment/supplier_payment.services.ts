@@ -166,14 +166,14 @@ export const findAllDashboardSupplierPaymentServices = async (
 
 // update A SupplierPayment status
 export const updateSupplierPaymentServices = async (
-  data: ISupplierPaymentInterface,
+  data: any,
   _id: string,
   session: mongoose.ClientSession
 ): Promise<ISupplierPaymentInterface | any> => {
   const updateCustomerPaymentInfo: ISupplierPaymentInterface | null =
     await SupplierPaymentModel.findOne({ _id: _id }).session(session);
   if (!updateCustomerPaymentInfo) {
-    throw new ApiError(400, "Customer Not Found !");
+    throw new ApiError(400, "Supplier Payment Not Found !");
   }
   const CustomerPayment = await SupplierPaymentModel.updateOne(
     { _id: _id },

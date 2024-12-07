@@ -30,6 +30,14 @@ const orderSchema = new Schema<IOrderInterface>(
       required: true,
       type: Number,
     },
+    due_amount: {
+      required: true,
+      type: Number,
+    },
+    received_amount: {
+      type: Number,
+      required: true,
+    },
     order_status: {
       type: String,
       enum: ["pending", "processing", "confirmed", "cancelled", "returned"],

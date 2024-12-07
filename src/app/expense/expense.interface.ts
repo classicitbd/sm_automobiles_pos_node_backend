@@ -10,6 +10,7 @@ export interface IExpenseInterface {
   expense_amount: number;
   expense_supplier_id?: Types.ObjectId | ISupplierInterface;
   expense_bank_id?: Types.ObjectId | IBankInterface;
+  reference_id?: string;
   expense_product_id?: Types.ObjectId | IProductInterface;
   expense_publisher_id: Types.ObjectId | IUserInterface;
   expense_updated_by?: Types.ObjectId | IUserInterface;

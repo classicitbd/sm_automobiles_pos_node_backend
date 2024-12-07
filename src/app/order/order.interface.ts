@@ -26,6 +26,8 @@ export interface IOrderInterface {
   sub_total_amount: number;
   discount_percent_amount?: number;
   grand_total_amount: number;
+  received_amount: number;
+  due_amount: number;
   order_note?: string;
   order_barcode?: string;
   order_barcode_image?: string;

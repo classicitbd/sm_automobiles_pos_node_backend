@@ -11,6 +11,12 @@ import {
   postCheckServices,
   updateCheckServices,
 } from "./check.services";
+import mongoose from "mongoose";
+import { postBankInServices } from "../bank_in/bank_in.services";
+import BankModel from "../bank/bank.model";
+import CustomerModel from "../customer/customer.model";
+import { postCustomerPaymentServices } from "../customer_payment_history/customer_payment.services";
+import OrderModel from "../order/order.model";
 
 // Add A Check
 export const postCheck: RequestHandler = async (
@@ -183,22 +189,103 @@ export const updateCheck: RequestHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<ICheckInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const requestData = req.body;
-    const result: ICheckInterface | any = await updateCheckServices(
-      requestData,
-      requestData?._id
-    );
-    if (result?.modifiedCount > 0) {
-      return sendResponse<ICheckInterface>(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Check Update Successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Check Update Failed !");
+    const updateStatusData = {
+      check_status: requestData?.check_status,
     }
+    const result: ICheckInterface | any = await updateCheckServices(
+      updateStatusData,
+      requestData?._id,
+      session
+    );
+    if (result?.modifiedCount < 1) {
+      throw new ApiError(400, "Check Status Update Failed !");
+    }
+
+    if (requestData?.check_status == "approved") {
+      if (requestData?.payment_method == "check") {
+        const bankOutData = {
+          bank_id: requestData?.bank_id,
+          bank_in_amount: requestData?.pay_amount,
+          bank_in_title: requestData?.payment_note,
+          bank_in_ref_no: requestData?.check_number,
+          customer_id: requestData?.customer_id,
+          bank_in_publisher_id: requestData?.check_updated_by,
+        };
+        // create a bank in data
+        await postBankInServices(bankOutData, session);
+
+        // add amount from bank account
+        await BankModel.updateOne(
+          { _id: requestData?.bank_id },
+          { $inc: { bank_balance: +requestData?.pay_amount } },
+          {
+            session,
+            runValidators: true,
+          }
+        );
+      }
+
+      // add amount in Customer wallet
+      await CustomerModel.updateOne(
+        { _id: requestData?.customer_id },
+        {
+          $inc: { customer_wallet: +requestData?.pay_amount },
+        },
+        {
+          session,
+          runValidators: true,
+        }
+      );
+
+      // deduct amount from order total ammount
+      await OrderModel.updateOne(
+        { _id: requestData?.order_id },
+        {
+          $inc: { received_amount: +requestData?.pay_amount, due_amount: -requestData?.pay_amount },
+        },
+        {
+          session,
+          runValidators: true,
+        }
+      );
+
+      // add document in customer payment history
+      const sendDataInCustomerPaymentHistoryCreate: any = {
+        payment_title: "Customer Payment",
+        payment_amount: requestData?.pay_amount,
+        customer_id: requestData?.customer_id,
+        customer_phone: requestData?.customer_phone,
+        order_id: requestData?.order_id,
+        invoice_id: requestData?.invoice_number,
+        customer_payment_publisher_id: requestData?.check_updated_by,
+      };
+      if (requestData?.payment_method == "check") {
+        sendDataInCustomerPaymentHistoryCreate.bank_id = requestData?.bank_id,
+          sendDataInCustomerPaymentHistoryCreate.reference_id = requestData?.check_number
+      }
+
+      await postCustomerPaymentServices(
+        sendDataInCustomerPaymentHistoryCreate,
+        session
+      );
+    }
+
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return sendResponse<ICheckInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Check Update Successfully !",
+    });
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };

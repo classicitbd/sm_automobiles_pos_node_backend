@@ -17,6 +17,14 @@ const bankInSchema = new Schema<IBankInInterface>(
       required: true,
       type: String,
     },
+    bank_in_ref_no: {
+      required: true,
+      type: String,
+    },
+    customer_id: {
+      type: Schema.Types.ObjectId,
+      ref: "customers",
+    },
     bank_in_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

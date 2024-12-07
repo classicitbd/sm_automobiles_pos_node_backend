@@ -263,37 +263,45 @@ export const updateSupplierPayment: RequestHandler = async (
     const requestData = req.body;
     const _id = requestData?._id;
 
-    const result: ISupplierPaymentInterface | {} =
-      await updateSupplierPaymentServices(requestData, _id, session);
-    if (!result) {
+    const updatedStatus = {
+      supplier_payment_status: requestData?.supplier_payment_status,
+      supplier_payment_updated_by: requestData?.supplier_payment_updated_by,
+    }
+
+    const result: ISupplierPaymentInterface | {} | any =
+      await updateSupplierPaymentServices(updatedStatus, _id, session);
+    if (result?.modifiedCount < 1) {
       throw new ApiError(400, "Supplier Payment Added Failed !");
     }
 
-    const bankOutData = {
-      bank_id: requestData?.payment_bank_id,
-      bank_out_amount: requestData?.supplier_payment_amount,
-      bank_out_title: requestData?.supplier_payment_title,
-      bank_out_ref_no: requestData?.reference_id,
-      bank_out_publisher_id: requestData?.supplier_payment_publisher_id,
-    };
-    // create a bank out data
-    await postBankOutServices(bankOutData, session);
+    if (requestData?.supplier_payment_method == "check") {
+      const bankOutData = {
+        bank_id: requestData?.payment_bank_id,
+        bank_out_amount: requestData?.supplier_payment_amount,
+        bank_out_title: requestData?.supplier_payment_title,
+        bank_out_ref_no: requestData?.reference_id,
+        bank_out_publisher_id: requestData?.supplier_payment_updated_by,
+      };
+      // create a bank out data
+      await postBankOutServices(bankOutData, session);
 
-    // deduct amount from bank account
-    await BankModel.updateOne(
-      { _id: requestData?.payment_bank_id },
-      { $inc: { bank_balance: -requestData?.supplier_payment_amount } },
-      {
-        session,
-        runValidators: true,
-      }
-    );
+      // deduct amount from bank account
+      await BankModel.updateOne(
+        { _id: requestData?.payment_bank_id },
+        { $inc: { bank_balance: -requestData?.supplier_payment_amount } },
+        {
+          session,
+          runValidators: true,
+        }
+      );
+    }
+
 
     // add amount in Supplier wallet
     await SupplierModel.updateOne(
       { _id: requestData?.supplier_id },
       {
-        $inc: { supplier_wallet_amount: +requestData?.supplier_payment_amount },
+        $inc: { supplier_wallet_amount: -requestData?.supplier_payment_amount },
       },
       {
         session,
@@ -302,13 +310,17 @@ export const updateSupplierPayment: RequestHandler = async (
     );
 
     // add document in expense collection
-    const sendDataInExpenceCreate = {
+    const sendDataInExpenceCreate: any = {
       expense_title: "Supplier Money Send",
       expense_amount: requestData?.supplier_payment_amount,
       expense_supplier_id: requestData?.supplier_id,
-      expense_bank_id: requestData?.payment_bank_id,
-      expense_publisher_id: requestData?.supplier_payment_publisher_id,
+      expense_publisher_id: requestData?.supplier_payment_updated_by,
     };
+    if (requestData?.supplier_payment_method == "check") {
+      sendDataInExpenceCreate.expense_bank_id = requestData?.payment_bank_id,
+        sendDataInExpenceCreate.reference_id = requestData?.reference_id
+    }
+
     await postExpenseWhenProductStockAddServices(
       sendDataInExpenceCreate,
       session

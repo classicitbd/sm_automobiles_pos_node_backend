@@ -6,6 +6,7 @@ import {
   findAllUnPaidSupplierPayment,
   findASupplierPaymentHistory,
   postSupplierPayment,
+  updateSupplierPayment,
 } from "./supplier_payment.controllers";
 const router = express.Router();
 
@@ -13,7 +14,8 @@ const router = express.Router();
 router
   .route("/")
   .get(verifyToken, findASupplierPaymentHistory)
-  .post(verifyToken, postSupplierPayment);
+  .post(verifyToken, postSupplierPayment)
+  .patch(verifyToken, updateSupplierPayment);
 
 // get all Paid SupplierPayment in paid
 router.route("/paid_payment_list").get(verifyToken, findAllPaidSupplierPayment);

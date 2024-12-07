@@ -8,8 +8,6 @@ import { BankRoutes } from "../app/bank/bank.routes";
 import { RoleRoutes } from "../app/role/role.routes";
 import { CustomerRoutes } from "../app/customer/customer.routes";
 import { SupplierPaymentRoutes } from "../app/supplier_payment/supplier_payment.routes";
-import { CustomerDueRoutes } from "../app/customer_due/customer_due.routes";
-import { CustomerPaymentRoutes } from "../app/customer_payment/customer_payment.routes";
 import { UserGetMeRoutes } from "../app/getme/getme.routes";
 import { ProductRoutes } from "../app/product/product.routes";
 import { StockManageRoutes } from "../app/stock_manage/stock_manage.routes";
@@ -17,9 +15,9 @@ import { OrderRoutes } from "../app/order/order.routes";
 import { ProductUnitRoutes } from "../app/productUnit/unit.routes";
 import { SiteSettingRoutes } from "../app/site_setting/site_setting.routes";
 import { SaleTargetRoutes } from "../app/sale_target/sale_target.routes";
-import { BankInRoutes } from "../app/bank_in/bank_in.routes";
-import { CheckRoutes } from "../app/check/check.routes";
+import { CheckRoutes } from "../app/customer_payment/check.routes";
 import { ExpenseRoutes } from "../app/expense/expense.routes";
+import { CustomerPaymentRoutes } from "../app/customer_payment_history/customer_payment.routes";
 
 const router = express.Router();
 
@@ -57,10 +55,6 @@ const moduleRoutes = [
     route: BankRoutes,
   },
   {
-    path: "/bank_in",
-    route: BankInRoutes,
-  },
-  {
     path: "/supplier_payment",
     route: SupplierPaymentRoutes,
   },
@@ -72,7 +66,6 @@ const moduleRoutes = [
     path: "/check",
     route: CheckRoutes,
   },
-
   {
     path: "/product",
     route: ProductRoutes,
@@ -85,9 +78,13 @@ const moduleRoutes = [
     path: "/expense",
     route: ExpenseRoutes,
   },
+  {
+    path: "/customer_payment",
+    route: CustomerPaymentRoutes,
+  },
 
 
-  
+
 
 
   {
@@ -101,14 +98,6 @@ const moduleRoutes = [
   {
     path: "/get_me",
     route: UserGetMeRoutes,
-  },
-  {
-    path: "/customer_due",
-    route: CustomerDueRoutes,
-  },
-  {
-    path: "/customer_payment",
-    route: CustomerPaymentRoutes,
   },
   {
     path: "/image_upload",

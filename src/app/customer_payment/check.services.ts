@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { checkSearchableField, ICheckInterface } from "./check.interface";
 import CheckModel from "./check.model";
 
@@ -59,13 +60,13 @@ export const findAllDueDashboardCheckServices = async (
 
   const searchCondition = searchTerm
     ? {
-        $or: checkSearchableField.map((field) => ({
-          [field]: {
-            $regex: searchTerm,
-            $options: "i",
-          },
-        })),
-      }
+      $or: checkSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    }
     : {};
 
   const findCheck: ICheckInterface[] | [] = await CheckModel.find({
@@ -215,16 +216,18 @@ export const findAllTodayDashboardCheckServices = async (
 
 // Update a Check
 export const updateCheckServices = async (
-  data: ICheckInterface,
-  _id: string
+  data: any,
+  _id: string,
+  session: mongoose.ClientSession
 ): Promise<ICheckInterface | any> => {
   const updateCheckInfo: ICheckInterface | null = await CheckModel.findOne({
     _id: _id,
-  });
+  }).session(session);
   if (!updateCheckInfo) {
     return {};
   }
   const Check = await CheckModel.updateOne({ _id: _id }, data, {
+    session,
     runValidators: true,
   });
   return Check;
