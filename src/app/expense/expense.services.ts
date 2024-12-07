@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 // Create A Expense
 export const postExpenseWhenProductStockAddServices = async (
-  data: IExpenseInterface,
+  data: any,
   session: mongoose.ClientSession
 ): Promise<IExpenseInterface | {}> => {
   const createExpense: IExpenseInterface | {} = await ExpenseModel.create([data], {
@@ -13,8 +13,8 @@ export const postExpenseWhenProductStockAddServices = async (
   return createExpense;
 };
 
-// Find all Dashboard Expense
-export const findAllDashboardExpenseServices = async (
+// Find all  Expense
+export const findAllExpenseServices = async (
   limit: number,
   skip: number,
   searchTerm: any
@@ -34,7 +34,7 @@ export const findAllDashboardExpenseServices = async (
   const findExpense: IExpenseInterface[] | [] = await ExpenseModel.find(
     whereCondition
   )
-    .populate(["expense_publisher_id", "expense_updated_by", "expense_bank_id"])
+    .populate(["expense_supplier_id", "expense_product_id", "expense_publisher_id", "expense_updated_by", "expense_bank_id"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)

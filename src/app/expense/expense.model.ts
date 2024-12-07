@@ -20,6 +20,10 @@ const expenseSchema = new Schema<IExpenseInterface>(
       type: Schema.Types.ObjectId,
       ref: "banks",
     },
+    expense_product_id: {
+      type: Schema.Types.ObjectId,
+      ref: "products",
+    },
     expense_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

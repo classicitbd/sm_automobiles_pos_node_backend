@@ -19,6 +19,7 @@ import { SiteSettingRoutes } from "../app/site_setting/site_setting.routes";
 import { SaleTargetRoutes } from "../app/sale_target/sale_target.routes";
 import { BankInRoutes } from "../app/bank_in/bank_in.routes";
 import { CheckRoutes } from "../app/check/check.routes";
+import { ExpenseRoutes } from "../app/expense/expense.routes";
 
 const router = express.Router();
 
@@ -79,6 +80,10 @@ const moduleRoutes = [
   {
     path: "/stock_manage",
     route: StockManageRoutes,
+  },
+  {
+    path: "/expense",
+    route: ExpenseRoutes,
   },
 
 

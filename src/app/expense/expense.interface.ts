@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { IUserInterface } from "../user/user.interface";
 import { IBankInterface } from "../bank/bank.interface";
 import { ISupplierInterface } from "../supplier/supplier.interface";
+import { IProductInterface } from "../product/product.interface";
 
 export interface IExpenseInterface {
   _id?: any;
@@ -9,6 +10,7 @@ export interface IExpenseInterface {
   expense_amount: number;
   expense_supplier_id?: Types.ObjectId | ISupplierInterface;
   expense_bank_id?: Types.ObjectId | IBankInterface;
+  expense_product_id?: Types.ObjectId | IProductInterface;
   expense_publisher_id: Types.ObjectId | IUserInterface;
   expense_updated_by?: Types.ObjectId | IUserInterface;
 }

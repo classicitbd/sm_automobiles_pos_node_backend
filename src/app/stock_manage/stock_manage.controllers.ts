@@ -16,6 +16,7 @@ import StockManageModel from "./stock_manage.model";
 import ProductModel from "../product/product.model";
 import SupplierModel from "../supplier/supplier.model";
 import { postSupplierMoneyAddServices } from "../supplier_add_money/supplier_money_add.services";
+import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
 
 // Add A StockManage
 export const postStockManage: RequestHandler = async (
@@ -77,6 +78,16 @@ export const postStockManage: RequestHandler = async (
       supplier_money_add_publisher_id: requestData?.stock_publisher_id,
     };
     await postSupplierMoneyAddServices(supplierPaymentHistory, session);
+
+    // expence history add in expense route
+    const expenseData = {
+      expense_title: "Stock add in product",
+      expense_amount: requestData?.total_price,
+      expense_supplier_id: requestData?.supplier_id,
+      expense_product_id: requestData?.product_id,
+      expense_publisher_id: requestData?.stock_publisher_id,
+    }
+    await postExpenseWhenProductStockAddServices(expenseData, session);
 
     // Commit transaction
     await session.commitTransaction();
