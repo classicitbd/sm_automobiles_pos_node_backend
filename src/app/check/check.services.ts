@@ -51,18 +51,11 @@ export const findAllDueDashboardCheckServices = async (
   skip: number,
   searchTerm: any
 ): Promise<ICheckInterface[] | []> => {
-  const today = new Date();
-  const previousDay = new Date(today.setDate(today.getDate() - 1))
-    .toISOString()
-    .split("T")[0];
 
-  const startOfPreviousDay = new Date();
-  startOfPreviousDay.setDate(startOfPreviousDay.getDate() - 1);
-  startOfPreviousDay.setHours(0, 0, 0, 0);
+  const todayDate = new Date().toISOString().split("T")[0];
 
-  const endOfPreviousDay = new Date();
-  endOfPreviousDay.setDate(endOfPreviousDay.getDate() - 1);
-  endOfPreviousDay.setHours(23, 59, 59, 999);
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
 
   const searchCondition = searchTerm
     ? {
@@ -80,23 +73,18 @@ export const findAllDueDashboardCheckServices = async (
       searchCondition,
       {
         $or: [
-          // If `payment_method` is "check", filter by `check_withdraw_date`
+          // For "check" payment method: Exclude today's `check_withdraw_date`
           {
             $and: [
               { payment_method: "check" },
-              { check_withdraw_date: previousDay },
+              { check_withdraw_date: { $lt: todayDate } },
             ],
           },
-          // Otherwise, filter by `createdAt` within the previous day
+          // For other payment methods: Exclude today's `createdAt`
           {
             $and: [
               { payment_method: { $ne: "check" } },
-              {
-                createdAt: {
-                  $gte: startOfPreviousDay,
-                  $lte: endOfPreviousDay,
-                },
-              },
+              { createdAt: { $lt: startOfDay } },
             ],
           },
         ],
@@ -119,45 +107,6 @@ export const findAllDueDashboardCheckServices = async (
   return findCheck;
 };
 
-// export const findAllDueDashboardCheckServices = async (
-//   limit: number,
-//   skip: number,
-//   searchTerm: any
-// ): Promise<ICheckInterface[] | []> => {
-//   const today = new Date();
-//   const previousDay = new Date(today.setDate(today.getDate() - 1))
-//     .toISOString()
-//     .split("T")[0];
-
-//   const andCondition: any = [{ check_withdraw_date: previousDay }];
-//   if (searchTerm) {
-//     andCondition.push({
-//       $or: checkSearchableField.map((field) => ({
-//         [field]: {
-//           $regex: searchTerm,
-//           $options: "i",
-//         },
-//       })),
-//     });
-//   }
-//   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
-//   const findCheck: ICheckInterface[] | [] = await CheckModel.find(
-//     whereCondition
-//   )
-//     .populate([
-//       "order_id",
-//       "customer_id",
-//       "bank_id",
-//       "check_publisher_id",
-//       "check_approved_by",
-//       "check_updated_by",
-//     ])
-//     .sort({ _id: -1 })
-//     .skip(skip)
-//     .limit(limit)
-//     .select("-__v");
-//   return findCheck;
-// };
 
 // Find all Todaydashboard Check
 export const findAllTodayDashboardCheckServices = async (
@@ -176,13 +125,13 @@ export const findAllTodayDashboardCheckServices = async (
   // Build search term condition
   const searchCondition = searchTerm
     ? {
-        $or: checkSearchableField.map((field) => ({
-          [field]: {
-            $regex: searchTerm,
-            $options: "i",
-          },
-        })),
-      }
+      $or: checkSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    }
     : {};
 
   // Query with conditional logic based on `payment_method`
@@ -191,14 +140,14 @@ export const findAllTodayDashboardCheckServices = async (
       searchCondition,
       {
         $or: [
-          // If `payment_method` is "check", filter by `check_withdraw_date`
+          // If `payment_method` is "check", filter by `check_withdraw_date` equal to today
           {
             $and: [
               { payment_method: "check" },
               { check_withdraw_date: todayDate },
             ],
           },
-          // Otherwise, filter by `createdAt` within the current day
+          // Otherwise, filter by `createdAt` within today's date range
           {
             $and: [
               { payment_method: { $ne: "check" } },
@@ -226,6 +175,7 @@ export const findAllTodayDashboardCheckServices = async (
 
   return findCheck;
 };
+
 
 // export const findAllTodayDashboardCheckServices = async (
 //   limit: number,
