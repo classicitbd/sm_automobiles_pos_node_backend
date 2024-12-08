@@ -45,15 +45,16 @@ export const postCustomer: RequestHandler = async (
   }
 };
 
-// find all active customer
+// find all active Customer for a specific publisher
 export const findAllActiveCustomer: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<ICustomerInterface | any> => {
   try {
+    const { customer_publisher_id }: any = req.query;
     const result: ICustomerInterface[] | [] | any =
-      await findAllActiveCustomerServices();
+      await findAllActiveCustomerServices(customer_publisher_id);
     return sendResponse<ICustomerInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,

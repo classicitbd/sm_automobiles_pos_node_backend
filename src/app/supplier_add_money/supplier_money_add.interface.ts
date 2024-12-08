@@ -14,3 +14,8 @@ export interface ISupplierMoneyAddInterface {
   supplier_money_add_publisher_id: Types.ObjectId | IUserInterface;
   supplier_money_add_updated_by?: Types.ObjectId | IUserInterface;
 }
+
+
+export const supplierMoneyAddSearchableField = [
+  "supplier_money_add_title"
+];

@@ -15,12 +15,13 @@ export const postCustomerServices = async (
   return createCustomer;
 };
 
-// find all active Customer
-export const findAllActiveCustomerServices = async (): Promise<
+// find all active Customer for a specific publisher
+export const findAllActiveCustomerServices = async (customer_publisher_id: string): Promise<
   ICustomerInterface | {}
 > => {
   const findCustomer: ICustomerInterface[] | [] = await CustomerModel.find({
     customer_status: "active",
+    customer_publisher_id: customer_publisher_id
   });
   return findCustomer;
 };

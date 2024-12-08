@@ -46,7 +46,6 @@ export const findASupplierPaymentHistoryServices = async (
     await SupplierPaymentModel.find(whereCondition)
       .populate([
         "supplier_payment_publisher_id",
-        "supplier_payment_updated_by",
         "payment_bank_id",
       ])
       .sort({ _id: -1 })

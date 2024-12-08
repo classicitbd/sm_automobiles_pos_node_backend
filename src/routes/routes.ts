@@ -18,6 +18,7 @@ import { SaleTargetRoutes } from "../app/sale_target/sale_target.routes";
 import { CheckRoutes } from "../app/customer_payment/check.routes";
 import { ExpenseRoutes } from "../app/expense/expense.routes";
 import { CustomerPaymentRoutes } from "../app/customer_payment_history/customer_payment.routes";
+import { SupplierMoneyAddRoutes } from "../app/supplier_add_money/supplier_money_add.routes";
 
 const router = express.Router();
 
@@ -57,6 +58,10 @@ const moduleRoutes = [
   {
     path: "/supplier_payment",
     route: SupplierPaymentRoutes,
+  },
+  {
+    path: "/supplier_money_add_history",
+    route: SupplierMoneyAddRoutes,
   },
   {
     path: "/customer",

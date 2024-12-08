@@ -8,7 +8,7 @@ import {
 } from "./customer.controllers";
 const router = express.Router();
 
-// Create, Get Customer
+// Create, Get Customer, find all active Customer for a specific publisher
 router
   .route("/")
   .get(findAllActiveCustomer)
