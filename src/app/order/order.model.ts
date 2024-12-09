@@ -8,54 +8,21 @@ const orderSchema = new Schema<IOrderInterface>(
       required: true,
       type: String,
     },
+    order_status: {
+      required: true,
+      type: String,
+      enum: ["management", "warehouse", "out-of-warehouse"],
+      default: "management",
+    },
     customer_id: {
       type: Schema.Types.ObjectId,
       ref: "customers",
       required: true,
     },
-    customer_previous_due: {
-      type: Number,
-    },
-    customer_previous_advance: {
-      type: Number,
-    },
-    sub_total_amount: {
-      required: true,
-      type: Number,
-    },
-    discount_percent_amount: {
-      type: Number,
-    },
-    grand_total_amount: {
-      required: true,
-      type: Number,
-    },
-    due_amount: {
-      required: true,
-      type: Number,
-    },
-    received_amount: {
-      type: Number,
-      required: true,
-    },
-    order_status: {
-      type: String,
-      enum: ["pending", "processing", "confirmed", "cancelled", "returned"],
-      default: "pending",
-    },
-    order_note: {
-      type: String,
-    },
-    order_barcode: {
-      type: String,
-    },
-    order_barcode_image: {
-      type: String,
-    },
     order_products: [
       {
         product_id: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: Schema.Types.ObjectId,
           ref: "products",
           required: true,
         },
@@ -65,18 +32,75 @@ const orderSchema = new Schema<IOrderInterface>(
         },
         product_price: {
           required: true,
-          type: Number,
-        },
-        product_total_price: {
-          required: true,
-          type: Number,
+          type: Number
         },
         product_buying_price: {
           required: true,
-          type: Number,
+          type: Number
         },
-      },
+        total_amount: {
+          required: true,
+          type: Number
+        },
+        discount_percent: {
+          required: true,
+          type: Number
+        },
+        grand_total: {
+          required: true,
+          type: Number
+        }
+      }
     ],
+    sub_total_amount: {
+      required: true,
+      type: Number
+    },
+    discount_percent_amount: {
+      required: true,
+      type: Number
+    },
+    grand_total_amount: {
+      required: true,
+      type: Number
+    },
+    received_amount: {
+      required: true,
+      type: Number
+    },
+    due_amount: {
+      required: true,
+      type: Number
+    },
+    order_note: {
+      type: String
+    },
+    order_barcode: {
+      type: String
+    },
+    order_barcode_image: {
+      type: String
+    },
+    payment_type: {
+      required: true,
+      type: String
+    },
+    payment_method: {
+      type: String
+    },
+    pay_amount: {
+      type: Number
+    },
+    bank_id: {
+      type: Schema.Types.ObjectId,
+      ref: "banks",
+    },
+    check_number: {
+      type: String
+    },
+    check_withdraw_date: {
+      type: String
+    },
     order_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",
@@ -96,112 +120,3 @@ const OrderModel = model<IOrderInterface>("orders", orderSchema);
 
 export default OrderModel;
 
-// import mongoose, { Schema, model } from "mongoose";
-// import { IOrderInterface } from "./order.interface";
-
-// // order Schema
-// const orderSchema = new Schema<IOrderInterface>(
-//   {
-//     order_id: {
-//       required: true,
-//       type: String,
-//     },
-//     customer_id: {
-//       type: Schema.Types.ObjectId,
-//       ref: "customers",
-//       required: true,
-//     },
-//     customer_previous_due: {
-//       type: Number,
-//     },
-//     customer_previous_advance: {
-//       type: Number,
-//     },
-//     sub_total_amount: {
-//       required: true,
-//       type: Number,
-//     },
-//     discount_percent_amount: {
-//       type: Number,
-//     },
-//     grand_total_amount: {
-//       required: true,
-//       type: Number,
-//     },
-//     payment_type: {
-//       type: String,
-//       enum: ["full-payment", "partial-payment", "due-payment"],
-//       default: "due-payment",
-//     },
-//     payment_bank_id: {
-//       type: Schema.Types.ObjectId,
-//       ref: "banks",
-//     },
-//     payment_transaction_id: {
-//       type: String,
-//     },
-//     order_status: {
-//       type: String,
-//       enum: [
-//         "pending",
-//         "processing",
-//         "confirmed",
-//         "cancelled",
-//         "returned",
-//       ],
-//       default: "pending",
-//     },
-//     received_amount: {
-//       required: true,
-//       type: Number,
-//     },
-//     due_amount: {
-//       required: true,
-//       type: Number,
-//     },
-//     order_note: {
-//       type: String,
-//     },
-//     order_products: [
-//       {
-//         product_id: {
-//           type: mongoose.Schema.Types.ObjectId,
-//           ref: "products",
-//           required: true,
-//         },
-//         product_quantity: {
-//           required: true,
-//           type: Number,
-//         },
-//         product_price: {
-//           required: true,
-//           type: Number,
-//         },
-//         product_total_price: {
-//           required: true,
-//           type: Number,
-//         },
-//         product_buying_price: {
-//           required: true,
-//           type: Number,
-//         },
-//       },
-//     ],
-//     order_publisher_id: {
-//       type: Schema.Types.ObjectId,
-//       ref: "users",
-//       required: true,
-//     },
-//     order_updated_by: {
-//       type: Schema.Types.ObjectId,
-//       ref: "users",
-//     },
-//   },
-//   {
-//     timestamps: true,
-//   }
-// );
-
-// const OrderModel = model<IOrderInterface>("orders", orderSchema);
-
-// export default OrderModel;
