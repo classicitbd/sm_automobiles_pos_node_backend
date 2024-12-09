@@ -7,8 +7,10 @@ import {
   generateBarcodeImage,
   generateOrderId,
 } from "./order.helpers";
-import { postOrderServices } from "./order.services";
+import { findAllDashboardOrderServices, findAllSelfOrderServices, postOrderServices } from "./order.services";
 import CheckModel from "../customer_payment/check.model";
+import { IOrderInterface, orderSearchableField } from "./order.interface";
+import OrderModel from "./order.model";
 
 // Add A Order
 export const postOrder: RequestHandler = async (
@@ -37,7 +39,7 @@ export const postOrder: RequestHandler = async (
     // if have a partial or full payment with  bank
     if (requestData?.payment_type !== "due-payment") {
       const paymentCreateData: any = {
-        order_id: result?._id,
+        order_id: result?.[0]?._id,
         customer_id: requestData?.customer_id,
         customer_phone: requestData?.customer_phone,
         invoice_number: order_id,
@@ -72,27 +74,69 @@ export const postOrder: RequestHandler = async (
   }
 };
 
-// // Find All self Order for create a payment
-// export const findAllSelfOrder: RequestHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ): Promise<IOrderInterface | any> => {
-//   try {
-//     const { order_publisher_id } = req.params;
-//     const result: IOrderInterface[] | any = await findAllSelfOrderServices(order_publisher_id);
-//     return sendResponse<IOrderInterface>(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: "Order Found Successfully !",
-//       data: result,
-//     });
-//   } catch (error: any) {
-//     next(error);
-//   }
-// };
+// Find All dashboard Order
+export const findAllDashboardOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any = await findAllDashboardOrderServices(
+      limitNumber,
+      skip,
+      searchTerm
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
 
-// // Find All Order
+// Find All self Order for create a payment
+export const findAllSelfOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { order_publisher_id } = req.params;
+    const result: IOrderInterface[] | any = await findAllSelfOrderServices(order_publisher_id);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All Order
 // export const findAllOrder: RequestHandler = async (
 //   req: Request,
 //   res: Response,
@@ -128,48 +172,6 @@ export const postOrder: RequestHandler = async (
 //       success: true,
 //       message: "Order Found Successfully !",
 //       data: result,
-//     });
-//   } catch (error: any) {
-//     next(error);
-//   }
-// };
-
-// // Find All dashboard Order
-// export const findAllDashboardOrder: RequestHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ): Promise<IOrderInterface | any> => {
-//   try {
-//     const { page, limit, searchTerm } = req.query;
-//     const pageNumber = Number(page);
-//     const limitNumber = Number(limit);
-//     const skip = (pageNumber - 1) * limitNumber;
-//     const result: IOrderInterface[] | any = await findAllDashboardOrderServices(
-//       limitNumber,
-//       skip,
-//       searchTerm
-//     );
-//     const andCondition = [];
-//     if (searchTerm) {
-//       andCondition.push({
-//         $or: orderSearchableField.map((field) => ({
-//           [field]: {
-//             $regex: searchTerm,
-//             $options: "i",
-//           },
-//         })),
-//       });
-//     }
-//     const whereCondition =
-//       andCondition.length > 0 ? { $and: andCondition } : {};
-//     const total = await OrderModel.countDocuments(whereCondition);
-//     return sendResponse<IOrderInterface>(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: "Order Found Successfully !",
-//       data: result,
-//       totalData: total,
 //     });
 //   } catch (error: any) {
 //     next(error);

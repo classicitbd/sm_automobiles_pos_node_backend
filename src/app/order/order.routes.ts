@@ -1,6 +1,6 @@
 import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
-import { postOrder } from "./order.controllers";
+import { findAllDashboardOrder, findAllSelfOrder, postOrder } from "./order.controllers";
 const router = express.Router();
 
 // Create, Get Order
@@ -11,10 +11,10 @@ router
 // .patch(verifyToken, updateOrder);
 
 // get all Order in dashboard
-// router.route("/dashboard").get(verifyToken, findAllDashboardOrder);
+router.route("/dashboard").get(verifyToken, findAllDashboardOrder);
 
 // get all self Order for create a payment
-// router.route("/self_order/:order_publisher_id").get(findAllSelfOrder);
+router.route("/self_order/:order_publisher_id").get(findAllSelfOrder);
 
 // get a order
 // router.route("/:_id").get(findAOrder);

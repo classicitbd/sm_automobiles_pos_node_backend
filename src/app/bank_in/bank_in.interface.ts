@@ -13,3 +13,8 @@ export interface IBankInInterface {
   bank_in_publisher_id: Types.ObjectId | IUserInterface;
   bank_in_updated_by?: Types.ObjectId | IUserInterface;
 }
+
+export const bankInSearchableField =[
+  "bank_in_title",
+  "bank_in_ref_no"
+]

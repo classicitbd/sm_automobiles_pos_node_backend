@@ -11,3 +11,8 @@ export interface IBankOutInterface {
   bank_out_publisher_id: Types.ObjectId | IUserInterface;
   bank_out_updated_by?: Types.ObjectId | IUserInterface;
 }
+
+export const bankOutSearchableField = [
+  "bank_out_title",
+  "bank_out_ref_no"
+]

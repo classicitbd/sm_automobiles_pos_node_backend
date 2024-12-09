@@ -25,6 +25,11 @@ const saleTargetSchema = new Schema<ISaleTargetInterface>(
       required: true,
       type: Number,
     },
+    sale_target_filup: {
+      required: true,
+      type: Number,
+      default: 0
+    },
     sale_target_success: {
       type: Boolean,
       default: false,

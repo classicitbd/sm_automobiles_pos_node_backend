@@ -8,6 +8,7 @@ export interface ISaleTargetInterface {
   sale_target_end_date: string;
   sale_target: number;
   sale_target_amount: number;
+  sale_target_filup: number;
   sale_target_success: true | false;
   sale_target_publisher_id: Types.ObjectId | IUserInterface;
   sale_target_updated_by?: Types.ObjectId | IUserInterface;

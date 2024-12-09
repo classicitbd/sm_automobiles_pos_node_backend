@@ -15,7 +15,6 @@ import mongoose from "mongoose";
 import { postBankInServices } from "../bank_in/bank_in.services";
 import BankModel from "../bank/bank.model";
 import CustomerModel from "../customer/customer.model";
-import { postCustomerPaymentServices } from "../customer_payment_history/customer_payment.services";
 import OrderModel from "../order/order.model";
 
 // Add A Check
@@ -229,17 +228,17 @@ export const updateCheck: RequestHandler = async (
         );
       }
 
-      // add amount in Customer wallet
-      await CustomerModel.updateOne(
-        { _id: requestData?.customer_id },
-        {
-          $inc: { customer_wallet: +requestData?.pay_amount },
-        },
-        {
-          session,
-          runValidators: true,
-        }
-      );
+      // // add amount in Customer wallet
+      // await CustomerModel.updateOne(
+      //   { _id: requestData?.customer_id },
+      //   {
+      //     $inc: { customer_wallet: +requestData?.pay_amount },
+      //   },
+      //   {
+      //     session,
+      //     runValidators: true,
+      //   }
+      // );
 
       // deduct amount from order total ammount
       await OrderModel.updateOne(
@@ -251,27 +250,7 @@ export const updateCheck: RequestHandler = async (
           session,
           runValidators: true,
         }
-      );
-
-      // add document in customer payment history
-      const sendDataInCustomerPaymentHistoryCreate: any = {
-        payment_title: "Customer Payment",
-        payment_amount: requestData?.pay_amount,
-        customer_id: requestData?.customer_id,
-        customer_phone: requestData?.customer_phone,
-        order_id: requestData?.order_id,
-        invoice_id: requestData?.invoice_number,
-        customer_payment_publisher_id: requestData?.check_updated_by,
-      };
-      if (requestData?.payment_method == "check") {
-        sendDataInCustomerPaymentHistoryCreate.bank_id = requestData?.bank_id,
-          sendDataInCustomerPaymentHistoryCreate.reference_id = requestData?.check_number
-      }
-
-      await postCustomerPaymentServices(
-        sendDataInCustomerPaymentHistoryCreate,
-        session
-      );
+      )
     }
 
     // Commit transaction

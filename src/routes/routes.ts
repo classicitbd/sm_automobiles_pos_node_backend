@@ -17,8 +17,9 @@ import { SiteSettingRoutes } from "../app/site_setting/site_setting.routes";
 import { SaleTargetRoutes } from "../app/sale_target/sale_target.routes";
 import { CheckRoutes } from "../app/customer_payment/check.routes";
 import { ExpenseRoutes } from "../app/expense/expense.routes";
-import { CustomerPaymentRoutes } from "../app/customer_payment_history/customer_payment.routes";
 import { SupplierMoneyAddRoutes } from "../app/supplier_add_money/supplier_money_add.routes";
+import { BankInRoutes } from "../app/bank_in/bank_in.routes";
+import { BankOutRoutes } from "../app/bank_out/bank_out.routes";
 
 const router = express.Router();
 
@@ -56,6 +57,14 @@ const moduleRoutes = [
     route: BankRoutes,
   },
   {
+    path: "/bank_in",
+    route: BankInRoutes,
+  },
+  {
+    path: "/bank_out",
+    route: BankOutRoutes,
+  },
+  {
     path: "/supplier_payment",
     route: SupplierPaymentRoutes,
   },
@@ -83,15 +92,6 @@ const moduleRoutes = [
     path: "/expense",
     route: ExpenseRoutes,
   },
-  {
-    path: "/customer_payment",
-    route: CustomerPaymentRoutes,
-  },
-
-
-
-
-
   {
     path: "/order",
     route: OrderRoutes,

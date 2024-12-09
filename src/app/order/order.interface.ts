@@ -41,37 +41,12 @@ export interface IOrderInterface {
 }
 
 export const orderSearchableField = [
-  "payment_type",
-  "payment_transaction_id",
-  "order_id",
   "order_status",
-  "order_note"
+  "order_id",
+  "order_note",
+  "order_barcode",
+  "payment_type",
+  "payment_method",
+  "check_number",
+  "check_withdraw_date"
 ];
-
-
-
-// export interface IOrderInterface {
-//   _id?: any;
-//   order_id: string;
-//   order_status:
-//     | "pending"
-//     | "processing"
-//     | "confirmed"
-//     | "cancelled"
-//     | "returned";
-//   customer_id: Types.ObjectId | ICustomerInterface;
-//   customer_previous_due?: number;
-//   customer_previous_advance?: number;
-//   payment_type: "full-payment" | "partial-payment" | "due-payment";
-//   payment_bank_id?: Types.ObjectId | IBankInterface;
-//   payment_transaction_id?: string;
-//   sub_total_amount: number;
-//   discount_percent_amount?: number;
-//   received_amount: number;
-//   due_amount: number;
-//   grand_total_amount: number;
-//   order_note?: string;
-//   order_products: IOrderProductInterface[];
-//   order_publisher_id: Types.ObjectId | IUserInterface;
-//   order_updated_by?: Types.ObjectId | IUserInterface;
-// }
