@@ -337,13 +337,20 @@ export const updateOrder: RequestHandler = async (
       user_id: user_id,
     })
     if (slaeTargetUserFind) {
+      const today = new Date().toISOString().split("T")[0]; // Format as YYYY-MM-DD
+
       await SaleTargetModel.updateOne(
-        { user_id: user_id },
+        {
+          user_id: user_id,
+          sale_target_start_date: { $lte: today },
+          sale_target_end_date: { $gte: today },
+        },
         {
           $inc: { sale_target_filup: +total_messurement_count },
         },
         { session }
-      )
+      );
+
     }
     const updatedData: any = {
       _id: requestData?._id,
