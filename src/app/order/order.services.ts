@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import ApiError from "../../errors/ApiError";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
+import CustomerModel from "../customer/customer.model";
 
 // Create A Order
 export const postOrderServices = async (
@@ -12,6 +13,59 @@ export const postOrderServices = async (
     session,
   });
   return createOrder;
+};
+
+// Find all ACustomer Order
+export const findAllACustomerOrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  customer_id: string
+): Promise<IOrderInterface[] | [] | any> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ customer_id: customer_id });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate([
+      "order_publisher_id",
+      "order_updated_by",
+      {
+        path: "order_products.product_id",
+        model: "products",
+        populate: [
+          {
+            path: "brand_id",
+            model: "brands",
+          },
+          {
+            path: "category_id", // Corrected typo from "ategory_id" to "category_id"
+            model: "categories",
+          },
+        ],
+      },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  const customerDetails = await CustomerModel.findOne({ _id: customer_id });
+  const sendData: any = {
+    customerDetails,
+    orderDetails: findOrder
+  }
+  return sendData;
 };
 
 // Find all dashboard Order
@@ -31,6 +85,101 @@ export const findAllDashboardOrderServices = async (
       })),
     });
   }
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate([
+      "customer_id",
+      "order_publisher_id",
+      "order_updated_by",
+      {
+        path: "order_products.product_id",
+        model: "products",
+        populate: [
+          {
+            path: "brand_id",
+            model: "brands",
+          },
+          {
+            path: "category_id", // Corrected typo from "ategory_id" to "category_id"
+            model: "categories",
+          },
+        ],
+      },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findOrder;
+};
+
+// Find all Management Order
+export const findAllManagementOrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IOrderInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ order_status: "management" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate([
+      "customer_id",
+      "order_publisher_id",
+      "order_updated_by",
+      {
+        path: "order_products.product_id",
+        model: "products",
+        populate: [
+          {
+            path: "brand_id",
+            model: "brands",
+          },
+          {
+            path: "category_id", // Corrected typo from "ategory_id" to "category_id"
+            model: "categories",
+          },
+        ],
+      },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findOrder;
+};
+// Find all Warehouse Order
+export const findAllWarehouseOrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IOrderInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ order_status: "warehouse" });
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findOrder: IOrderInterface[] | [] = await OrderModel.find(
     whereCondition
@@ -123,21 +272,21 @@ export const findAllSelfOrderServices = async (
 // };
 
 
-// // Update a Order
-// export const updateOrderServices = async (
-//   data: IOrderInterface,
-//   _id: string,
-//   session: mongoose.ClientSession
-// ): Promise<IOrderInterface | any> => {
-//   const updateOrderInfo: IOrderInterface | null = await OrderModel.findOne({
-//     _id: _id,
-//   }).session(session);
-//   if (!updateOrderInfo) {
-//     throw new ApiError(400, "Order Not Found !");
-//   }
-//   const Order = await OrderModel.updateOne({ _id: _id }, data, {
-//     runValidators: true,
-//     session,
-//   });
-//   return Order;
-// };
+// Update a Order
+export const updateOrderServices = async (
+  data: IOrderInterface,
+  _id: string,
+  session: mongoose.ClientSession
+): Promise<IOrderInterface | any> => {
+  const updateOrderInfo: IOrderInterface | null = await OrderModel.findOne({
+    _id: _id,
+  }).session(session);
+  if (!updateOrderInfo) {
+    throw new ApiError(400, "Order Not Found !");
+  }
+  const Order = await OrderModel.updateOne({ _id: _id }, data, {
+    runValidators: true,
+    session,
+  });
+  return Order;
+};

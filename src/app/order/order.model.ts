@@ -49,7 +49,11 @@ const orderSchema = new Schema<IOrderInterface>(
         grand_total: {
           required: true,
           type: Number
-        }
+        },
+        total_messurement: {
+          required: true,
+          type: Number
+        },
       }
     ],
     sub_total_amount: {
@@ -69,6 +73,10 @@ const orderSchema = new Schema<IOrderInterface>(
       type: Number
     },
     due_amount: {
+      required: true,
+      type: Number
+    },
+    total_messurement_count: {
       required: true,
       type: Number
     },

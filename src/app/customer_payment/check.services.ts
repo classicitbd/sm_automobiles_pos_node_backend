@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { checkSearchableField, ICheckInterface } from "./check.interface";
 import CheckModel from "./check.model";
+import CustomerModel from "../customer/customer.model";
 
 // Create A Check
 export const postCheckServices = async (
@@ -9,6 +10,53 @@ export const postCheckServices = async (
   const createCheck: ICheckInterface | {} = await CheckModel.create(data);
   return createCheck;
 };
+
+// Find all ACustomer Check
+export const findAllACustomerCheckServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  customer_id: string
+): Promise<ICheckInterface[] | [] | any> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: checkSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ customer_id: customer_id });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findCheck: ICheckInterface[] | [] = await CheckModel.find(
+    whereCondition
+  )
+    .populate([
+      {
+        path: "order_id",
+        populate: {
+          path: "order_products.product_id",
+          model: "products",
+          // Optionally, you can select specific fields from the product schema
+          select: "product_name product_id", // Example fields
+        },
+      },
+      { path: "bank_id", model: "banks" }, // Ensure you reference the correct model
+      { path: "check_publisher_id", model: "users" },
+      { path: "check_updated_by", model: "users" },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  const customerDetails: any = await CustomerModel.findOne({ _id: customer_id });
+  const sendData = { checkDetails: findCheck, customerDetails };
+  return sendData;
+};
+
 
 // Find all dashboard Check
 export const findAllDashboardCheckServices = async (

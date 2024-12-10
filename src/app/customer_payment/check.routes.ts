@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
 import {
+  findAllACustomerCheck,
   findAllDashboardCheck,
   findAllDueDashboardCheck,
   findAllTodayDashboardCheck,
@@ -10,7 +11,7 @@ import {
 const router = express.Router();
 
 // Create, Get Check
-router.route("/").post(postCheck).patch(updateCheck);
+router.route("/").get(verifyToken, findAllACustomerCheck).post(postCheck).patch(updateCheck);
 
 // get all Check in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardCheck);

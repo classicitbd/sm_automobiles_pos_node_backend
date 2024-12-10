@@ -5,6 +5,7 @@ import ApiError from "../../errors/ApiError";
 import { checkSearchableField, ICheckInterface } from "./check.interface";
 import CheckModel from "./check.model";
 import {
+  findAllACustomerCheckServices,
   findAllDashboardCheckServices,
   findAllDueDashboardCheckServices,
   findAllTodayDashboardCheckServices,
@@ -56,6 +57,49 @@ export const postCheck: RequestHandler = async (
   }
 };
 
+// Find All ACustomer Check
+export const findAllACustomerCheck: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ICheckInterface | any> => {
+  try {
+    const { page, limit, searchTerm, customer_id }: any = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ICheckInterface[] | any = await findAllACustomerCheckServices(
+      limitNumber,
+      skip,
+      searchTerm,
+      customer_id
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: checkSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ customer_id: customer_id });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await CheckModel.countDocuments(whereCondition);
+    return sendResponse<ICheckInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Check Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
 // Find All dashboard Check
 export const findAllDashboardCheck: RequestHandler = async (
   req: Request,

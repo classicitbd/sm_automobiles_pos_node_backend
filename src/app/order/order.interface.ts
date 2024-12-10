@@ -12,6 +12,7 @@ export interface IOrderProductInterface {
   total_amount: number;
   discount_percent: number;
   grand_total: number;
+  total_messurement: number;
 }
 
 export interface IOrderInterface {
@@ -27,6 +28,7 @@ export interface IOrderInterface {
   grand_total_amount: number;
   received_amount: number;
   due_amount: number;
+  total_messurement_count: number;
   order_note?: string;
   order_barcode?: string;
   order_barcode_image?: string;

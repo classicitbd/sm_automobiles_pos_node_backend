@@ -6,11 +6,13 @@ import mongoose from "mongoose";
 import {
   generateBarcodeImage,
   generateOrderId,
+  handleProductQuantity,
 } from "./order.helpers";
-import { findAllDashboardOrderServices, findAllSelfOrderServices, postOrderServices } from "./order.services";
+import { findAllACustomerOrderServices, findAllDashboardOrderServices, findAllManagementOrderServices, findAllSelfOrderServices, findAllWarehouseOrderServices, postOrderServices, updateOrderServices } from "./order.services";
 import CheckModel from "../customer_payment/check.model";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
+import SaleTargetModel from "../sale_target/sale_target.model";
 
 // Add A Order
 export const postOrder: RequestHandler = async (
@@ -74,6 +76,50 @@ export const postOrder: RequestHandler = async (
   }
 };
 
+// Find All ACustomer Order
+export const findAllACustomerOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm, customer_id }: any = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any = await findAllACustomerOrderServices(
+      limitNumber,
+      skip,
+      searchTerm,
+      customer_id
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ customer_id: customer_id });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 // Find All dashboard Order
 export const findAllDashboardOrder: RequestHandler = async (
   req: Request,
@@ -101,6 +147,91 @@ export const findAllDashboardOrder: RequestHandler = async (
         })),
       });
     }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All Management Order
+export const findAllManagementOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any = await findAllManagementOrderServices(
+      limitNumber,
+      skip,
+      searchTerm
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ order_status: "management" });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+// Find All Warehouse Order
+export const findAllWarehouseOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any = await findAllWarehouseOrderServices(
+      limitNumber,
+      skip,
+      searchTerm
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ order_status: "warehouse" });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
     const total = await OrderModel.countDocuments(whereCondition);
@@ -178,50 +309,68 @@ export const findAllSelfOrder: RequestHandler = async (
 //   }
 // };
 
-// // Update A Order
-// export const updateOrder: RequestHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ): Promise<IOrderInterface | any> => {
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
+// Update A Order
+export const updateOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-//   try {
-//     const requestData = req.body;
-//     if (
-//       requestData &&
-//       (requestData?.order_status == "cancelled" ||
-//         requestData?.order_status == "returned") &&
-//       requestData?.order_status_update == true
-//     ) {
-//       await handleReturnOrCancelOrderIncrementProductQuantity(
-//         requestData?.order_products,
-//         requestData?.customer_id,
-//         requestData?.grand_total_amount,
-//         session
-//       );
-//     }
-//     const result: IOrderInterface | any = await updateOrderServices(
-//       requestData,
-//       requestData?._id,
-//       session
-//     );
-//     if (result?.modifiedCount > 0) {
-//       // Commit transaction
-//       await session.commitTransaction();
-//       session.endSession();
-//       return sendResponse<IOrderInterface>(res, {
-//         statusCode: httpStatus.OK,
-//         success: true,
-//         message: "Order Update Successfully !",
-//       });
-//     } else {
-//       throw new ApiError(400, "Order Update Failed !");
-//     }
-//   } catch (error: any) {
-//     await session.abortTransaction();
-//     session.endSession();
-//     next(error);
-//   }
-// };
+  try {
+    const requestData = req.body;
+    const user_id = requestData?.user_id;
+    const total_messurement_count = requestData?.total_messurement_count;
+    // handle product quantity
+    if (
+      requestData &&
+      requestData?.order_status == "out-of-warehouse"
+    ) {
+      await handleProductQuantity(
+        requestData?.order_products,
+        session
+      );
+    }
+    // handle sale count in this user id
+    const slaeTargetUserFind = await SaleTargetModel.findOne({
+      user_id: user_id,
+    })
+    if (slaeTargetUserFind) {
+      await SaleTargetModel.updateOne(
+        { user_id: user_id },
+        {
+          $inc: { sale_target_filup: +total_messurement_count },
+        },
+        { session }
+      )
+    }
+    const updatedData: any = {
+      _id: requestData?._id,
+      order_status: requestData?.order_status,
+      order_updated_by: requestData?.order_updated_by
+    }
+    // handle order status
+    const result: IOrderInterface | any = await updateOrderServices(
+      updatedData,
+      requestData?._id,
+      session
+    );
+
+    if (result?.modifiedCount == 0) {
+      throw new ApiError(400, "Order Update Failed !");
+    }
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Update Successfully !",
+    });
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    next(error);
+  }
+};
