@@ -8,7 +8,15 @@ import {
   generateOrderId,
   handleProductQuantity,
 } from "./order.helpers";
-import { findAllACustomerOrderServices, findAllDashboardOrderServices, findAllManagementOrderServices, findAllSelfOrderServices, findAllWarehouseOrderServices, postOrderServices, updateOrderServices } from "./order.services";
+import {
+  findAllACustomerOrderServices,
+  findAllDashboardOrderServices,
+  findAllManagementOrderServices,
+  findAllSelfOrderServices,
+  findAllWarehouseOrderServices,
+  postOrderServices,
+  updateOrderServices,
+} from "./order.services";
 import CheckModel from "../customer_payment/check.model";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
@@ -47,14 +55,17 @@ export const postOrder: RequestHandler = async (
         invoice_number: order_id,
         payment_note: "Create a order",
         payment_method: requestData?.payment_method,
-        pay_amount: requestData?.payment_type == "full-payment" ? requestData?.grand_total_amount : requestData?.pay_amount,
+        pay_amount:
+          requestData?.payment_type == "full-payment"
+            ? requestData?.grand_total_amount
+            : requestData?.pay_amount,
         check_status: "pending",
-        check_publisher_id: requestData?.order_publisher_id
-      }
+        check_publisher_id: requestData?.order_publisher_id,
+      };
       if (requestData?.payment_method === "check") {
         paymentCreateData.bank_id = requestData.bank_id;
         paymentCreateData.check_number = requestData.check_number;
-        paymentCreateData.check_withdraw_date = requestData.check_withdraw_date
+        paymentCreateData.check_withdraw_date = requestData.check_withdraw_date;
       }
       await CheckModel.create([paymentCreateData], { session });
     }
@@ -173,11 +184,8 @@ export const findAllManagementOrder: RequestHandler = async (
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: IOrderInterface[] | any = await findAllManagementOrderServices(
-      limitNumber,
-      skip,
-      searchTerm
-    );
+    const result: IOrderInterface[] | any =
+      await findAllManagementOrderServices(limitNumber, skip, searchTerm);
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
@@ -255,7 +263,9 @@ export const findAllSelfOrder: RequestHandler = async (
 ): Promise<IOrderInterface | any> => {
   try {
     const { order_publisher_id } = req.params;
-    const result: IOrderInterface[] | any = await findAllSelfOrderServices(order_publisher_id);
+    const result: IOrderInterface[] | any = await findAllSelfOrderServices(
+      order_publisher_id
+    );
     return sendResponse<IOrderInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -323,58 +333,82 @@ export const updateOrder: RequestHandler = async (
     const user_id = requestData?.user_id;
     const total_messurement_count = requestData?.total_messurement_count;
     // handle product quantity
-    if (
-      requestData &&
-      requestData?.order_status == "out-of-warehouse"
-    ) {
+    if (requestData && requestData?.order_status == "out-of-warehouse") {
       await handleProductQuantity(
         requestData?.order_products,
+        session,
+        requestData,
+        user_id
+      );
+      // handle sale count in this user id
+      const today = new Date().toISOString().split("T")[0]; // Format as YYYY-MM-DD
+      const slaeTargetUserFind = await SaleTargetModel.findOne({
+        user_id: user_id,
+        sale_target_start_date: { $lte: today },
+        sale_target_end_date: { $gte: today },
+      });
+      if (slaeTargetUserFind) {
+        await SaleTargetModel.updateOne(
+          {
+            user_id: user_id,
+            sale_target_start_date: { $lte: today },
+            sale_target_end_date: { $gte: today },
+          },
+          {
+            $inc: { sale_target_filup: +total_messurement_count },
+          },
+          { session }
+        );
+      }
+
+      const updatedData: any = {
+        _id: requestData?._id,
+        order_status: requestData?.order_status,
+        order_updated_by: requestData?.order_updated_by,
+      };
+      // handle order status
+      const result: IOrderInterface | any = await updateOrderServices(
+        updatedData,
+        requestData?._id,
         session
       );
-    }
-    // handle sale count in this user id
-    const slaeTargetUserFind = await SaleTargetModel.findOne({
-      user_id: user_id,
-    })
-    if (slaeTargetUserFind) {
-      const today = new Date().toISOString().split("T")[0]; // Format as YYYY-MM-DD
 
-      await SaleTargetModel.updateOne(
-        {
-          user_id: user_id,
-          sale_target_start_date: { $lte: today },
-          sale_target_end_date: { $gte: today },
-        },
-        {
-          $inc: { sale_target_filup: +total_messurement_count },
-        },
-        { session }
+      if (result?.modifiedCount == 0) {
+        throw new ApiError(400, "Order Update Failed !");
+      }
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+      return sendResponse<IOrderInterface>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Order Update Successfully !",
+      });
+    } else {
+      const updatedData: any = {
+        _id: requestData?._id,
+        order_status: requestData?.order_status,
+        order_updated_by: requestData?.order_updated_by,
+      };
+      // handle order status
+      const result: IOrderInterface | any = await updateOrderServices(
+        updatedData,
+        requestData?._id,
+        session
       );
 
+      if (result?.modifiedCount == 0) {
+        throw new ApiError(400, "Order Update Failed !");
+      }
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+      return sendResponse<IOrderInterface>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Order Update Successfully !",
+      });
     }
-    const updatedData: any = {
-      _id: requestData?._id,
-      order_status: requestData?.order_status,
-      order_updated_by: requestData?.order_updated_by
-    }
-    // handle order status
-    const result: IOrderInterface | any = await updateOrderServices(
-      updatedData,
-      requestData?._id,
-      session
-    );
-
-    if (result?.modifiedCount == 0) {
-      throw new ApiError(400, "Order Update Failed !");
-    }
-    // Commit transaction
-    await session.commitTransaction();
-    session.endSession();
-    return sendResponse<IOrderInterface>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Order Update Successfully !",
-    });
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();

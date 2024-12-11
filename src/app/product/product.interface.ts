@@ -20,6 +20,7 @@ export interface IProductInterface {
   product_buying_price?: number;
   product_quantity?: number;
   product_stock_low_alert?: number;
+  total_sale?: number;
   product_barcode: string;
   product_barcode_image?: string;
   product_id: string;

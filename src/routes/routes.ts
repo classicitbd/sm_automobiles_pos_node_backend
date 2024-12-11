@@ -20,6 +20,7 @@ import { ExpenseRoutes } from "../app/expense/expense.routes";
 import { SupplierMoneyAddRoutes } from "../app/supplier_add_money/supplier_money_add.routes";
 import { BankInRoutes } from "../app/bank_in/bank_in.routes";
 import { BankOutRoutes } from "../app/bank_out/bank_out.routes";
+import { IncomeRoutes } from "../app/income/income.routes";
 
 const router = express.Router();
 
@@ -91,6 +92,10 @@ const moduleRoutes = [
   {
     path: "/expense",
     route: ExpenseRoutes,
+  },
+  {
+    path: "/income",
+    route: IncomeRoutes,
   },
   {
     path: "/order",

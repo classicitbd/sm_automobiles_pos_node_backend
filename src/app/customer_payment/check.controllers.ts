@@ -17,6 +17,7 @@ import { postBankInServices } from "../bank_in/bank_in.services";
 import BankModel from "../bank/bank.model";
 import CustomerModel from "../customer/customer.model";
 import OrderModel from "../order/order.model";
+import { postIncomeWhenCustomerPaymentAddServices } from "../income/income.services";
 
 // Add A Check
 export const postCheck: RequestHandler = async (
@@ -238,7 +239,7 @@ export const updateCheck: RequestHandler = async (
     const requestData = req.body;
     const updateStatusData = {
       check_status: requestData?.check_status,
-    }
+    };
     const result: ICheckInterface | any = await updateCheckServices(
       updateStatusData,
       requestData?._id,
@@ -272,6 +273,20 @@ export const updateCheck: RequestHandler = async (
         );
       }
 
+      // payment add in income list
+      const incomeData = {
+        income_title: requestData?.payment_note || "Customer payment",
+        income_amount: requestData?.pay_amount,
+        income_customer_id: requestData?.customer_id,
+        customer_phone: requestData?.customer_phone,
+        income_bank_id: requestData?.bank_id,
+        reference_id: requestData?.check_number,
+        income_order_id: requestData?.order_id,
+        income_invoice_number: requestData?.invoice_number,
+        income_publisher_id: requestData?.check_updated_by,
+      };
+      await postIncomeWhenCustomerPaymentAddServices(incomeData, session);
+
       // // add amount in Customer wallet
       // await CustomerModel.updateOne(
       //   { _id: requestData?.customer_id },
@@ -288,13 +303,16 @@ export const updateCheck: RequestHandler = async (
       await OrderModel.updateOne(
         { _id: requestData?.order_id },
         {
-          $inc: { received_amount: +requestData?.pay_amount, due_amount: -requestData?.pay_amount },
+          $inc: {
+            received_amount: +requestData?.pay_amount,
+            due_amount: -requestData?.pay_amount,
+          },
         },
         {
           session,
           runValidators: true,
         }
-      )
+      );
     }
 
     // Commit transaction

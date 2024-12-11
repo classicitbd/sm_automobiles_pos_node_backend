@@ -6,6 +6,7 @@ import CustomerModel from "../customer/customer.model";
 import ProductModel from "../product/product.model";
 import ApiError from "../../errors/ApiError";
 import QRCode from "qrcode";
+import ProductPerformanceModel from "../productPerformanceHistory/productSaleHistory.model";
 
 // Generate a unique Order ID
 export const generateOrderId = async () => {
@@ -50,16 +51,34 @@ export const generateBarcodeImage = async (order_id: any) => {
 // Helper functions
 export const handleProductQuantity = async (
   order_products: any,
-  session: mongoose.ClientSession
+  session: mongoose.ClientSession,
+  requestData: any,
+  user_id: string
 ) => {
   await Promise.all(
     order_products?.map((product: any) =>
       ProductModel.updateOne(
         { _id: product?.product_id },
-        { $inc: { product_quantity: -product?.product_quantity } },
+        {
+          $inc: {
+            product_quantity: -product?.product_quantity,
+            total_sale: +product?.product_quantity,
+          },
+        },
         { session }
       )
     )
+  );
+  // save product sale in performance hostory
+  await Promise.all(
+    order_products?.map((product: any) => {
+      const performanceData = {
+        product_id: product?.product_id,
+        order_id: requestData?._id,
+        product_sale_history_publisher_id: user_id,
+      };
+      ProductPerformanceModel.create([performanceData], { session });
+    })
   );
 };
 
@@ -80,12 +99,12 @@ export const handleReturnOrCancelOrderIncrementProductQuantity = async (
     )
   );
 
-  const findCustomer = await CustomerModel.findOne({ _id: customer_id }).session(
-    session
-  );
-    if (!findCustomer) {
-      throw new ApiError(400, "Customer Not Found !");
-    }
+  const findCustomer = await CustomerModel.findOne({
+    _id: customer_id,
+  }).session(session);
+  if (!findCustomer) {
+    throw new ApiError(400, "Customer Not Found !");
+  }
 
   // if (findCustomer?.previous_due) {
   //   if (findCustomer?.previous_due > grand_total_amount) {

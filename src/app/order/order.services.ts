@@ -91,6 +91,7 @@ export const findAllDashboardOrderServices = async (
   )
     .populate([
       "customer_id",
+      "bank_id",
       "order_publisher_id",
       "order_updated_by",
       {

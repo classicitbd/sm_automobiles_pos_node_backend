@@ -65,6 +65,10 @@ const productSchema = new Schema<IProductInterface>(
     product_stock_low_alert: {
       type: Number,
     },
+    total_sale: {
+      type: Number,
+      default: 0,
+    },
     product_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",
