@@ -32,11 +32,6 @@ const productSchema = new Schema<IProductInterface>(
       type: Schema.Types.ObjectId,
       ref: "brands",
     },
-    supplier_id: {
-      type: Schema.Types.ObjectId,
-      ref: "suppliers",
-      required: true,
-    },
     product_unit_id: {
       type: Schema.Types.ObjectId,
       ref: "units",

@@ -16,7 +16,6 @@ import StockManageModel from "./stock_manage.model";
 import ProductModel from "../product/product.model";
 import SupplierModel from "../supplier/supplier.model";
 import { postSupplierMoneyAddServices } from "../supplier_add_money/supplier_money_add.services";
-import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
 
 // Add A StockManage
 export const postStockManage: RequestHandler = async (

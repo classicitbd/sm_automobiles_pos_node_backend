@@ -36,7 +36,8 @@ export const postSupplierPayment: RequestHandler = async (
     if (
       requestData?.supplier_payment_method == "check" &&
       requestData?.reference_id &&
-      requestData?.payment_bank_id) {
+      requestData?.payment_bank_id
+    ) {
       const checkBankWithRefNoExist = await SupplierPaymentModel.findOne({
         reference_id: requestData?.reference_id,
         payment_bank_id: requestData?.payment_bank_id,
@@ -131,11 +132,7 @@ export const findAllPaidSupplierPayment: RequestHandler = async (
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
     const result: ISupplierPaymentInterface[] | any =
-      await findAllPaidSupplierPaymentServices(
-        limitNumber,
-        skip,
-        searchTerm
-      );
+      await findAllPaidSupplierPaymentServices(limitNumber, skip, searchTerm);
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
@@ -175,11 +172,7 @@ export const findAllUnPaidSupplierPayment: RequestHandler = async (
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
     const result: ISupplierPaymentInterface[] | any =
-      await findAllUnPaidSupplierPaymentServices(
-        limitNumber,
-        skip,
-        searchTerm
-      );
+      await findAllUnPaidSupplierPaymentServices(limitNumber, skip, searchTerm);
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
@@ -266,7 +259,7 @@ export const updateSupplierPayment: RequestHandler = async (
     const updatedStatus = {
       supplier_payment_status: requestData?.supplier_payment_status,
       supplier_payment_updated_by: requestData?.supplier_payment_updated_by,
-    }
+    };
 
     const result: ISupplierPaymentInterface | {} | any =
       await updateSupplierPaymentServices(updatedStatus, _id, session);
@@ -296,7 +289,6 @@ export const updateSupplierPayment: RequestHandler = async (
       );
     }
 
-
     // add amount in Supplier wallet
     await SupplierModel.updateOne(
       { _id: requestData?.supplier_id },
@@ -317,8 +309,8 @@ export const updateSupplierPayment: RequestHandler = async (
       expense_publisher_id: requestData?.supplier_payment_updated_by,
     };
     if (requestData?.supplier_payment_method == "check") {
-      sendDataInExpenceCreate.expense_bank_id = requestData?.payment_bank_id,
-        sendDataInExpenceCreate.reference_id = requestData?.reference_id
+      (sendDataInExpenceCreate.expense_bank_id = requestData?.payment_bank_id),
+        (sendDataInExpenceCreate.reference_id = requestData?.reference_id);
     }
 
     await postExpenseWhenProductStockAddServices(

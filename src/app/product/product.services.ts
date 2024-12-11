@@ -124,7 +124,6 @@ export const findAllDashboardProductServices = async (
       "category_id",
       "brand_id",
       "product_unit_id",
-      "supplier_id",
     ])
     .sort({ _id: -1 })
     .skip(skip)

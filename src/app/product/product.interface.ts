@@ -14,7 +14,6 @@ export interface IProductInterface {
   product_details?: string;
   category_id: Types.ObjectId | ICategoryInterface;
   brand_id?: Types.ObjectId | IBrandInterface;
-  supplier_id: Types.ObjectId | ISupplierInterface; 
   product_unit_id: Types.ObjectId | IProductUnitInterface;
   product_price?: number;
   product_buying_price?: number;
