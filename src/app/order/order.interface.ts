@@ -33,6 +33,7 @@ export interface IOrderInterface {
   order_barcode?: string;
   order_barcode_image?: string;
   payment_type: string;
+  out_of_warehouse_date?: string;
   order_publisher_id: Types.ObjectId | IUserInterface;
   order_updated_by?: Types.ObjectId | IUserInterface;
 }

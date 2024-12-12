@@ -1,4 +1,5 @@
 import ApiError from "../../errors/ApiError";
+import OrderModel from "../order/order.model";
 import UserModel from "../user/user.model";
 import {
   ISaleTargetInterface,
@@ -88,13 +89,20 @@ export const findAUserASaleTargetReportServices = async (
 ): Promise<ISaleTargetInterface[] | [] | any> => {
   const saleTargetDetails: any = await SaleTargetModel.findOne({
     _id: sale_target_id,
-  });
+  }).populate("user_id");
   if (!saleTargetDetails) throw new ApiError(400, "Sale Target Not Found !");
   const sale_target_start_date = saleTargetDetails?.sale_target_start_date;
   const sale_target_end_date = saleTargetDetails?.sale_target_end_date;
-  console.log(sale_target_start_date, sale_target_end_date);
+  const findOrderDetails: any = await OrderModel.find({
+    order_status: "out-of-warehouse",
+    out_of_warehouse_date: {
+      $gte: sale_target_start_date, // Start date (inclusive)
+      $lte: sale_target_end_date // End date (inclusive)
+    },
+  }).select("-__v -updated_at -created_at  -order_barcode_image -order_barcode -order_products");
   const sendData = {
     saleTargetDetails: saleTargetDetails,
+    findOrderDetails: findOrderDetails,
   };
   return sendData;
 };

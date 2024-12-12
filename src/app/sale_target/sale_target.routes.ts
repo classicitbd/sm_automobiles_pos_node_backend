@@ -18,7 +18,7 @@ router
 
 // find a user all SaleTarget
 router
-  .route("a_sale_target_report/:sale_target_id")
+  .route("/a_sale_target_report/:sale_target_id")
   .get(verifyToken, findAUserASaleTargetReport);
 
 // find a user all SaleTarget

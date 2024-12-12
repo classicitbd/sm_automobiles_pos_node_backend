@@ -429,6 +429,7 @@ export const updateOrder: RequestHandler = async (
         _id: requestData?._id,
         order_status: requestData?.order_status,
         order_updated_by: requestData?.order_updated_by,
+        out_of_warehouse_date: today,
       };
       // handle order status
       const result: IOrderInterface | any = await updateOrderServices(
