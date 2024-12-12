@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { IProductInterface } from "../product/product.interface";
 import { IUserInterface } from "../user/user.interface";
+import { ISupplierInterface } from "../supplier/supplier.interface";
 
 export interface IStockManageInterface {
   _id?: any;
@@ -9,6 +10,7 @@ export interface IStockManageInterface {
   product_quantity: number;
   product_note: string;
   product_id: Types.ObjectId | IProductInterface;
+  supplier_id: Types.ObjectId | ISupplierInterface;
   stock_publisher_id: Types.ObjectId | IUserInterface;
   stock_updated_by?: Types.ObjectId | IUserInterface;
 }

@@ -21,6 +21,7 @@ import { SupplierMoneyAddRoutes } from "../app/supplier_add_money/supplier_money
 import { BankInRoutes } from "../app/bank_in/bank_in.routes";
 import { BankOutRoutes } from "../app/bank_out/bank_out.routes";
 import { IncomeRoutes } from "../app/income/income.routes";
+import { ProductPriceUpdateHistoryRoutes } from "../app/product_price_update_history/product_price_update_history.routes";
 
 const router = express.Router();
 
@@ -84,6 +85,10 @@ const moduleRoutes = [
   {
     path: "/product",
     route: ProductRoutes,
+  },
+  {
+    path: "/product_price_update_history",
+    route: ProductPriceUpdateHistoryRoutes,
   },
   {
     path: "/stock_manage",

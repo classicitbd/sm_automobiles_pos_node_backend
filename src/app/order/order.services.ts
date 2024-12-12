@@ -139,7 +139,7 @@ export const findAllProfitOrderServices = async (
   const findOrder: IOrderInterface[] | [] = await OrderModel.find(
     whereCondition
   )
-    .populate(["order_publisher_id"])
+    .populate("order_publisher_id")
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -275,7 +275,7 @@ export const findAllSelfOrderServices = async (
       path: "order_products.product_id",
       model: "products",
     },
-  ]);
+  ]).sort({_id: -1});
   return findAllOrder;
 };
 

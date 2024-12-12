@@ -8,6 +8,7 @@ import {
 } from "./stock_manage.interface";
 import {
   findAllStockDetailsInAProductServices,
+  findASupplierAllStockDetailsServices,
   postStockManageServices,
   updateStockManageServices,
 } from "./stock_manage.services";
@@ -126,6 +127,55 @@ export const findAllStockDetailsInAProduct: RequestHandler = async (
     const productObjectId = Types.ObjectId.isValid(product_id)
       ? { product_id: new Types.ObjectId(product_id) }
       : { product_id };
+
+    const andCondition: any[] = [productObjectId];
+    if (searchTerm) {
+      andCondition.push({
+        $or: stockManageSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await StockManageModel.countDocuments(whereCondition);
+    return sendResponse<IStockManageInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "StockManage Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All dashboard StockManage
+export const findASupplierAllStockDetails: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IStockManageInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const supplier_id = req.params.supplier_id;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IStockManageInterface[] | any =
+      await findASupplierAllStockDetailsServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        supplier_id
+      );
+    const productObjectId = Types.ObjectId.isValid(supplier_id)
+      ? { supplier_id: new Types.ObjectId(supplier_id) }
+      : { supplier_id };
 
     const andCondition: any[] = [productObjectId];
     if (searchTerm) {

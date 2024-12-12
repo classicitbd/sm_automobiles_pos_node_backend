@@ -19,6 +19,11 @@ const stockManageSchema = new Schema<IStockManageInterface>(
     product_note: {
       type: String,
     },
+    supplier_id: {
+      type: Schema.Types.ObjectId,
+      ref: "suppliers",
+      required: true,
+    },
     product_id: {
       type: Schema.Types.ObjectId,
       ref: "products",
@@ -39,6 +44,9 @@ const stockManageSchema = new Schema<IStockManageInterface>(
   }
 );
 
-const StockManageModel = model<IStockManageInterface>("stocks", stockManageSchema);
+const StockManageModel = model<IStockManageInterface>(
+  "stocks",
+  stockManageSchema
+);
 
 export default StockManageModel;
