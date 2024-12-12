@@ -3,6 +3,7 @@ import { verifyToken } from "../../middlewares/verify.token";
 import {
   findAllActiveCustomer,
   findAllDashboardCustomer,
+  findAllSelfCustomer,
   postCustomer,
   updateCustomer,
 } from "./customer.controllers";
@@ -14,6 +15,9 @@ router
   .get(findAllActiveCustomer)
   .post(verifyToken, postCustomer)
   .patch(verifyToken, updateCustomer);
+
+// get all self Customer in dashboard
+router.route("/self_customer").get(verifyToken, findAllSelfCustomer);
 
 // get all Customer in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardCustomer);

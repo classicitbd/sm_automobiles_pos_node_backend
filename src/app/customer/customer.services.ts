@@ -16,13 +16,37 @@ export const postCustomerServices = async (
 };
 
 // find all active Customer for a specific publisher
-export const findAllActiveCustomerServices = async (customer_publisher_id: string): Promise<
-  ICustomerInterface | {}
-> => {
+export const findAllActiveCustomerServices = async (
+  customer_publisher_id: string
+): Promise<ICustomerInterface | {}> => {
   const findCustomer: ICustomerInterface[] | [] = await CustomerModel.find({
     customer_status: "active",
-    customer_publisher_id: customer_publisher_id
+    customer_publisher_id: customer_publisher_id,
   });
+  return findCustomer;
+};
+
+// find all Self Customer for a specific publisher
+export const findAllSelfCustomerServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  customer_publisher_id: string
+): Promise<ICustomerInterface | {}> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: customerSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ customer_publisher_id: customer_publisher_id });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findCustomer: ICustomerInterface[] | [] = await CustomerModel.find(whereCondition);
   return findCustomer;
 };
 

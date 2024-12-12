@@ -9,6 +9,7 @@ import {
 import {
   findAllActiveCustomerServices,
   findAllDashboardCustomerServices,
+  findAllSelfCustomerServices,
   postCustomerServices,
   updateCustomerServices,
 } from "./customer.services";
@@ -55,6 +56,50 @@ export const findAllActiveCustomer: RequestHandler = async (
     const { customer_publisher_id }: any = req.query;
     const result: ICustomerInterface[] | [] | any =
       await findAllActiveCustomerServices(customer_publisher_id);
+    return sendResponse<ICustomerInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Customer Added Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// find all Self Customer for a specific publisher
+export const findAllSelfCustomer: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ICustomerInterface | any> => {
+  try {
+    const { page, limit, searchTerm, customer_publisher_id }: any = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ICustomerInterface[] | [] | any =
+      await findAllSelfCustomerServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        customer_publisher_id
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: customerSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ customer_publisher_id: customer_publisher_id });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await CustomerModel.countDocuments(whereCondition);
     return sendResponse<ICustomerInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,

@@ -97,6 +97,34 @@ export const findASupplierAllStockDetailsServices = async (
   return sendata;
 };
 
+// Find allDashboard stock
+export const findAllDashboardStockDetailsServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<any> => {
+  const andCondition: any[] = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: stockManageSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findStockManage: any = await StockManageModel.find(whereCondition)
+    .populate(["stock_publisher_id", "product_id", "supplier_id"])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findStockManage;
+};
+
 // Update a StockManage
 export const updateStockManageServices = async (
   data: IStockManageInterface,

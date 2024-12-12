@@ -12,8 +12,11 @@ import {
   findAllACustomerOrderServices,
   findAllDashboardOrderServices,
   findAllManagementOrderServices,
+  findAllOrderInAProductServices,
+  findAllOutOfWarehouseOrderServices,
   findAllProfitOrderServices,
   findAllSelfOrderServices,
+  findAllSelfOrderWithPaginationServices,
   findAllWarehouseOrderServices,
   postOrderServices,
   updateOrderServices,
@@ -174,6 +177,52 @@ export const findAllDashboardOrder: RequestHandler = async (
   }
 };
 
+// Find all  OrderInAProduct
+export const findAllOrderInAProduct: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { product_id } = req.params;
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any =
+      await findAllOrderInAProductServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        product_id
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ "order_products.product_id": product_id });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 // Find All profit Order in account
 export const findAllProfitOrder: RequestHandler = async (
   req: Request,
@@ -284,6 +333,92 @@ export const findAllWarehouseOrder: RequestHandler = async (
       });
     }
     andCondition.push({ order_status: "warehouse" });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All OutOfWarehouse Order
+export const findAllOutOfWarehouseOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any =
+      await findAllOutOfWarehouseOrderServices(limitNumber, skip, searchTerm);
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ order_status: "out-of-warehouse" });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All OutOfWarehouse Order
+export const findAllSelfOrderWithPagination: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const { order_publisher_id } = req.params;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any =
+      await findAllSelfOrderWithPaginationServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        order_publisher_id
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ order_publisher_id: order_publisher_id });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
     const total = await OrderModel.countDocuments(whereCondition);
@@ -431,6 +566,9 @@ export const updateOrder: RequestHandler = async (
         order_updated_by: requestData?.order_updated_by,
         out_of_warehouse_date: today,
       };
+      if (slaeTargetUserFind) {
+        updatedData.sale_target_id = slaeTargetUserFind?._id;
+      }
       // handle order status
       const result: IOrderInterface | any = await updateOrderServices(
         updatedData,

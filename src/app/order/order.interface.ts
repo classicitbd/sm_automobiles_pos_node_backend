@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { IUserInterface } from "../user/user.interface";
 import { IProductInterface } from "../product/product.interface";
 import { ICustomerInterface } from "../customer/customer.interface";
-import { IBankInterface } from "../bank/bank.interface";
+import { ISaleTargetInterface } from "../sale_target/sale_target.interface";
 
 export interface IOrderProductInterface {
   product_id: Types.ObjectId | IProductInterface;
@@ -34,6 +34,7 @@ export interface IOrderInterface {
   order_barcode_image?: string;
   payment_type: string;
   out_of_warehouse_date?: string;
+  sale_target_id?: Types.ObjectId | ISaleTargetInterface;
   order_publisher_id: Types.ObjectId | IUserInterface;
   order_updated_by?: Types.ObjectId | IUserInterface;
 }

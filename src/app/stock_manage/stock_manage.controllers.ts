@@ -7,6 +7,7 @@ import {
   stockManageSearchableField,
 } from "./stock_manage.interface";
 import {
+  findAllDashboardStockDetailsServices,
   findAllStockDetailsInAProductServices,
   findASupplierAllStockDetailsServices,
   postStockManageServices,
@@ -154,7 +155,7 @@ export const findAllStockDetailsInAProduct: RequestHandler = async (
   }
 };
 
-// Find All dashboard StockManage
+// Find All suplier StockManage
 export const findASupplierAllStockDetails: RequestHandler = async (
   req: Request,
   res: Response,
@@ -178,6 +179,49 @@ export const findASupplierAllStockDetails: RequestHandler = async (
       : { supplier_id };
 
     const andCondition: any[] = [productObjectId];
+    if (searchTerm) {
+      andCondition.push({
+        $or: stockManageSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await StockManageModel.countDocuments(whereCondition);
+    return sendResponse<IStockManageInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "StockManage Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+// Find All dashboard StockManage
+export const findAllDashboardStockDetails: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IStockManageInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IStockManageInterface[] | any =
+      await findAllDashboardStockDetailsServices(
+        limitNumber,
+        skip,
+        searchTerm
+      );
+
+    const andCondition: any[] = [];
     if (searchTerm) {
       andCondition.push({
         $or: stockManageSearchableField.map((field) => ({

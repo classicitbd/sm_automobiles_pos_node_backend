@@ -96,6 +96,10 @@ const orderSchema = new Schema<IOrderInterface>(
     out_of_warehouse_date:{
       type: String
     },
+    sale_target_id:{
+      type: Schema.Types.ObjectId,
+      ref: "saletargets",
+    },
     order_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

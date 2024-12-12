@@ -99,6 +99,7 @@ export const findAUserASaleTargetReportServices = async (
       $gte: sale_target_start_date, // Start date (inclusive)
       $lte: sale_target_end_date // End date (inclusive)
     },
+    sale_target_id: sale_target_id
   }).select("-__v -updated_at -created_at  -order_barcode_image -order_barcode -order_products");
   const sendData = {
     saleTargetDetails: saleTargetDetails,

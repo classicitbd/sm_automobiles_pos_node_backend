@@ -57,6 +57,50 @@ export const findAllACustomerCheckServices = async (
   return sendData;
 };
 
+// Find all  Check publish a user
+export const findAllCheckPublishAUserServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  check_publisher_id: string
+): Promise<ICheckInterface[] | [] | any> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: checkSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ check_publisher_id: check_publisher_id });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findCheck: ICheckInterface[] | [] = await CheckModel.find(
+    whereCondition
+  )
+    .populate([
+      {
+        path: "order_id",
+        populate: {
+          path: "order_products.product_id",
+          model: "products",
+          // Optionally, you can select specific fields from the product schema
+          select: "product_name product_id", // Example fields
+        },
+      },
+      { path: "bank_id", model: "banks" }, // Ensure you reference the correct model
+      { path: "customer_id", model: "customers" },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+
+  return findCheck;
+};
+
 
 // Find all dashboard Check
 export const findAllDashboardCheckServices = async (

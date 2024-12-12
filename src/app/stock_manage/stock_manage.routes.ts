@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
 import {
+  findAllDashboardStockDetails,
   findAllStockDetailsInAProduct,
   findASupplierAllStockDetails,
   postStockManage,
@@ -15,6 +16,9 @@ router
   .patch(verifyToken, updateStockManage);
 
 // get all StockManage in dashboard
+router.route("/dashboard").get(findAllDashboardStockDetails);
+
+// get all StockManage in supplier
 router.route("/supplier_stock/:supplier_id").get(findASupplierAllStockDetails);
 
 // get all StockManage in dashboard

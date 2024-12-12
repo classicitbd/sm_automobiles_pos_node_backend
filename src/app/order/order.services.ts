@@ -3,6 +3,7 @@ import ApiError from "../../errors/ApiError";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
 import CustomerModel from "../customer/customer.model";
+import ProductModel from "../product/product.model";
 
 // Create A Order
 export const postOrderServices = async (
@@ -113,6 +114,41 @@ export const findAllDashboardOrderServices = async (
     .limit(limit)
     .select("-__v");
   return findOrder;
+};
+
+// Find all  OrderInAProduct
+export const findAllOrderInAProductServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  product_id: any
+): Promise<IOrderInterface[] | [] | any> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ "order_products.product_id": product_id });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  const productDetails = await ProductModel.findOne({ _id: product_id });
+  const sendData: any = {
+    productDetails,
+    orderDetails: findOrder,
+  };
+  return sendData;
 };
 
 // Find all Profit Order in account
@@ -262,6 +298,53 @@ export const findAllWarehouseOrderServices = async (
     .select("-__v");
   return findOrder;
 };
+// Find all OutOfWarehouse Order
+export const findAllOutOfWarehouseOrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IOrderInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ order_status: "out-of-warehouse" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate([
+      "customer_id",
+      "order_publisher_id",
+      "order_updated_by",
+      {
+        path: "order_products.product_id",
+        model: "products",
+        populate: [
+          {
+            path: "brand_id",
+            model: "brands",
+          },
+          {
+            path: "category_id", // Corrected typo from "ategory_id" to "category_id"
+            model: "categories",
+          },
+        ],
+      },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findOrder;
+};
 
 // find all self order for create a payment
 export const findAllSelfOrderServices = async (
@@ -269,13 +352,52 @@ export const findAllSelfOrderServices = async (
 ): Promise<IOrderInterface[] | []> => {
   const findAllOrder: IOrderInterface[] | [] = await OrderModel.find({
     order_publisher_id: order_publisher_id,
-  }).populate([
-    "customer_id",
-    {
-      path: "order_products.product_id",
-      model: "products",
-    },
-  ]).sort({_id: -1});
+  })
+    .populate([
+      "customer_id",
+      {
+        path: "order_products.product_id",
+        model: "products",
+      },
+    ])
+    .sort({ _id: -1 });
+  return findAllOrder;
+};
+
+// find all self orderWithPagination for create a payment
+export const findAllSelfOrderWithPaginationServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  order_publisher_id: any
+): Promise<IOrderInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ order_publisher_id: order_publisher_id });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+
+  const findAllOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate([
+      "customer_id",
+      {
+        path: "order_products.product_id",
+        model: "products",
+      },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit);
   return findAllOrder;
 };
 

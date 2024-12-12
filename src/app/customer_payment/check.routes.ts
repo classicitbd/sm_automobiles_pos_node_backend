@@ -2,6 +2,7 @@ import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
 import {
   findAllACustomerCheck,
+  findAllCheckPublishAUser,
   findAllDashboardCheck,
   findAllDueDashboardCheck,
   findAllTodayDashboardCheck,
@@ -11,7 +12,16 @@ import {
 const router = express.Router();
 
 // Create, Get Check
-router.route("/").get(verifyToken, findAllACustomerCheck).post(postCheck).patch(updateCheck);
+router
+  .route("/")
+  .get(verifyToken, findAllACustomerCheck)
+  .post(postCheck)
+  .patch(updateCheck);
+
+// Find all  Check publish a user
+router
+  .route("/find_user_publish_check")
+  .get(verifyToken, findAllCheckPublishAUser);
 
 // get all Check in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardCheck);
