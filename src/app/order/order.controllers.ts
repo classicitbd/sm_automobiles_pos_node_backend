@@ -12,6 +12,7 @@ import {
   findAllACustomerOrderServices,
   findAllDashboardOrderServices,
   findAllManagementOrderServices,
+  findAllProfitOrderServices,
   findAllSelfOrderServices,
   findAllWarehouseOrderServices,
   postOrderServices,
@@ -143,6 +144,48 @@ export const findAllDashboardOrder: RequestHandler = async (
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
     const result: IOrderInterface[] | any = await findAllDashboardOrderServices(
+      limitNumber,
+      skip,
+      searchTerm
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All profit Order in account
+export const findAllProfitOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any = await findAllProfitOrderServices(
       limitNumber,
       skip,
       searchTerm
@@ -348,17 +391,37 @@ export const updateOrder: RequestHandler = async (
         sale_target_end_date: { $gte: today },
       });
       if (slaeTargetUserFind) {
-        await SaleTargetModel.updateOne(
-          {
-            user_id: user_id,
-            sale_target_start_date: { $lte: today },
-            sale_target_end_date: { $gte: today },
-          },
-          {
-            $inc: { sale_target_filup: +total_messurement_count },
-          },
-          { session }
-        );
+        if (
+          slaeTargetUserFind?.sale_target_filup + total_messurement_count >=
+          slaeTargetUserFind?.sale_target
+        ) {
+          await SaleTargetModel.updateOne(
+            {
+              user_id: user_id,
+              sale_target_start_date: { $lte: today },
+              sale_target_end_date: { $gte: today },
+            },
+            {
+              $inc: {
+                sale_target_filup: +total_messurement_count,
+              },
+              sale_target_success: true,
+            },
+            { session }
+          );
+        } else {
+          await SaleTargetModel.updateOne(
+            {
+              user_id: user_id,
+              sale_target_start_date: { $lte: today },
+              sale_target_end_date: { $gte: today },
+            },
+            {
+              $inc: { sale_target_filup: +total_messurement_count },
+            },
+            { session }
+          );
+        }
       }
 
       const updatedData: any = {

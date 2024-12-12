@@ -43,9 +43,9 @@ export const findAllProductServices = async (
       | IProductInterface
       | {}
       | [] = await ProductModel.find({
-        product_barcode: product_barcode,
-        product_status: "active",
-      }).select("-__v");
+      product_barcode: product_barcode,
+      product_status: "active",
+    }).select("-__v");
     if (!findProduct) throw new ApiError(400, "Product Not Found !");
     return findProduct;
   }
@@ -135,7 +135,7 @@ export const findAllDashboardProductServices = async (
 // Update a Product
 export const updateProductServices = async (
   data: IProductInterface,
-  _id: string,
+  _id: string
 ): Promise<IProductInterface | any> => {
   const updateProductInfo: IProductInterface | null =
     await ProductModel.findOne({
@@ -165,7 +165,6 @@ export const updateProductServices = async (
   return Product;
 };
 
-
 // Update a ProductPrice
 export const updateProductPriceServices = async (
   data: any,
@@ -179,12 +178,8 @@ export const updateProductPriceServices = async (
   if (!updateProductInfo) {
     throw new ApiError(400, "Product Not Found !");
   }
-  const Product = await ProductModel.updateOne(
-    { _id: _id },
-    data,
-    {
-      runValidators: true,
-    }
-  );
+  const Product = await ProductModel.updateOne({ _id: _id }, data, {
+    runValidators: true,
+  });
   return Product;
 };

@@ -63,8 +63,8 @@ export const findAllACustomerOrderServices = async (
   const customerDetails = await CustomerModel.findOne({ _id: customer_id });
   const sendData: any = {
     customerDetails,
-    orderDetails: findOrder
-  }
+    orderDetails: findOrder,
+  };
   return sendData;
 };
 
@@ -91,7 +91,6 @@ export const findAllDashboardOrderServices = async (
   )
     .populate([
       "customer_id",
-      "bank_id",
       "order_publisher_id",
       "order_updated_by",
       {
@@ -114,6 +113,59 @@ export const findAllDashboardOrderServices = async (
     .limit(limit)
     .select("-__v");
   return findOrder;
+};
+
+// Find all Profit Order in account
+export const findAllProfitOrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IOrderInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ order_status: "out-of-warehouse" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+
+  // Use .lean() here to return plain objects
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate(["order_publisher_id"])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v")
+    .lean(); // Add lean()
+
+  const calculateProfit = (data: any) => {
+    return data?.map((order: any) => {
+      let totalProductBuyingPrice = 0;
+
+      order?.order_products.forEach((product: any) => {
+        const totalBuyingPrice =
+          product?.product_buying_price * product?.product_quantity;
+        totalProductBuyingPrice += totalBuyingPrice;
+      });
+
+      return {
+        ...order,
+        profit_amount: order?.grand_total_amount - totalProductBuyingPrice, // Ensure profit is a formatted string
+      };
+    });
+  };
+
+  const updatedData = calculateProfit(findOrder);
+
+  return updatedData;
 };
 
 // Find all Management Order
@@ -271,7 +323,6 @@ export const findAllSelfOrderServices = async (
 //   }
 //   return findAOrder;
 // };
-
 
 // Update a Order
 export const updateOrderServices = async (

@@ -1,6 +1,6 @@
 import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
-import { findAllACustomerOrder, findAllDashboardOrder, findAllManagementOrder, findAllSelfOrder, findAllWarehouseOrder, postOrder, updateOrder } from "./order.controllers";
+import { findAllACustomerOrder, findAllDashboardOrder, findAllManagementOrder, findAllProfitOrder, findAllSelfOrder, findAllWarehouseOrder, postOrder, updateOrder } from "./order.controllers";
 const router = express.Router();
 
 // Create, Get Order
@@ -12,6 +12,9 @@ router
 
 // get all Order in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardOrder);
+
+// Find All profit Order in account
+router.route("/profit").get(verifyToken, findAllProfitOrder);
 
 // get all Order in management
 router.route("/management_order").get(verifyToken, findAllManagementOrder);

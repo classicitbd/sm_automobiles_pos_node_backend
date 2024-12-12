@@ -69,11 +69,7 @@ export const findAUserAllSaleTargetServices = async (
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findSaleTarget: ISaleTargetInterface[] | [] =
     await SaleTargetModel.find(whereCondition)
-      .populate([
-        "sale_target_publisher_id",
-        "sale_target_updated_by",
-        "user_id",
-      ])
+      .populate(["sale_target_publisher_id", "sale_target_updated_by"])
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
@@ -82,6 +78,23 @@ export const findAUserAllSaleTargetServices = async (
   const sendData = {
     findSaleTarget: findSaleTarget,
     userdetails: userdetails,
+  };
+  return sendData;
+};
+
+// Find a user a SaleTargetReport
+export const findAUserASaleTargetReportServices = async (
+  sale_target_id: any
+): Promise<ISaleTargetInterface[] | [] | any> => {
+  const saleTargetDetails: any = await SaleTargetModel.findOne({
+    _id: sale_target_id,
+  });
+  if (!saleTargetDetails) throw new ApiError(400, "Sale Target Not Found !");
+  const sale_target_start_date = saleTargetDetails?.sale_target_start_date;
+  const sale_target_end_date = saleTargetDetails?.sale_target_end_date;
+  console.log(sale_target_start_date, sale_target_end_date);
+  const sendData = {
+    saleTargetDetails: saleTargetDetails,
   };
   return sendData;
 };

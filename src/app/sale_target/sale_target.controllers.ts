@@ -10,6 +10,7 @@ import SaleTargetModel from "./sale_target.model";
 import {
   findAllSaleTargetServices,
   findAUserAllSaleTargetServices,
+  findAUserASaleTargetReportServices,
   postSaleTargetServices,
   updateSaleTargetServices,
 } from "./sale_targert.services";
@@ -22,7 +23,8 @@ export const postSaleTarget: RequestHandler = async (
 ): Promise<ISaleTargetInterface | any> => {
   try {
     const requestData = req.body;
-    const { user_id, sale_target_start_date, sale_target_end_date } = requestData;
+    const { user_id, sale_target_start_date, sale_target_end_date } =
+      requestData;
 
     // Ensure dates are properly parsed
     const targetStartDate = new Date(sale_target_start_date);
@@ -89,7 +91,6 @@ export const postSaleTarget: RequestHandler = async (
   }
 };
 
-
 // Find All SaleTarget
 export const findAllSaleTarget: RequestHandler = async (
   req: Request,
@@ -129,6 +130,26 @@ export const findAllSaleTarget: RequestHandler = async (
   }
 };
 
+// Find AUserA SaleTargetReport
+export const findAUserASaleTargetReport: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISaleTargetInterface | any> => {
+  try {
+    const sale_target_id = req.params?.sale_target_id;
+    const result: ISaleTargetInterface[] | any =
+      await findAUserASaleTargetReportServices(sale_target_id);
+    return sendResponse<ISaleTargetInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "SaleTarget Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
 // Find AUserAll SaleTarget
 export const findAUserAllSaleTarget: RequestHandler = async (
   req: Request,
@@ -136,7 +157,8 @@ export const findAUserAllSaleTarget: RequestHandler = async (
   next: NextFunction
 ): Promise<ISaleTargetInterface | any> => {
   try {
-    const { page, limit, searchTerm, user_id }: any = req.query;
+    const user_id = req.params?.user_id;
+    const { page, limit, searchTerm } = req.query;
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;

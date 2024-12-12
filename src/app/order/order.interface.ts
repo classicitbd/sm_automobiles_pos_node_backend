@@ -33,11 +33,6 @@ export interface IOrderInterface {
   order_barcode?: string;
   order_barcode_image?: string;
   payment_type: string;
-  payment_method?: string;
-  pay_amount?: number;
-  bank_id?: Types.ObjectId | IBankInterface;
-  check_number?: string;
-  check_withdraw_date?: string;
   order_publisher_id: Types.ObjectId | IUserInterface;
   order_updated_by?: Types.ObjectId | IUserInterface;
 }
