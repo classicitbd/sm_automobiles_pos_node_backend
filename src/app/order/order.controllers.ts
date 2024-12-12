@@ -201,6 +201,7 @@ export const findAllProfitOrder: RequestHandler = async (
         })),
       });
     }
+    andCondition.push({ order_status: "out-of-warehouse" });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
     const total = await OrderModel.countDocuments(whereCondition);
