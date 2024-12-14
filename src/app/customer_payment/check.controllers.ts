@@ -6,6 +6,7 @@ import { checkSearchableField, ICheckInterface } from "./check.interface";
 import CheckModel from "./check.model";
 import {
   findAllACustomerCheckServices,
+  findAllCheckInPaymentServices,
   findAllCheckPublishAUserServices,
   findAllDashboardCheckServices,
   findAllDueDashboardCheckServices,
@@ -19,6 +20,33 @@ import BankModel from "../bank/bank.model";
 import CustomerModel from "../customer/customer.model";
 import OrderModel from "../order/order.model";
 import { postIncomeWhenCustomerPaymentAddServices } from "../income/income.services";
+
+// Generate a unique trnxId
+const generatetrnxId = async () => {
+  let isUnique = false;
+  let uniquetrnxId;
+
+  while (!isUnique) {
+    // Generate a random alphanumeric string of length 8
+    uniquetrnxId = Array.from({ length: 8 }, () =>
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
+        Math.floor(Math.random() * 62)
+      )
+    ).join("");
+
+    // Check if the generated tranaction_id is unique in the database
+    const existingOrder = await CheckModel.findOne({
+      tranaction_id: uniquetrnxId,
+    });
+
+    // If no existing order found, mark the tranaction_id as unique
+    if (!existingOrder) {
+      isUnique = true;
+    }
+  }
+
+  return uniquetrnxId;
+};
 
 // Add A Check
 export const postCheck: RequestHandler = async (
@@ -43,7 +71,8 @@ export const postCheck: RequestHandler = async (
     if (checkThisOrderPaymentPendingExist) {
       throw new ApiError(400, "This Order Has Payment Pending Exist !");
     }
-
+    const tranaction_id = await generatetrnxId();
+    requestData.tranaction_id = tranaction_id;
     const result: ICheckInterface | {} = await postCheckServices(requestData);
     if (result) {
       return sendResponse<ICheckInterface>(res, {
@@ -114,12 +143,13 @@ export const findAllCheckPublishAUser: RequestHandler = async (
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: ICheckInterface[] | any = await findAllCheckPublishAUserServices(
-      limitNumber,
-      skip,
-      searchTerm,
-      check_publisher_id
-    );
+    const result: ICheckInterface[] | any =
+      await findAllCheckPublishAUserServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        check_publisher_id
+      );
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
@@ -174,6 +204,51 @@ export const findAllDashboardCheck: RequestHandler = async (
         })),
       });
     }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await CheckModel.countDocuments(whereCondition);
+    return sendResponse<ICheckInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Check Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All Check in payment
+export const findAllCheckInPayment: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ICheckInterface | any> => {
+  try {
+    const { page, limit, searchTerm, payment_method }: any = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ICheckInterface[] | any = await findAllCheckInPaymentServices(
+      limitNumber,
+      skip,
+      searchTerm,
+      payment_method
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: checkSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ payment_method: payment_method });
+    andCondition.push({ check_status: "approved" });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
     const total = await CheckModel.countDocuments(whereCondition);

@@ -138,6 +138,46 @@ export const findAllDashboardCheckServices = async (
   return findCheck;
 };
 
+
+// Find all Check In Payment
+export const findAllCheckInPaymentServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  payment_method: string
+): Promise<ICheckInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: checkSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ payment_method: payment_method });
+  andCondition.push({ check_status: "approved" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findCheck: ICheckInterface[] | [] = await CheckModel.find(
+    whereCondition
+  )
+    .populate([
+      "order_id",
+      "customer_id",
+      "bank_id",
+      "check_publisher_id",
+      "check_approved_by",
+      "check_updated_by",
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findCheck;
+};
+
 // Find all Duedashboard Check
 export const findAllDueDashboardCheckServices = async (
   limit: number,

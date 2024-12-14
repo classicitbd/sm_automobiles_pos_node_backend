@@ -6,6 +6,7 @@ import {
   supplierPaymentSearchableField,
 } from "./supplier_payment.interface";
 import {
+  findAllCheckInSupplierPaymentServices,
   findAllDashboardSupplierPaymentServices,
   findAllPaidSupplierPaymentServices,
   findAllUnPaidSupplierPaymentServices,
@@ -20,6 +21,33 @@ import { postBankOutServices } from "../bank_out/bank_out.services";
 import BankModel from "../bank/bank.model";
 import SupplierModel from "../supplier/supplier.model";
 import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
+
+// Generate a unique trnxId
+const generatetrnxId = async () => {
+  let isUnique = false;
+  let uniquetrnxId;
+
+  while (!isUnique) {
+    // Generate a random alphanumeric string of length 8
+    uniquetrnxId = Array.from({ length: 8 }, () =>
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
+        Math.floor(Math.random() * 62)
+      )
+    ).join("");
+
+    // Check if the generated tranaction_id is unique in the database
+    const existingOrder = await SupplierPaymentModel.findOne({
+      tranaction_id: uniquetrnxId,
+    });
+
+    // If no existing order found, mark the tranaction_id as unique
+    if (!existingOrder) {
+      isUnique = true;
+    }
+  }
+
+  return uniquetrnxId;
+};
 
 // Add A SupplierPayment
 export const postSupplierPayment: RequestHandler = async (
@@ -49,6 +77,9 @@ export const postSupplierPayment: RequestHandler = async (
         );
       }
     }
+
+    const tranaction_id = await generatetrnxId();
+    requestData.tranaction_id = tranaction_id;
 
     const result: ISupplierPaymentInterface | {} =
       await postSupplierPaymentServices(requestData, session);
@@ -228,6 +259,52 @@ export const findAllDashboardSupplierPayment: RequestHandler = async (
         })),
       });
     }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await SupplierPaymentModel.countDocuments(whereCondition);
+    return sendResponse<ISupplierPaymentInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Supplier Payment Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find all CheckIn SupplierPayment
+export const findAllCheckInSupplierPayment: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISupplierPaymentInterface | any> => {
+  try {
+    const { page, limit, searchTerm, supplier_payment_method }: any = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ISupplierPaymentInterface[] | any =
+      await findAllCheckInSupplierPaymentServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        supplier_payment_method
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: supplierPaymentSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ supplier_payment_method: supplier_payment_method });
+    andCondition.push({ supplier_payment_status: "paid" });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
     const total = await SupplierPaymentModel.countDocuments(whereCondition);

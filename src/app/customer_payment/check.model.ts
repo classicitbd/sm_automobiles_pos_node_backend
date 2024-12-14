@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
 import { ICheckInterface } from "./check.interface";
 
-// Bank Schema
-const bankSchema = new Schema<ICheckInterface>(
+// check Schema
+const checkSchema = new Schema<ICheckInterface>(
   {
     order_id: {
       type: Schema.Types.ObjectId,
@@ -51,6 +51,10 @@ const bankSchema = new Schema<ICheckInterface>(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+    tranaction_id: {
+      type: String,
+      required: true,
+    },
     check_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",
@@ -70,6 +74,6 @@ const bankSchema = new Schema<ICheckInterface>(
   }
 );
 
-const CheckModel = model<ICheckInterface>("checks", bankSchema);
+const CheckModel = model<ICheckInterface>("checks", checkSchema);
 
 export default CheckModel;

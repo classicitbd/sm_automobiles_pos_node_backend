@@ -44,10 +44,7 @@ export const findASupplierPaymentHistoryServices = async (
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findSupplierPayment: ISupplierPaymentInterface[] | any =
     await SupplierPaymentModel.find(whereCondition)
-      .populate([
-        "supplier_payment_publisher_id",
-        "payment_bank_id",
-      ])
+      .populate(["supplier_payment_publisher_id", "payment_bank_id"])
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
@@ -153,6 +150,44 @@ export const findAllDashboardSupplierPaymentServices = async (
   const findSupplierPayment: ISupplierPaymentInterface[] | [] =
     await SupplierPaymentModel.find(whereCondition)
       .populate([
+        "supplier_id",
+        "payment_bank_id",
+        "supplier_payment_publisher_id",
+        "supplier_payment_updated_by",
+      ])
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-__v");
+  return findSupplierPayment;
+};
+
+// Find all CheckIn SupplierPayment
+export const findAllCheckInSupplierPaymentServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
+  supplier_payment_method: any
+): Promise<ISupplierPaymentInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: supplierPaymentSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ supplier_payment_method: supplier_payment_method });
+  andCondition.push({ supplier_payment_status: "paid" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findSupplierPayment: ISupplierPaymentInterface[] | [] =
+    await SupplierPaymentModel.find(whereCondition)
+      .populate([
+        "supplier_id",
+        "payment_bank_id",
         "supplier_payment_publisher_id",
         "supplier_payment_updated_by",
       ])
