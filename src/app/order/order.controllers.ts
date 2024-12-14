@@ -18,6 +18,7 @@ import {
   findAllSelfOrderServices,
   findAllSelfOrderWithPaginationServices,
   findAllWarehouseOrderServices,
+  findAOrderServices,
   postOrderServices,
   updateOrderServices,
 } from "./order.services";
@@ -25,6 +26,7 @@ import CheckModel from "../customer_payment/check.model";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
 import SaleTargetModel from "../sale_target/sale_target.model";
+import { generateChecktrnxId } from "../customer_payment/check.controllers";
 
 // Add A Order
 export const postOrder: RequestHandler = async (
@@ -54,6 +56,7 @@ export const postOrder: RequestHandler = async (
     if (requestData?.payment_type !== "due-payment") {
       const paymentCreateData: any = {
         order_id: result?.[0]?._id,
+        transaction_id: await generateChecktrnxId(),
         customer_id: requestData?.customer_id,
         customer_phone: requestData?.customer_phone,
         invoice_number: order_id,
@@ -475,28 +478,28 @@ export const findAllSelfOrder: RequestHandler = async (
 //   }
 // };
 
-// // Find A Order
-// export const findAOrder: RequestHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ): Promise<IOrderInterface | any> => {
-//   try {
-//     const { _id } = req.params;
-//     if (!_id) {
-//       throw new ApiError(400, "ID Not Found !");
-//     }
-//     const result: IOrderInterface | any = await findAOrderServices(_id);
-//     return sendResponse<IOrderInterface>(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: "Order Found Successfully !",
-//       data: result,
-//     });
-//   } catch (error: any) {
-//     next(error);
-//   }
-// };
+// Find A Order
+export const findAOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { _id } = req.params;
+    if (!_id) {
+      throw new ApiError(400, "ID Not Found !");
+    }
+    const result: IOrderInterface | any = await findAOrderServices(_id);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
 
 // Update A Order
 export const updateOrder: RequestHandler = async (

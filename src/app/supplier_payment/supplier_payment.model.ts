@@ -31,7 +31,7 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
       type: Schema.Types.ObjectId,
       ref: "banks",
     },
-    tranaction_id: {
+    transaction_id: {
       type: String,
       required: true,
     },

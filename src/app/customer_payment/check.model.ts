@@ -51,7 +51,7 @@ const checkSchema = new Schema<ICheckInterface>(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
-    tranaction_id: {
+    transaction_id: {
       type: String,
       required: true,
     },

@@ -35,12 +35,12 @@ const generatetrnxId = async () => {
       )
     ).join("");
 
-    // Check if the generated tranaction_id is unique in the database
+    // Check if the generated transaction_id is unique in the database
     const existingOrder = await SupplierPaymentModel.findOne({
-      tranaction_id: uniquetrnxId,
+      transaction_id: uniquetrnxId,
     });
 
-    // If no existing order found, mark the tranaction_id as unique
+    // If no existing order found, mark the transaction_id as unique
     if (!existingOrder) {
       isUnique = true;
     }
@@ -78,8 +78,8 @@ export const postSupplierPayment: RequestHandler = async (
       }
     }
 
-    const tranaction_id = await generatetrnxId();
-    requestData.tranaction_id = tranaction_id;
+    const transaction_id = await generatetrnxId();
+    requestData.transaction_id = transaction_id;
 
     const result: ISupplierPaymentInterface | {} =
       await postSupplierPaymentServices(requestData, session);

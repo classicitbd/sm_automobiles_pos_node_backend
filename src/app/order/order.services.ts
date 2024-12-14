@@ -417,34 +417,32 @@ export const findAllSelfOrderWithPaginationServices = async (
 //   return findAllOrder;
 // };
 
-// // Update a Order
-// export const findAOrderServices = async (
-//   _id: any
-// ): Promise<IOrderInterface | any> => {
-//   const findAOrder: IOrderInterface | {} | null = await OrderModel.findOne({
-//     _id,
-//   }).populate([
-//     "customer_id",
-//     {
-//       path: "order_products.product_id",
-//       model: "products",
-//       populate: [
-//         {
-//           path: "brand_id",
-//           model: "brands",
-//         },
-//         {
-//           path: "category_id", // Corrected typo from "ategory_id" to "category_id"
-//           model: "categories",
-//         },
-//       ],
-//     },
-//   ]);
-//   if (!findAOrder) {
-//     throw new ApiError(400, "Order Not Found !");
-//   }
-//   return findAOrder;
-// };
+// find a Order
+export const findAOrderServices = async (
+  _id: any
+): Promise<IOrderInterface | any> => {
+  const findAOrder: IOrderInterface | {} | null = await OrderModel.findOne({
+    _id,
+  }).populate([
+    "customer_id",
+    "order_publisher_id",
+    "order_updated_by",
+    {
+      path: "order_products.product_id",
+      model: "products",
+      populate: [
+        {
+          path: "product_unit_id", // Corrected typo from "ategory_id" to "category_id"
+          model: "units",
+        },
+      ],
+    },
+  ]);
+  if (!findAOrder) {
+    throw new ApiError(400, "Order Not Found !");
+  }
+  return findAOrder;
+};
 
 // Update a Order
 export const updateOrderServices = async (

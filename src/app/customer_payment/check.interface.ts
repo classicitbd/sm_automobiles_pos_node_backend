@@ -17,7 +17,7 @@ export interface ICheckInterface {
   check_number?: string;
   check_withdraw_date?: string;
   check_status: "pending" | "approved" | "rejected";
-  tranaction_id: string;
+  transaction_id: string;
   check_publisher_id: Types.ObjectId | IUserInterface;
   check_approved_by?: Types.ObjectId | IUserInterface;
   check_updated_by?: Types.ObjectId | IUserInterface;
@@ -31,5 +31,5 @@ export const checkSearchableField = [
   "check_status",
   "payment_method",
   "payment_note",
-  "tranaction_id"
+  "transaction_id",
 ];

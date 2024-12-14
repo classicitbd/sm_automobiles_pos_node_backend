@@ -5,14 +5,20 @@ import httpStatus from "http-status";
 import routes from "./routes/routes";
 import globalErrorHandler from "./middlewares/global.error.handler";
 const cookieParser = require("cookie-parser");
-require('dotenv').config();
+require("dotenv").config();
 
 const app: Application = express();
 
 app.use(express.json());
 // CORS configuration
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:4173"], // Allow only this origin
+  origin: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:4173",
+    "https://smpos.classicecommerce.com",
+    "https://www.smpos.classicecommerce.com/",
+  ], // Allow only this origin
   credentials: true, // Allow credentials
 };
 

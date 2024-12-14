@@ -10,6 +10,7 @@ import {
   findAllSelfOrder,
   findAllSelfOrderWithPagination,
   findAllWarehouseOrder,
+  findAOrder,
   postOrder,
   updateOrder,
 } from "./order.controllers";
@@ -51,6 +52,6 @@ router.route("/self_order/:order_publisher_id").get(findAllSelfOrder);
 router.route("/product_order/:product_id").get(findAllOrderInAProduct);
 
 // get a order
-// router.route("/:_id").get(findAOrder);
+router.route("/:_id").get(findAOrder);
 
 export const OrderRoutes = router;

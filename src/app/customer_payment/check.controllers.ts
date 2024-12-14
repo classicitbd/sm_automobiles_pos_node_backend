@@ -22,7 +22,7 @@ import OrderModel from "../order/order.model";
 import { postIncomeWhenCustomerPaymentAddServices } from "../income/income.services";
 
 // Generate a unique trnxId
-const generatetrnxId = async () => {
+export const generateChecktrnxId = async () => {
   let isUnique = false;
   let uniquetrnxId;
 
@@ -34,12 +34,12 @@ const generatetrnxId = async () => {
       )
     ).join("");
 
-    // Check if the generated tranaction_id is unique in the database
+    // Check if the generated transaction_id is unique in the database
     const existingOrder = await CheckModel.findOne({
-      tranaction_id: uniquetrnxId,
+      transaction_id: uniquetrnxId,
     });
 
-    // If no existing order found, mark the tranaction_id as unique
+    // If no existing order found, mark the transaction_id as unique
     if (!existingOrder) {
       isUnique = true;
     }
@@ -71,8 +71,8 @@ export const postCheck: RequestHandler = async (
     if (checkThisOrderPaymentPendingExist) {
       throw new ApiError(400, "This Order Has Payment Pending Exist !");
     }
-    const tranaction_id = await generatetrnxId();
-    requestData.tranaction_id = tranaction_id;
+    const transaction_id = await generateChecktrnxId();
+    requestData.transaction_id = transaction_id;
     const result: ICheckInterface | {} = await postCheckServices(requestData);
     if (result) {
       return sendResponse<ICheckInterface>(res, {
