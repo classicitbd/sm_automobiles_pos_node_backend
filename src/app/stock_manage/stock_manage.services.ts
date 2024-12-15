@@ -97,6 +97,19 @@ export const findASupplierAllStockDetailsServices = async (
   return sendata;
 };
 
+// Find A Supplier all stockInvoice
+export const findASupplierAllStockInvoiceServices = async (
+  supplier_id: any
+): Promise<any> => {
+  const productObjectId = Types.ObjectId.isValid(supplier_id)
+    ? { supplier_id: new Types.ObjectId(supplier_id) }
+    : { supplier_id };
+  const findStockManage: any = await StockManageModel.find(productObjectId)
+    .sort({ _id: -1 })
+    .select("-__v");
+  return findStockManage;
+};
+
 // Find allDashboard stock
 export const findAllDashboardStockDetailsServices = async (
   limit: number,
@@ -114,6 +127,7 @@ export const findAllDashboardStockDetailsServices = async (
       })),
     });
   }
+  andCondition.push({ payment_status: "unpaid" });
 
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findStockManage: any = await StockManageModel.find(whereCondition)

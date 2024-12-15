@@ -27,6 +27,10 @@ const expenseSchema = new Schema<IExpenseInterface>(
       type: Schema.Types.ObjectId,
       ref: "products",
     },
+    expence_supplier_payment_invoice_id: {
+      type: Schema.Types.ObjectId,
+      ref: "stocks",
+    },
     expense_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

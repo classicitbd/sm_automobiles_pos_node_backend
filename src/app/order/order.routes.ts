@@ -2,6 +2,7 @@ import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
 import {
   findAllACustomerOrder,
+  findAllAROrder,
   findAllDashboardOrder,
   findAllManagementOrder,
   findAllOrderInAProduct,
@@ -25,6 +26,9 @@ router
 
 // get all Order in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardOrder);
+
+// get all Order in AR
+router.route("/ar_order").get(verifyToken, findAllAROrder);
 
 // Find All profit Order in account
 router.route("/profit").get(verifyToken, findAllProfitOrder);

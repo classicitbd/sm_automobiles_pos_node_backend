@@ -96,6 +96,12 @@ const orderSchema = new Schema<IOrderInterface>(
     out_of_warehouse_date:{
       type: String
     },
+    payment_status: {
+      required: true,
+      type: String,
+      enum: ["paid", "unpaid"],
+      default: "unpaid",
+    },
     sale_target_id:{
       type: Schema.Types.ObjectId,
       ref: "saletargets",

@@ -3,8 +3,6 @@ import { IUserInterface } from "../user/user.interface";
 
 export interface ISupplierInterface {
   _id?: any;
-  supplier_wallet_amount: number;
-  oppening_balance: number;
   supplier_name: string;
   supplier_phone: string;
   supplier_address: string;

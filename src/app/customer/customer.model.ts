@@ -14,11 +14,6 @@ const customerSchema = new Schema<ICustomerInterface>(
     customer_address: {
       type: String,
     },
-    customer_wallet: {
-      required: true,
-      type: Number,
-      default: 0,
-    },
     red_alert_number: {
       type: Number,
     },

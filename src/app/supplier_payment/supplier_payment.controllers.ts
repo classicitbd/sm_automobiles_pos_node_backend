@@ -21,6 +21,7 @@ import { postBankOutServices } from "../bank_out/bank_out.services";
 import BankModel from "../bank/bank.model";
 import SupplierModel from "../supplier/supplier.model";
 import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
+import StockManageModel from "../stock_manage/stock_manage.model";
 
 // Generate a unique trnxId
 const generatetrnxId = async () => {
@@ -351,6 +352,7 @@ export const updateSupplierPayment: RequestHandler = async (
         bank_out_title: requestData?.supplier_payment_title,
         bank_out_ref_no: requestData?.reference_id,
         bank_out_publisher_id: requestData?.supplier_payment_updated_by,
+        invoice_id: requestData?.invoice_id,
       };
       // create a bank out data
       await postBankOutServices(bankOutData, session);
@@ -366,24 +368,13 @@ export const updateSupplierPayment: RequestHandler = async (
       );
     }
 
-    // add amount in Supplier wallet
-    await SupplierModel.updateOne(
-      { _id: requestData?.supplier_id },
-      {
-        $inc: { supplier_wallet_amount: -requestData?.supplier_payment_amount },
-      },
-      {
-        session,
-        runValidators: true,
-      }
-    );
-
     // add document in expense collection
     const sendDataInExpenceCreate: any = {
       expense_title: "Supplier Money Send",
       expense_amount: requestData?.supplier_payment_amount,
       expense_supplier_id: requestData?.supplier_id,
       expense_publisher_id: requestData?.supplier_payment_updated_by,
+      expence_supplier_payment_invoice_id: requestData?.invoice_id,
     };
     if (requestData?.supplier_payment_method == "check") {
       (sendDataInExpenceCreate.expense_bank_id = requestData?.payment_bank_id),
@@ -394,6 +385,30 @@ export const updateSupplierPayment: RequestHandler = async (
       sendDataInExpenceCreate,
       session
     );
+
+    // decrease amount from stck purchase invoice and update status
+    const stockManageDetails = await StockManageModel.findOne({
+      _id: requestData?.invoice_id,
+    }).session(session);
+    if (!stockManageDetails) {
+      throw new ApiError(400, "Stock Manage Details Not Found !");
+    }
+    const stockUpdateData = {
+      due_amount:
+        stockManageDetails?.due_amount - requestData?.supplier_payment_amount,
+      paid_amount:
+        stockManageDetails?.paid_amount + requestData?.supplier_payment_amount,
+      payment_status:
+        stockManageDetails?.due_amount - requestData?.supplier_payment_amount ==
+        0
+          ? "paid"
+          : "unpaid",
+      stock_updated_by: requestData?.supplier_payment_updated_by,
+    };
+    await StockManageModel.updateOne({ _id: requestData?.invoice_id }, stockUpdateData, {
+      session,
+      runValidators: true,
+    });
 
     // Commit transaction
     await session.commitTransaction();

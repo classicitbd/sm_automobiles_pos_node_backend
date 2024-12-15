@@ -4,6 +4,28 @@ import { IStockManageInterface } from "./stock_manage.interface";
 // StockManage Schema
 const stockManageSchema = new Schema<IStockManageInterface>(
   {
+    total_amount: {
+      required: true,
+      type: Number,
+    },
+    paid_amount: {
+      required: true,
+      type: Number,
+    },
+    due_amount: {
+      required: true,
+      type: Number,
+    },
+    invoice_id: {
+      required: true,
+      type: String,
+    },
+    payment_status:{
+      required: true,
+      type: String,
+      enum: ["paid", "unpaid"],
+      default: "unpaid",
+    },
     product_buying_price: {
       required: true,
       type: Number,

@@ -10,6 +10,7 @@ import {
   findAllDashboardStockDetailsServices,
   findAllStockDetailsInAProductServices,
   findASupplierAllStockDetailsServices,
+  findASupplierAllStockInvoiceServices,
   postStockManageServices,
   updateStockManageServices,
 } from "./stock_manage.services";
@@ -18,6 +19,33 @@ import StockManageModel from "./stock_manage.model";
 import ProductModel from "../product/product.model";
 import SupplierModel from "../supplier/supplier.model";
 import { postSupplierMoneyAddServices } from "../supplier_add_money/supplier_money_add.services";
+
+// Generate a unique invoice_id
+export const generateinvoice_id = async () => {
+  let isUnique = false;
+  let uniqueinvoice_id;
+
+  while (!isUnique) {
+    // Generate a random alphanumeric string of length 8
+    uniqueinvoice_id = Array.from({ length: 8 }, () =>
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
+        Math.floor(Math.random() * 62)
+      )
+    ).join("");
+
+    // Check if the generated order_id is unique in the database
+    const existingOrder = await StockManageModel.findOne({
+      invoice_id: uniqueinvoice_id,
+    });
+
+    // If no existing order found, mark the order_id as unique
+    if (!existingOrder) {
+      isUnique = true;
+    }
+  }
+
+  return uniqueinvoice_id;
+};
 
 // Add A StockManage
 export const postStockManage: RequestHandler = async (
@@ -29,6 +57,7 @@ export const postStockManage: RequestHandler = async (
   session.startTransaction();
   try {
     const requestData = req.body;
+    requestData.invoice_id = await generateinvoice_id();
     const product_id = requestData?.product_id;
     const result: IStockManageInterface | {} = await postStockManageServices(
       requestData,
@@ -55,40 +84,6 @@ export const postStockManage: RequestHandler = async (
         runValidators: true,
       }
     );
-
-    // money add in supplier account
-    await SupplierModel.updateOne(
-      { _id: requestData?.supplier_id },
-      {
-        $inc: { supplier_wallet_amount: +requestData?.total_price },
-      },
-      {
-        session,
-        runValidators: true,
-      }
-    );
-
-    // supplier add payment history save
-    const supplierPaymentHistory = {
-      supplier_money_add_title: "Add Product",
-      supplier_money_add_amount: requestData?.total_price,
-      supplier_id: requestData?.supplier_id,
-      supplier_money_product_id: requestData?.product_id,
-      supplier_money_product_quantity: parseInt(requestData?.product_quantity),
-      supplier_money_product_price: parseInt(requestData?.product_buying_price),
-      supplier_money_add_publisher_id: requestData?.stock_publisher_id,
-    };
-    await postSupplierMoneyAddServices(supplierPaymentHistory, session);
-
-    // expence history add in expense route
-    // const expenseData = {
-    //   expense_title: "Stock add in product",
-    //   expense_amount: requestData?.total_price,
-    //   expense_supplier_id: requestData?.supplier_id,
-    //   expense_product_id: requestData?.product_id,
-    //   expense_publisher_id: requestData?.stock_publisher_id,
-    // }
-    // await postExpenseWhenProductStockAddServices(expenseData, session);
 
     // Commit transaction
     await session.commitTransaction();
@@ -203,6 +198,32 @@ export const findASupplierAllStockDetails: RequestHandler = async (
     next(error);
   }
 };
+
+
+// Find All suplier StockManage
+export const findASupplierAllStockInvoice: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IStockManageInterface | any> => {
+  try {
+    const supplier_id = req.params.supplier_id;
+    const result: IStockManageInterface[] | any =
+      await findASupplierAllStockInvoiceServices(
+        supplier_id
+      );
+    return sendResponse<IStockManageInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "StockManage Found Successfully !",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+
 // Find All dashboard StockManage
 export const findAllDashboardStockDetails: RequestHandler = async (
   req: Request,

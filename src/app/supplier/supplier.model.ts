@@ -8,16 +8,6 @@ const supplierSchema = new Schema<ISupplierInterface>(
       required: true,
       type: String,
     },
-    supplier_wallet_amount: {
-      required: true,
-      type: Number,
-      default: 0,
-    },
-    oppening_balance: {
-      required: true,
-      type: Number,
-      default: 0,
-    },
     supplier_phone: {
       required: true,
       type: String,

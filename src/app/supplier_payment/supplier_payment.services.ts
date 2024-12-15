@@ -121,6 +121,7 @@ export const findAllUnPaidSupplierPaymentServices = async (
         "payment_bank_id",
         "supplier_payment_publisher_id",
         "supplier_payment_updated_by",
+        "invoice_id",
       ])
       .sort({ _id: -1 })
       .skip(skip)

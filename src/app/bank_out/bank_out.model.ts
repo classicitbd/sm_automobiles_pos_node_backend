@@ -21,6 +21,11 @@ const bankOutSchema = new Schema<IBankOutInterface>(
       required: true,
       type: String,
     },
+    invoice_id: {
+      required: true,
+      type: Schema.Types.ObjectId,
+      ref: "stocks",
+    },
     bank_out_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "users",

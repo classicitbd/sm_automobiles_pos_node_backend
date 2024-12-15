@@ -116,6 +116,56 @@ export const findAllDashboardOrderServices = async (
   return findOrder;
 };
 
+// Find all AR Order
+export const findAllAROrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IOrderInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ payment_status: "unpaid" });
+  // Add condition to exclude "management" order status
+  andCondition.push({ order_status: { $ne: "management" } });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate([
+      "customer_id",
+      "order_publisher_id",
+      "order_updated_by",
+      {
+        path: "order_products.product_id",
+        model: "products",
+        populate: [
+          {
+            path: "brand_id",
+            model: "brands",
+          },
+          {
+            path: "category_id", // Corrected typo from "ategory_id" to "category_id"
+            model: "categories",
+          },
+        ],
+      },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findOrder;
+};
+
 // Find all  OrderInAProduct
 export const findAllOrderInAProductServices = async (
   limit: number,

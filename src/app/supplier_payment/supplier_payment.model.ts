@@ -35,7 +35,13 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
       type: String,
       required: true,
     },
-    supplier_payment_status: {
+    invoice_id: {
+      type: Schema.Types.ObjectId,
+      ref: "stocks",
+      required: true,
+    },
+    supplier_payment_status:{
+      required: true,
       type: String,
       enum: ["paid", "unpaid"],
       default: "unpaid",

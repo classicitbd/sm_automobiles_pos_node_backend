@@ -6,7 +6,6 @@ export interface ICustomerInterface {
   customer_name: string;
   customer_phone: string;
   customer_address?: string;
-  customer_wallet: number;
   customer_status: "active" | "in-active";
   red_alert_number?: number;
   customer_publisher_id: Types.ObjectId | IUserInterface;

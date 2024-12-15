@@ -28,6 +28,7 @@ export interface IOrderInterface {
   grand_total_amount: number;
   received_amount: number;
   due_amount: number;
+  payment_status: "paid" | "unpaid";
   total_messurement_count: number;
   order_note?: string;
   order_barcode?: string;

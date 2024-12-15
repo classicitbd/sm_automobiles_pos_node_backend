@@ -10,6 +10,7 @@ import {
 } from "./order.helpers";
 import {
   findAllACustomerOrderServices,
+  findAllAROrderServices,
   findAllDashboardOrderServices,
   findAllManagementOrderServices,
   findAllOrderInAProductServices,
@@ -165,6 +166,49 @@ export const findAllDashboardOrder: RequestHandler = async (
         })),
       });
     }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All AR Order
+export const findAllAROrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any = await findAllAROrderServices(
+      limitNumber,
+      skip,
+      searchTerm
+    );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ payment_status: "unpaid" });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
     const total = await OrderModel.countDocuments(whereCondition);
