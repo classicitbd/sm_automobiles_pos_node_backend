@@ -7,6 +7,7 @@ import {
   stockManageSearchableField,
 } from "./stock_manage.interface";
 import {
+  findAllAPStockDetailsServices,
   findAllDashboardStockDetailsServices,
   findAllStockDetailsInAProductServices,
   findASupplierAllStockDetailsServices,
@@ -237,6 +238,50 @@ export const findAllDashboardStockDetails: RequestHandler = async (
     const skip = (pageNumber - 1) * limitNumber;
     const result: IStockManageInterface[] | any =
       await findAllDashboardStockDetailsServices(
+        limitNumber,
+        skip,
+        searchTerm
+      );
+
+    const andCondition: any[] = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: stockManageSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await StockManageModel.countDocuments(whereCondition);
+    return sendResponse<IStockManageInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "StockManage Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All AP StockManage
+export const findAllAPStockDetails: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IStockManageInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IStockManageInterface[] | any =
+      await findAllAPStockDetailsServices(
         limitNumber,
         skip,
         searchTerm

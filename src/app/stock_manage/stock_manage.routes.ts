@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
 import {
+  findAllAPStockDetails,
   findAllDashboardStockDetails,
   findAllStockDetailsInAProduct,
   findASupplierAllStockDetails,
@@ -18,6 +19,9 @@ router
 
 // get all StockManage in dashboard
 router.route("/dashboard").get(findAllDashboardStockDetails);
+
+// get all StockManage in ap_list
+router.route("/ap_list").get(findAllAPStockDetails);
 
 // get all StockManage in supplier
 router.route("/supplier_stock/:supplier_id").get(findASupplierAllStockDetails);

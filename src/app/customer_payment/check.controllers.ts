@@ -421,19 +421,28 @@ export const updateCheck: RequestHandler = async (
       // );
 
       // deduct amount from order total ammount
-      await OrderModel.updateOne(
-        { _id: requestData?.order_id },
-        {
-          $inc: {
-            received_amount: +requestData?.pay_amount,
-            due_amount: -requestData?.pay_amount,
-          },
-        },
-        {
-          session,
-          runValidators: true,
-        }
-      );
+      const findOrder: any = await OrderModel.findOne({
+        _id: requestData?.order_id,
+      }).session(session);
+      if (!findOrder) {
+        throw new ApiError(400, "Order Not Found !");
+      }
+      const updateData = {
+        received_amount:
+          parseFloat(findOrder?.received_amount) +
+          parseFloat(requestData?.pay_amount),
+        due_amount:
+          parseFloat(findOrder?.due_amount) -
+          parseFloat(requestData?.pay_amount),
+        payment_status:
+          findOrder?.due_amount - requestData?.pay_amount == 0
+            ? "paid"
+            : "unpaid",
+      };
+      await OrderModel.updateOne({ _id: requestData?.order_id }, updateData, {
+        session,
+        runValidators: true,
+      });
     }
 
     // Commit transaction
