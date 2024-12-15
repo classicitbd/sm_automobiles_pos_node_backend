@@ -10,6 +10,7 @@ import SaleTargetModel from "./sale_target.model";
 import {
   findAllSaleTargetServices,
   findAUserAllSaleTargetServices,
+  findAUserASaleTargetDetailsServices,
   findAUserASaleTargetReportServices,
   postSaleTargetServices,
   updateSaleTargetServices,
@@ -138,8 +139,35 @@ export const findAUserASaleTargetReport: RequestHandler = async (
 ): Promise<ISaleTargetInterface | any> => {
   try {
     const sale_target_id = req.params?.sale_target_id;
+    const { page, limit } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
     const result: ISaleTargetInterface[] | any =
-      await findAUserASaleTargetReportServices(sale_target_id);
+      await findAUserASaleTargetReportServices(limitNumber, skip, sale_target_id);
+    const total = await SaleTargetModel.countDocuments({ sale_target_id: sale_target_id });
+    return sendResponse<ISaleTargetInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "SaleTarget Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find AUserA SaleTargetDetails
+export const findAUserASaleTargetDetails: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISaleTargetInterface | any> => {
+  try {
+    const sale_target_id = req.params?.sale_target_id;
+    const result: ISaleTargetInterface[] | any =
+      await findAUserASaleTargetDetailsServices(sale_target_id);
     return sendResponse<ISaleTargetInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -150,6 +178,7 @@ export const findAUserASaleTargetReport: RequestHandler = async (
     next(error);
   }
 };
+
 // Find AUserAll SaleTarget
 export const findAUserAllSaleTarget: RequestHandler = async (
   req: Request,

@@ -7,6 +7,7 @@ import {
   ICustomerInterface,
 } from "./customer.interface";
 import {
+  findACustomerServices,
   findAllActiveCustomerServices,
   findAllDashboardCustomerServices,
   findAllSelfCustomerServices,
@@ -41,6 +42,27 @@ export const postCustomer: RequestHandler = async (
     } else {
       throw new ApiError(400, "Customer Added Failed !");
     }
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// find a Customer
+export const findACustomer: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ICustomerInterface | any> => {
+  try {
+    const { _id }: any = req.params;
+    const result: ICustomerInterface[] | [] | any =
+      await findACustomerServices(_id);
+    return sendResponse<ICustomerInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Customer Added Successfully !",
+      data: result,
+    });
   } catch (error: any) {
     next(error);
   }

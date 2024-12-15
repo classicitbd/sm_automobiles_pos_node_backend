@@ -14,7 +14,6 @@ export const postBankInServices = async (
   return createBankIn;
 };
 
-
 // Find all BankIn data For A specific Bank
 export const findAllBankInDataForABankServices = async (
   limit: number,
@@ -38,15 +37,15 @@ export const findAllBankInDataForABankServices = async (
   const findBankIn: IBankInInterface[] | [] = await BankInModel.find(
     whereCondition
   )
-    .populate(["bank_id", "bank_in_publisher_id", "bank_in_updated_by", "customer_id"])
+    .populate([
+      "bank_id",
+      "bank_in_publisher_id",
+      "bank_in_updated_by",
+      "customer_id",
+    ])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
     .select("-__v");
-  const bankDetails: any = await BankModel.findOne({ _id: bank_id });
-  const sendData = {
-    bankDetails: bankDetails,
-    bankInData: findBankIn,
-  }
-  return sendData;
+  return findBankIn;
 };

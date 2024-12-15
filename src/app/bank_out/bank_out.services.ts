@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
-import { bankOutSearchableField, IBankOutInterface } from "./bank_out.interface";
+import {
+  bankOutSearchableField,
+  IBankOutInterface,
+} from "./bank_out.interface";
 import BankOutModel from "./bank_out.model";
 import BankModel from "../bank/bank.model";
 
@@ -45,10 +48,5 @@ export const findAllBankOutDataForABankServices = async (
     .skip(skip)
     .limit(limit)
     .select("-__v");
-  const bankDetails: any = await BankModel.findOne({ _id: bank_id });
-  const sendData = {
-    bankDetails: bankDetails,
-    bankOutData: findBankOut,
-  }
-  return sendData;
+  return findBankOut;
 };

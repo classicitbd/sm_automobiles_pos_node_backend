@@ -52,9 +52,7 @@ export const findAllACustomerCheckServices = async (
     .skip(skip)
     .limit(limit)
     .select("-__v");
-  const customerDetails: any = await CustomerModel.findOne({ _id: customer_id });
-  const sendData = { checkDetails: findCheck, customerDetails };
-  return sendData;
+  return findCheck;
 };
 
 // Find all  Check publish a user

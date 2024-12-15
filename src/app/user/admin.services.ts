@@ -9,6 +9,16 @@ export const postUserServices = async (
   return createUser;
 };
 
+// Find a User User
+export const findAUserServices = async (
+  _id: any
+): Promise<IUserInterface | any> => {
+  const findUser: IUserInterface | any = await UserModel.findOne({
+    _id: _id,
+  }).select("-__v");
+  return findUser;
+};
+
 // Find all  User Role User
 export const findAllUserServices = async (): Promise<IUserInterface[] | []> => {
   const findUser: IUserInterface[] | [] = await UserModel.find({

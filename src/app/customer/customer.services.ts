@@ -26,6 +26,16 @@ export const findAllActiveCustomerServices = async (
   return findCustomer;
 };
 
+// find a Customer
+export const findACustomerServices = async (
+  _id: string
+): Promise<ICustomerInterface | {} | any> => {
+  const findCustomer: ICustomerInterface | any = await CustomerModel.findOne({
+    _id: _id,
+  });
+  return findCustomer;
+};
+
 // find all Self Customer for a specific publisher
 export const findAllSelfCustomerServices = async (
   limit: number,
@@ -46,7 +56,9 @@ export const findAllSelfCustomerServices = async (
   }
   andCondition.push({ customer_publisher_id: customer_publisher_id });
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
-  const findCustomer: ICustomerInterface[] | [] = await CustomerModel.find(whereCondition);
+  const findCustomer: ICustomerInterface[] | [] = await CustomerModel.find(
+    whereCondition
+  );
   return findCustomer;
 };
 

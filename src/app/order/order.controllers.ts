@@ -488,15 +488,38 @@ export const findAllSelfOrder: RequestHandler = async (
   next: NextFunction
 ): Promise<IOrderInterface | any> => {
   try {
+    const { page, limit, searchTerm } = req.query;
     const { order_publisher_id } = req.params;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
     const result: IOrderInterface[] | any = await findAllSelfOrderServices(
+      limitNumber,
+        skip,
+        searchTerm,
       order_publisher_id
     );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ order_publisher_id: order_publisher_id });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
     return sendResponse<IOrderInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "Order Found Successfully !",
       data: result,
+      totalData: total,
     });
   } catch (error: any) {
     next(error);

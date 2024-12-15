@@ -70,26 +70,22 @@ export const findAUserAllSaleTargetServices = async (
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findSaleTarget: ISaleTargetInterface[] | [] =
     await SaleTargetModel.find(whereCondition)
-      .populate(["sale_target_publisher_id", "sale_target_updated_by"])
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
       .select("-__v");
-  const userdetails = await UserModel.findOne({ _id: user_id });
-  const sendData = {
-    findSaleTarget: findSaleTarget,
-    userdetails: userdetails,
-  };
-  return sendData;
+  return findSaleTarget;
 };
 
 // Find a user a SaleTargetReport
 export const findAUserASaleTargetReportServices = async (
+  limit: number,
+  skip: number,
   sale_target_id: any
 ): Promise<ISaleTargetInterface[] | [] | any> => {
   const saleTargetDetails: any = await SaleTargetModel.findOne({
     _id: sale_target_id,
-  }).populate("user_id");
+  })
   if (!saleTargetDetails) throw new ApiError(400, "Sale Target Not Found !");
   const sale_target_start_date = saleTargetDetails?.sale_target_start_date;
   const sale_target_end_date = saleTargetDetails?.sale_target_end_date;
@@ -97,15 +93,26 @@ export const findAUserASaleTargetReportServices = async (
     order_status: "out-of-warehouse",
     out_of_warehouse_date: {
       $gte: sale_target_start_date, // Start date (inclusive)
-      $lte: sale_target_end_date // End date (inclusive)
+      $lte: sale_target_end_date, // End date (inclusive)
     },
-    sale_target_id: sale_target_id
-  }).select("-__v -updated_at -created_at  -order_barcode_image -order_barcode -order_products");
-  const sendData = {
-    saleTargetDetails: saleTargetDetails,
-    findOrderDetails: findOrderDetails,
-  };
-  return sendData;
+    sale_target_id: sale_target_id,
+  })
+    .skip(skip)
+    .limit(limit)
+    .select(
+      "-__v -updated_at -created_at  -order_barcode_image -order_barcode -order_products"
+    );
+  return findOrderDetails;
+};
+
+// Find a user a SaleTargetDetails
+export const findAUserASaleTargetDetailsServices = async (
+  sale_target_id: any
+): Promise<ISaleTargetInterface[] | [] | any> => {
+  const saleTargetDetails: any = await SaleTargetModel.findOne({
+    _id: sale_target_id,
+  }).populate("user_id");
+  return saleTargetDetails;
 };
 
 // Update a SaleTarget

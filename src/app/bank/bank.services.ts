@@ -10,12 +10,20 @@ export const postBankServices = async (
 };
 
 // Find Bank
-export const findAllBankServices = async (): Promise<
-  IBankInterface[] | []
-> => {
+export const findAllBankServices = async (): Promise<IBankInterface[] | []> => {
   const findBank: IBankInterface[] | [] = await BankModel.find({})
     .sort({ _id: -1 })
     .select("-__v");
+  return findBank;
+};
+
+// Find A Bank
+export const findABankServices = async (
+  _id: any
+): Promise<IBankInterface | any> => {
+  const findBank: IBankInterface | any = await BankModel.findOne({
+    _id: _id,
+  }).select("-__v");
   return findBank;
 };
 
@@ -37,9 +45,8 @@ export const findAllDashboardBankServices = async (
     });
   }
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
-  const findBank: IBankInterface[] | [] = await BankModel.find(
-    whereCondition
-  ).populate(["bank_publisher_id", "bank_updated_by"])
+  const findBank: IBankInterface[] | [] = await BankModel.find(whereCondition)
+    .populate(["bank_publisher_id", "bank_updated_by"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)

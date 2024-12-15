@@ -4,6 +4,7 @@ import httpStatus from "http-status";
 import ApiError from "../../errors/ApiError";
 import { bankSearchableField, IBankInterface } from "./bank.interface";
 import {
+  findABankServices,
   findAllBankServices,
   findAllDashboardBankServices,
   postBankServices,
@@ -35,6 +36,26 @@ export const postBank: RequestHandler = async (
     } else {
       throw new ApiError(400, "Bank Added Failed !");
     }
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find A Bank
+export const findABank: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IBankInterface | any> => {
+  try {
+    const {_id} = req.params;
+    const result: IBankInterface[] | any = await findABankServices(_id);
+    return sendResponse<IBankInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Bank Found Successfully !",
+      data: result,
+    });
   } catch (error: any) {
     next(error);
   }

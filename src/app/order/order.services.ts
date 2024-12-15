@@ -61,12 +61,7 @@ export const findAllACustomerOrderServices = async (
     .skip(skip)
     .limit(limit)
     .select("-__v");
-  const customerDetails = await CustomerModel.findOne({ _id: customer_id });
-  const sendData: any = {
-    customerDetails,
-    orderDetails: findOrder,
-  };
-  return sendData;
+  return findOrder;
 };
 
 // Find all dashboard Order
@@ -398,11 +393,27 @@ export const findAllOutOfWarehouseOrderServices = async (
 
 // find all self order for create a payment
 export const findAllSelfOrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any,
   order_publisher_id: any
 ): Promise<IOrderInterface[] | []> => {
-  const findAllOrder: IOrderInterface[] | [] = await OrderModel.find({
-    order_publisher_id: order_publisher_id,
-  })
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ order_publisher_id: order_publisher_id });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
     .populate([
       "customer_id",
       {
@@ -410,8 +421,10 @@ export const findAllSelfOrderServices = async (
         model: "products",
       },
     ])
-    .sort({ _id: -1 });
-  return findAllOrder;
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit);
+  return findOrder;
 };
 
 // find all self orderWithPagination for create a payment

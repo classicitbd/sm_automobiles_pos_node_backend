@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyToken } from "../../middlewares/verify.token";
 import {
+  findACustomer,
   findAllActiveCustomer,
   findAllDashboardCustomer,
   findAllSelfCustomer,
@@ -21,5 +22,8 @@ router.route("/self_customer").get(verifyToken, findAllSelfCustomer);
 
 // get all Customer in dashboard
 router.route("/dashboard").get(verifyToken, findAllDashboardCustomer);
+
+// get a Customer
+router.route("/:_id").get(findACustomer);
 
 export const CustomerRoutes = router;
