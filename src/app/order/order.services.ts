@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import ApiError from "../../errors/ApiError";
 import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
-import CustomerModel from "../customer/customer.model";
 import ProductModel from "../product/product.model";
 
 // Create A Order
@@ -89,6 +88,9 @@ export const findAllDashboardOrderServices = async (
       "customer_id",
       "order_publisher_id",
       "order_updated_by",
+      "management_user_id",
+      "account_user_id",
+      "warehouse_user_id",
       {
         path: "order_products.product_id",
         model: "products",
@@ -275,6 +277,9 @@ export const findAllManagementOrderServices = async (
       "customer_id",
       "order_publisher_id",
       "order_updated_by",
+      "management_user_id",
+      "account_user_id",
+      "warehouse_user_id",
       {
         path: "order_products.product_id",
         model: "products",
@@ -296,6 +301,58 @@ export const findAllManagementOrderServices = async (
     .select("-__v");
   return findOrder;
 };
+
+// Find all Account Order
+export const findAllAccountOrderServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IOrderInterface[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: orderSearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  andCondition.push({ order_status: "account" });
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findOrder: IOrderInterface[] | [] = await OrderModel.find(
+    whereCondition
+  )
+    .populate([
+      "customer_id",
+      "order_publisher_id",
+      "order_updated_by",
+      "management_user_id",
+      "account_user_id",
+      "warehouse_user_id",
+      {
+        path: "order_products.product_id",
+        model: "products",
+        populate: [
+          {
+            path: "brand_id",
+            model: "brands",
+          },
+          {
+            path: "category_id", // Corrected typo from "ategory_id" to "category_id"
+            model: "categories",
+          },
+        ],
+      },
+    ])
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findOrder;
+};
+
 // Find all Warehouse Order
 export const findAllWarehouseOrderServices = async (
   limit: number,
@@ -322,6 +379,9 @@ export const findAllWarehouseOrderServices = async (
       "customer_id",
       "order_publisher_id",
       "order_updated_by",
+      "management_user_id",
+      "account_user_id",
+      "warehouse_user_id",
       {
         path: "order_products.product_id",
         model: "products",
@@ -369,6 +429,9 @@ export const findAllOutOfWarehouseOrderServices = async (
       "customer_id",
       "order_publisher_id",
       "order_updated_by",
+      "management_user_id",
+      "account_user_id",
+      "warehouse_user_id",
       {
         path: "order_products.product_id",
         model: "products",
@@ -493,12 +556,6 @@ export const findAOrderServices = async (
     {
       path: "order_products.product_id",
       model: "products",
-      populate: [
-        {
-          path: "product_unit_id", // Corrected typo from "ategory_id" to "category_id"
-          model: "units",
-        },
-      ],
     },
   ]);
   if (!findAOrder) {

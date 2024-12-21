@@ -11,6 +11,8 @@ import {
   updateBankServices,
 } from "./bank.services";
 import BankModel from "./bank.model";
+import mongoose from "mongoose";
+import { postBankBalanceUpdateHistoryServices } from "../bankBalanceUpdateHistory/bankBalanceUpdateHistory.services";
 
 // Add A Bank
 export const postBank: RequestHandler = async (
@@ -48,7 +50,7 @@ export const findABank: RequestHandler = async (
   next: NextFunction
 ): Promise<IBankInterface | any> => {
   try {
-    const {_id} = req.params;
+    const { _id } = req.params;
     const result: IBankInterface[] | any = await findABankServices(_id);
     return sendResponse<IBankInterface>(res, {
       statusCode: httpStatus.OK,
@@ -128,19 +130,31 @@ export const updateBank: RequestHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<IBankInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const requestData = req.body;
-    const checkBankExist = await BankModel.findOne({
-      account_no: requestData?.account_no,
-    });
-    if (checkBankExist && requestData?._id !== checkBankExist?._id?.toString()) {
-      throw new ApiError(400, "Bank Account No Already Exist !");
-    }
     const result: IBankInterface | any = await updateBankServices(
       requestData,
       requestData?._id
     );
     if (result?.modifiedCount > 0) {
+      if (requestData?.bank_balance) {
+        // update price update history
+        const priceUpdateHistoryData = {
+          previous_balance: requestData?.previous_balance,
+          new_balance: requestData?.bank_balance,
+          publisher_id: requestData?.bank_updated_by,
+          bank_id: requestData?._id,
+        };
+        await postBankBalanceUpdateHistoryServices(
+          priceUpdateHistoryData,
+          session
+        );
+      }
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
       return sendResponse<IBankInterface>(res, {
         statusCode: httpStatus.OK,
         success: true,
@@ -150,6 +164,8 @@ export const updateBank: RequestHandler = async (
       throw new ApiError(400, "Bank Update Failed !");
     }
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };

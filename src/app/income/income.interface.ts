@@ -10,8 +10,6 @@ export interface IIncomeInterface {
   income_amount: number;
   income_customer_id?: Types.ObjectId | ICustomerInterface;
   customer_phone?: string;
-  income_bank_id?: Types.ObjectId | IBankInterface;
-  reference_id?: string;
   income_order_id?: Types.ObjectId | IOrderInterface;
   income_invoice_number?: string;
   income_publisher_id: Types.ObjectId | IUserInterface;
@@ -20,6 +18,6 @@ export interface IIncomeInterface {
 
 export const incomeSearchableField = [
   "income_title",
-  "reference_id",
+  "customer_phone",
   "income_invoice_number",
 ];

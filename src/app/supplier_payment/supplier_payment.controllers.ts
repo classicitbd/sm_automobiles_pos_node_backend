@@ -19,9 +19,8 @@ import SupplierPaymentModel from "./supplier_payment.model";
 import mongoose, { Types } from "mongoose";
 import { postBankOutServices } from "../bank_out/bank_out.services";
 import BankModel from "../bank/bank.model";
-import SupplierModel from "../supplier/supplier.model";
-import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
 import StockManageModel from "../stock_manage/stock_manage.model";
+import CashModel from "../cash/cash.model";
 
 // Generate a unique trnxId
 const generatetrnxId = async () => {
@@ -366,25 +365,17 @@ export const updateSupplierPayment: RequestHandler = async (
           runValidators: true,
         }
       );
+    } else {
+      // deduct amount from cash account
+      await CashModel.updateOne(
+        {},
+        { $inc: { cash_balance: -requestData?.supplier_payment_amount } },
+        {
+          session,
+          runValidators: true,
+        }
+      );
     }
-
-    // add document in expense collection
-    const sendDataInExpenceCreate: any = {
-      expense_title: "Supplier Money Send",
-      expense_amount: requestData?.supplier_payment_amount,
-      expense_supplier_id: requestData?.supplier_id,
-      expense_publisher_id: requestData?.supplier_payment_updated_by,
-      expence_supplier_payment_invoice_id: requestData?.invoice_id,
-    };
-    if (requestData?.supplier_payment_method == "check") {
-      (sendDataInExpenceCreate.expense_bank_id = requestData?.payment_bank_id),
-        (sendDataInExpenceCreate.reference_id = requestData?.reference_id);
-    }
-
-    await postExpenseWhenProductStockAddServices(
-      sendDataInExpenceCreate,
-      session
-    );
 
     // decrease amount from stck purchase invoice and update status
     const stockManageDetails = await StockManageModel.findOne({
@@ -405,10 +396,14 @@ export const updateSupplierPayment: RequestHandler = async (
           : "unpaid",
       stock_updated_by: requestData?.supplier_payment_updated_by,
     };
-    await StockManageModel.updateOne({ _id: requestData?.invoice_id }, stockUpdateData, {
-      session,
-      runValidators: true,
-    });
+    await StockManageModel.updateOne(
+      { _id: requestData?.invoice_id },
+      stockUpdateData,
+      {
+        session,
+        runValidators: true,
+      }
+    );
 
     // Commit transaction
     await session.commitTransaction();

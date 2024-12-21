@@ -17,9 +17,8 @@ import {
 import mongoose from "mongoose";
 import { postBankInServices } from "../bank_in/bank_in.services";
 import BankModel from "../bank/bank.model";
-import CustomerModel from "../customer/customer.model";
 import OrderModel from "../order/order.model";
-import { postIncomeWhenCustomerPaymentAddServices } from "../income/income.services";
+import CashModel from "../cash/cash.model";
 
 // Generate a unique trnxId
 export const generateChecktrnxId = async () => {
@@ -392,21 +391,17 @@ export const updateCheck: RequestHandler = async (
             runValidators: true,
           }
         );
+      } else {
+        // deduct amount from cash account
+        await CashModel.updateOne(
+          {},
+          { $inc: { cash_balance: +requestData?.pay_amount } },
+          {
+            session,
+            runValidators: true,
+          }
+        );
       }
-
-      // payment add in income list
-      const incomeData = {
-        income_title: requestData?.payment_note || "Customer payment",
-        income_amount: requestData?.pay_amount,
-        income_customer_id: requestData?.customer_id,
-        customer_phone: requestData?.customer_phone,
-        income_bank_id: requestData?.bank_id,
-        reference_id: requestData?.check_number,
-        income_order_id: requestData?.order_id,
-        income_invoice_number: requestData?.invoice_number,
-        income_publisher_id: requestData?.check_updated_by,
-      };
-      await postIncomeWhenCustomerPaymentAddServices(incomeData, session);
 
       // // add amount in Customer wallet
       // await CustomerModel.updateOne(

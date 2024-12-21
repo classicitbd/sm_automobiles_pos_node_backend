@@ -20,6 +20,7 @@ import StockManageModel from "./stock_manage.model";
 import ProductModel from "../product/product.model";
 import SupplierModel from "../supplier/supplier.model";
 import { postSupplierMoneyAddServices } from "../supplier_add_money/supplier_money_add.services";
+import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
 
 // Generate a unique invoice_id
 export const generateinvoice_id = async () => {
@@ -73,7 +74,7 @@ export const postStockManage: RequestHandler = async (
     await ProductModel.updateOne(
       { _id: productObjectId },
       {
-        $inc: { product_quantity: parseFloat(requestData?.product_quantity) },
+        $inc: { product_quantity: parseFloat(requestData?.product_quantity), total_purchase: parseFloat(requestData?.product_quantity) },
         $set: {
           product_updated_by: requestData?.stock_publisher_id,
           product_buying_price: parseFloat(requestData?.product_buying_price),
@@ -84,6 +85,20 @@ export const postStockManage: RequestHandler = async (
         session,
         runValidators: true,
       }
+    );
+
+    // add document in expense collection
+    const sendDataInExpenceCreate: any = {
+      expense_title: "Product Purchase",
+      expense_amount: requestData?.total_amount,
+      expense_supplier_id: requestData?.supplier_id,
+      expense_publisher_id: requestData?.stock_publisher_id,
+      expense_date: new Date()?.toISOString()?.split('T')[0],
+    };
+
+    await postExpenseWhenProductStockAddServices(
+      sendDataInExpenceCreate,
+      session
     );
 
     // Commit transaction
@@ -200,7 +215,6 @@ export const findASupplierAllStockDetails: RequestHandler = async (
   }
 };
 
-
 // Find All suplier StockManage
 export const findASupplierAllStockInvoice: RequestHandler = async (
   req: Request,
@@ -210,9 +224,7 @@ export const findASupplierAllStockInvoice: RequestHandler = async (
   try {
     const supplier_id = req.params.supplier_id;
     const result: IStockManageInterface[] | any =
-      await findASupplierAllStockInvoiceServices(
-        supplier_id
-      );
+      await findASupplierAllStockInvoiceServices(supplier_id);
     return sendResponse<IStockManageInterface>(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -223,7 +235,6 @@ export const findASupplierAllStockInvoice: RequestHandler = async (
     next(error);
   }
 };
-
 
 // Find All dashboard StockManage
 export const findAllDashboardStockDetails: RequestHandler = async (
@@ -237,11 +248,7 @@ export const findAllDashboardStockDetails: RequestHandler = async (
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
     const result: IStockManageInterface[] | any =
-      await findAllDashboardStockDetailsServices(
-        limitNumber,
-        skip,
-        searchTerm
-      );
+      await findAllDashboardStockDetailsServices(limitNumber, skip, searchTerm);
 
     const andCondition: any[] = [];
     if (searchTerm) {
@@ -281,11 +288,7 @@ export const findAllAPStockDetails: RequestHandler = async (
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
     const result: IStockManageInterface[] | any =
-      await findAllAPStockDetailsServices(
-        limitNumber,
-        skip,
-        searchTerm
-      );
+      await findAllAPStockDetailsServices(limitNumber, skip, searchTerm);
 
     const andCondition: any[] = [];
     if (searchTerm) {

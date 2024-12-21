@@ -9,6 +9,7 @@ import {
   handleProductQuantity,
 } from "./order.helpers";
 import {
+  findAllAccountOrderServices,
   findAllACustomerOrderServices,
   findAllAROrderServices,
   findAllDashboardOrderServices,
@@ -28,6 +29,7 @@ import { IOrderInterface, orderSearchableField } from "./order.interface";
 import OrderModel from "./order.model";
 import SaleTargetModel from "../sale_target/sale_target.model";
 import { generateChecktrnxId } from "../customer_payment/check.controllers";
+import { postIncomeWhenCustomerPaymentAddServices } from "../income/income.services";
 
 // Add A Order
 export const postOrder: RequestHandler = async (
@@ -352,6 +354,47 @@ export const findAllManagementOrder: RequestHandler = async (
     next(error);
   }
 };
+
+// Find All Account Order
+export const findAllAccountOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<IOrderInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: IOrderInterface[] | any =
+      await findAllAccountOrderServices(limitNumber, skip, searchTerm);
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: orderSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ order_status: "account" });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await OrderModel.countDocuments(whereCondition);
+    return sendResponse<IOrderInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 // Find All Warehouse Order
 export const findAllWarehouseOrder: RequestHandler = async (
   req: Request,
@@ -495,8 +538,8 @@ export const findAllSelfOrder: RequestHandler = async (
     const skip = (pageNumber - 1) * limitNumber;
     const result: IOrderInterface[] | any = await findAllSelfOrderServices(
       limitNumber,
-        skip,
-        searchTerm,
+      skip,
+      searchTerm,
       order_publisher_id
     );
     const andCondition = [];
@@ -580,7 +623,7 @@ export const updateOrder: RequestHandler = async (
   try {
     const requestData = req.body;
     const user_id = requestData?.user_id;
-    const total_messurement_count = requestData?.total_messurement_count;
+    const total_measurement_count = requestData?.total_measurement_count;
     // handle product quantity
     if (requestData && requestData?.order_status == "out-of-warehouse") {
       await handleProductQuantity(
@@ -598,7 +641,7 @@ export const updateOrder: RequestHandler = async (
       });
       if (slaeTargetUserFind) {
         if (
-          slaeTargetUserFind?.sale_target_filup + total_messurement_count >=
+          slaeTargetUserFind?.sale_target_filup + total_measurement_count >=
           slaeTargetUserFind?.sale_target
         ) {
           await SaleTargetModel.updateOne(
@@ -609,7 +652,7 @@ export const updateOrder: RequestHandler = async (
             },
             {
               $inc: {
-                sale_target_filup: +total_messurement_count,
+                sale_target_filup: +total_measurement_count,
               },
               sale_target_success: true,
             },
@@ -623,7 +666,7 @@ export const updateOrder: RequestHandler = async (
               sale_target_end_date: { $gte: today },
             },
             {
-              $inc: { sale_target_filup: +total_messurement_count },
+              $inc: { sale_target_filup: +total_measurement_count },
             },
             { session }
           );
@@ -634,6 +677,7 @@ export const updateOrder: RequestHandler = async (
         _id: requestData?._id,
         order_status: requestData?.order_status,
         order_updated_by: requestData?.order_updated_by,
+        warehouse_user_id: requestData?.warehouse_user_id,
         out_of_warehouse_date: today,
       };
       if (slaeTargetUserFind) {
@@ -658,14 +702,22 @@ export const updateOrder: RequestHandler = async (
         message: "Order Update Successfully !",
       });
     } else {
-      const updatedData: any = {
-        _id: requestData?._id,
-        order_status: requestData?.order_status,
-        order_updated_by: requestData?.order_updated_by,
-      };
+      if (requestData?.order_status == "account") {
+        // payment add in income list
+        const incomeData = {
+          income_title: "Customer payment",
+          income_amount: requestData?.income_amount,
+          income_customer_id: requestData?.income_customer_id,
+          customer_phone: requestData?.customer_phone,
+          income_order_id: requestData?.income_order_id,
+          income_invoice_number: requestData?.income_invoice_number,
+          income_publisher_id: requestData?.order_updated_by,
+        };
+        await postIncomeWhenCustomerPaymentAddServices(incomeData, session);
+      }
       // handle order status
       const result: IOrderInterface | any = await updateOrderServices(
-        updatedData,
+        requestData,
         requestData?._id,
         session
       );

@@ -36,7 +36,6 @@ export const findAllIncomeServices = async (
   )
     .populate([
       "income_customer_id",
-      "income_bank_id",
       "income_order_id",
       "income_publisher_id",
     ])

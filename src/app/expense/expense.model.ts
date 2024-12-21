@@ -12,24 +12,19 @@ const expenseSchema = new Schema<IExpenseInterface>(
       type: Schema.Types.ObjectId,
       ref: "suppliers",
     },
+    expense_voucher: {
+      type: String,
+    },
+    expense_date: {
+      type: String,
+    },
     expense_amount: {
       required: true,
       type: Number,
     },
-    expense_bank_id: {
-      type: Schema.Types.ObjectId,
-      ref: "banks",
-    },
-    reference_id: {
-      type: String,
-    },
     expense_product_id: {
       type: Schema.Types.ObjectId,
       ref: "products",
-    },
-    expence_supplier_payment_invoice_id: {
-      type: Schema.Types.ObjectId,
-      ref: "stocks",
     },
     expense_publisher_id: {
       type: Schema.Types.ObjectId,

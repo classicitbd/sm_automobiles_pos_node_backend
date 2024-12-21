@@ -88,7 +88,7 @@ export const findAllProductServices = async (
   const findProduct: IProductInterface[] | [] = await ProductModel.find(
     whereCondition
   )
-    .populate(["category_id", "brand_id", "product_unit_id"])
+    .populate(["category_id", "brand_id"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -123,7 +123,6 @@ export const findAllDashboardProductServices = async (
       "product_updated_by",
       "category_id",
       "brand_id",
-      "product_unit_id",
     ])
     .sort({ _id: -1 })
     .skip(skip)

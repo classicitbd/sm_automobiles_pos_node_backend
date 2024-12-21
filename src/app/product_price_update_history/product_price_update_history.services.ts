@@ -29,7 +29,7 @@ export const findAllDashboardProductPriceUpdateHistoryServices = async (
     .skip(skip)
     .limit(limit)
     .select("-__v");
-  const productDetails = await ProductModel.findOne({ _id: product_id }).populate("product_unit_id");
+  const productDetails = await ProductModel.findOne({ _id: product_id });
 
   const sendData = {
     findProductPriceHistory,

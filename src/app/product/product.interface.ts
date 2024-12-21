@@ -3,7 +3,6 @@ import { ICategoryInterface } from "../category/category.interface";
 import { IBrandInterface } from "../brand/brand.interface";
 import { IUserInterface } from "../user/user.interface";
 import { IProductUnitInterface } from "../productUnit/unit.interface";
-import { ISupplierInterface } from "../supplier/supplier.interface";
 
 export interface IProductInterface {
   _id?: any;
@@ -14,12 +13,12 @@ export interface IProductInterface {
   product_details?: string;
   category_id: Types.ObjectId | ICategoryInterface;
   brand_id?: Types.ObjectId | IBrandInterface;
-  product_unit_id: Types.ObjectId | IProductUnitInterface;
   product_price?: number;
   product_buying_price?: number;
   product_quantity?: number;
   product_stock_low_alert?: number;
   total_sale?: number;
+  total_purchase?: number;
   product_barcode: string;
   product_barcode_image?: string;
   product_id: string;

@@ -16,13 +16,6 @@ const incomeSchema = new Schema<IIncomeInterface>(
       type: Schema.Types.ObjectId,
       ref: "customers",
     },
-    income_bank_id: {
-      type: Schema.Types.ObjectId,
-      ref: "banks",
-    },
-    reference_id: {
-      type: String,
-    },
     income_order_id: {
       type: Schema.Types.ObjectId,
       ref: "orders",

@@ -62,7 +62,7 @@ export const handleProductQuantity = async (
         {
           $inc: {
             product_quantity: -product?.product_quantity,
-            total_sale: +product?.product_quantity,
+            total_sale: +product?.total_measurement,
           },
         },
         { session }

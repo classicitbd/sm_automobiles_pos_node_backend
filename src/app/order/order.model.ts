@@ -11,7 +11,7 @@ const orderSchema = new Schema<IOrderInterface>(
     order_status: {
       required: true,
       type: String,
-      enum: ["management", "warehouse", "out-of-warehouse"],
+      enum: ["management", "account", "warehouse", "out-of-warehouse"],
       default: "management",
     },
     customer_id: {
@@ -32,69 +32,73 @@ const orderSchema = new Schema<IOrderInterface>(
         },
         product_price: {
           required: true,
-          type: Number
+          type: Number,
         },
         product_buying_price: {
           required: true,
-          type: Number
+          type: Number,
         },
         total_amount: {
           required: true,
-          type: Number
+          type: Number,
         },
         discount_percent: {
           required: true,
-          type: Number
+          type: Number,
         },
         grand_total: {
           required: true,
-          type: Number
+          type: Number,
         },
-        total_messurement: {
+        total_measurement: {
           required: true,
-          type: Number
+          type: Number,
         },
-      }
+        product_unit_name: {
+          required: true,
+          type: String,
+        },
+      },
     ],
     sub_total_amount: {
       required: true,
-      type: Number
+      type: Number,
     },
     discount_percent_amount: {
       required: true,
-      type: Number
+      type: Number,
     },
     grand_total_amount: {
       required: true,
-      type: Number
+      type: Number,
     },
     received_amount: {
       required: true,
-      type: Number
+      type: Number,
     },
     due_amount: {
       required: true,
-      type: Number
+      type: Number,
     },
-    total_messurement_count: {
+    total_measurement_count: {
       required: true,
-      type: Number
+      type: Number,
     },
     order_note: {
-      type: String
+      type: String,
     },
     order_barcode: {
-      type: String
+      type: String,
     },
     order_barcode_image: {
-      type: String
+      type: String,
     },
     payment_type: {
       required: true,
-      type: String
+      type: String,
     },
-    out_of_warehouse_date:{
-      type: String
+    out_of_warehouse_date: {
+      type: String,
     },
     payment_status: {
       required: true,
@@ -102,7 +106,7 @@ const orderSchema = new Schema<IOrderInterface>(
       enum: ["paid", "unpaid"],
       default: "unpaid",
     },
-    sale_target_id:{
+    sale_target_id: {
       type: Schema.Types.ObjectId,
       ref: "saletargets",
     },
@@ -115,6 +119,18 @@ const orderSchema = new Schema<IOrderInterface>(
       type: Schema.Types.ObjectId,
       ref: "users",
     },
+    management_user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
+    account_user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
+    warehouse_user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
   },
   {
     timestamps: true,
@@ -124,4 +140,3 @@ const orderSchema = new Schema<IOrderInterface>(
 const OrderModel = model<IOrderInterface>("orders", orderSchema);
 
 export default OrderModel;
-

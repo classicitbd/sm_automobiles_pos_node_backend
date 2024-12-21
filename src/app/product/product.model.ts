@@ -32,11 +32,6 @@ const productSchema = new Schema<IProductInterface>(
       type: Schema.Types.ObjectId,
       ref: "brands",
     },
-    product_unit_id: {
-      type: Schema.Types.ObjectId,
-      ref: "units",
-      required: true,
-    },
     product_price: {
       type: Number,
     },
@@ -61,6 +56,10 @@ const productSchema = new Schema<IProductInterface>(
       type: Number,
     },
     total_sale: {
+      type: Number,
+      default: 0,
+    },
+    total_purchase: {
       type: Number,
       default: 0,
     },

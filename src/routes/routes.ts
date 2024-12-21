@@ -22,6 +22,9 @@ import { BankInRoutes } from "../app/bank_in/bank_in.routes";
 import { BankOutRoutes } from "../app/bank_out/bank_out.routes";
 import { IncomeRoutes } from "../app/income/income.routes";
 import { ProductPriceUpdateHistoryRoutes } from "../app/product_price_update_history/product_price_update_history.routes";
+import { CashRoutes } from "../app/cash/cash.routes";
+import { CashBalanceUpdateHistoryRoutes } from "../app/cashBalanceUpdateHistory/cashBalanceUpdateHistory.routes";
+import { BankBalanceUpdateHistoryRoutes } from "../app/bankBalanceUpdateHistory/bankBalanceUpdateHistory.routes";
 
 const router = express.Router();
 
@@ -53,6 +56,18 @@ const moduleRoutes = [
   {
     path: "/supplier",
     route: SupplierRoutes,
+  },
+  {
+    path: "/cash",
+    route: CashRoutes,
+  },
+  {
+    path: "/cash_balance_update_history",
+    route: CashBalanceUpdateHistoryRoutes,
+  },
+  {
+    path: "/bank_balance_update_history",
+    route: BankBalanceUpdateHistoryRoutes,
   },
   {
     path: "/bank",

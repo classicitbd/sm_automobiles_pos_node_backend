@@ -12,15 +12,14 @@ export interface IOrderProductInterface {
   total_amount: number;
   discount_percent: number;
   grand_total: number;
-  total_messurement: number;
+  total_measurement: number;
+  product_unit_name: string;
 }
 
 export interface IOrderInterface {
   _id?: any;
   order_id: string;
-  order_status: "management"
-  | "warehouse"
-  | "out-of-warehouse";
+  order_status: "management" | "account" | "warehouse" | "out-of-warehouse";
   customer_id: Types.ObjectId | ICustomerInterface;
   order_products: IOrderProductInterface[];
   sub_total_amount: number;
@@ -29,7 +28,7 @@ export interface IOrderInterface {
   received_amount: number;
   due_amount: number;
   payment_status: "paid" | "unpaid";
-  total_messurement_count: number;
+  total_measurement_count: number;
   order_note?: string;
   order_barcode?: string;
   order_barcode_image?: string;
@@ -38,6 +37,9 @@ export interface IOrderInterface {
   sale_target_id?: Types.ObjectId | ISaleTargetInterface;
   order_publisher_id: Types.ObjectId | IUserInterface;
   order_updated_by?: Types.ObjectId | IUserInterface;
+  management_user_id?: Types.ObjectId | IUserInterface;
+  account_user_id?: Types.ObjectId | IUserInterface;
+  warehouse_user_id?: Types.ObjectId | IUserInterface;
 }
 
 export const orderSearchableField = [
@@ -48,5 +50,5 @@ export const orderSearchableField = [
   "payment_type",
   "payment_method",
   "check_number",
-  "check_withdraw_date"
+  "check_withdraw_date",
 ];
