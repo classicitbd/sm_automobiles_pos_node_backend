@@ -186,6 +186,7 @@ export const findAllOrderInAProductServices = async (
   const findOrder: IOrderInterface[] | [] = await OrderModel.find(
     whereCondition
   )
+  .populate("customer_id")
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
