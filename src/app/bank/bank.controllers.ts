@@ -13,6 +13,8 @@ import {
 import BankModel from "./bank.model";
 import mongoose from "mongoose";
 import { postBankBalanceUpdateHistoryServices } from "../bankBalanceUpdateHistory/bankBalanceUpdateHistory.services";
+import LedgerModel from "../ledger/ledger.model";
+import { postLedgerServices } from "../ledger/ledger.service";
 
 // Add A Bank
 export const postBank: RequestHandler = async (
@@ -20,6 +22,8 @@ export const postBank: RequestHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<IBankInterface | any> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const requestData = req.body;
     const checkBankExist = await BankModel.findOne({
@@ -30,6 +34,33 @@ export const postBank: RequestHandler = async (
     }
     const result: IBankInterface | {} = await postBankServices(requestData);
     if (result) {
+      // add balance in ledger
+      const ledgerData: any = await LedgerModel.findOne({})
+        .sort({ _id: -1 })
+        .session(session);
+      if (ledgerData) {
+        const updateLedgerData = {
+          ledger_title: "Bank Money Add",
+          ledger_category: "Revenue",
+          ledger_credit: requestData?.bank_balance,
+          ledger_balance:
+            ledgerData?.ledger_balance + requestData?.bank_balance,
+          ledger_publisher_id: requestData?.bank_publisher_id,
+        };
+        await postLedgerServices(updateLedgerData, session);
+      } else {
+        const updateLedgerData = {
+          ledger_title: "Bank Money Add",
+          ledger_category: "Revenue",
+          ledger_credit: requestData?.bank_balance,
+          ledger_balance: requestData?.bank_balance,
+          ledger_publisher_id: requestData?.bank_publisher_id,
+        };
+        await postLedgerServices(updateLedgerData, session);
+      }
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
       return sendResponse<IBankInterface>(res, {
         statusCode: httpStatus.OK,
         success: true,
@@ -39,6 +70,8 @@ export const postBank: RequestHandler = async (
       throw new ApiError(400, "Bank Added Failed !");
     }
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
     next(error);
   }
 };
@@ -151,6 +184,25 @@ export const updateBank: RequestHandler = async (
           priceUpdateHistoryData,
           session
         );
+        // add balance in ledger
+        const ledgerData: any = await LedgerModel.findOne({})
+          .sort({ _id: -1 })
+          .session(session);
+        if (ledgerData) {
+          const updateLedgerData = {
+            ledger_title: "Bank Money Add",
+            ledger_category: "Revenue",
+            ledger_credit:
+              requestData?.bank_balance - requestData?.previous_balance,
+            ledger_balance:
+              ledgerData?.ledger_balance +
+              (requestData?.bank_balance - requestData?.previous_balance),
+            ledger_publisher_id: requestData?.bank_updated_by,
+          };
+          await postLedgerServices(updateLedgerData, session);
+        } else {
+          throw new ApiError(400, "Ledger Create Failed !");
+        }
       }
       // Commit transaction
       await session.commitTransaction();

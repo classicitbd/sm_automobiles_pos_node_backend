@@ -34,11 +34,7 @@ export const findAllIncomeServices = async (
   const findIncome: IIncomeInterface[] | [] = await IncomeModel.find(
     whereCondition
   )
-    .populate([
-      "income_customer_id",
-      "income_order_id",
-      "income_publisher_id",
-    ])
+    .populate(["income_customer_id", "income_order_id", "income_publisher_id"])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)

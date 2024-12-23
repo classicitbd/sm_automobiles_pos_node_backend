@@ -30,6 +30,8 @@ import OrderModel from "./order.model";
 import SaleTargetModel from "../sale_target/sale_target.model";
 import { generateChecktrnxId } from "../customer_payment/check.controllers";
 import { postIncomeWhenCustomerPaymentAddServices } from "../income/income.services";
+import { postLedgerServices } from "../ledger/ledger.service";
+import LedgerModel from "../ledger/ledger.model";
 
 // Add A Order
 export const postOrder: RequestHandler = async (
@@ -78,6 +80,31 @@ export const postOrder: RequestHandler = async (
         paymentCreateData.check_withdraw_date = requestData.check_withdraw_date;
       }
       await CheckModel.create([paymentCreateData], { session });
+    }
+
+    // add balance in ledger
+    const ledgerData: any = await LedgerModel.findOne({})
+      .sort({ _id: -1 })
+      .session(session);
+    if (ledgerData) {
+      const updateLedgerData = {
+        ledger_title: "Create A Order",
+        ledger_category: "Revenue",
+        ledger_credit: requestData?.grand_total_amount,
+        ledger_balance:
+          ledgerData?.ledger_balance + requestData?.grand_total_amount,
+        ledger_publisher_id: requestData?.order_publisher_id,
+      };
+      await postLedgerServices(updateLedgerData, session);
+    } else {
+      const updateLedgerData = {
+        ledger_title: "Create A Order",
+        ledger_category: "Revenue",
+        ledger_credit: requestData?.grand_total_amount,
+        ledger_balance: requestData?.grand_total_amount,
+        ledger_publisher_id: requestData?.order_publisher_id,
+      };
+      await postLedgerServices(updateLedgerData, session);
     }
 
     // Commit transaction
@@ -366,8 +393,11 @@ export const findAllAccountOrder: RequestHandler = async (
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: IOrderInterface[] | any =
-      await findAllAccountOrderServices(limitNumber, skip, searchTerm);
+    const result: IOrderInterface[] | any = await findAllAccountOrderServices(
+      limitNumber,
+      skip,
+      searchTerm
+    );
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({
@@ -632,45 +662,61 @@ export const updateOrder: RequestHandler = async (
         requestData,
         user_id
       );
+
       // handle sale count in this user id
       const today = new Date().toISOString().split("T")[0]; // Format as YYYY-MM-DD
       const slaeTargetUserFind = await SaleTargetModel.findOne({
         user_id: user_id,
         sale_target_start_date: { $lte: today },
         sale_target_end_date: { $gte: today },
-      });
+      }).session(session);
       if (slaeTargetUserFind) {
-        if (
-          slaeTargetUserFind?.sale_target_filup + total_measurement_count >=
-          slaeTargetUserFind?.sale_target
-        ) {
-          await SaleTargetModel.updateOne(
-            {
-              user_id: user_id,
-              sale_target_start_date: { $lte: today },
-              sale_target_end_date: { $gte: today },
+        let brandFillupIncrement = 0;
+        let saleFillupIncrement = 0;
+
+        // Iterate through order_products to calculate increments
+        requestData?.order_products?.forEach((product: any) => {
+          if (product?.brand_id == slaeTargetUserFind?.brand_id?.toString()) {
+            // Increment for brand_sale_target_fillup
+            brandFillupIncrement += product?.total_measurement;
+          } else {
+            // Increment for sale_target_fillup
+            saleFillupIncrement += product?.total_measurement;
+          }
+        });
+
+        // Check if targets are met
+        const newSaleTargetFillup =
+          slaeTargetUserFind?.sale_target_fillup + saleFillupIncrement;
+        const newBrandSaleTargetFillup =
+          slaeTargetUserFind?.brand_sale_target_fillup + brandFillupIncrement;
+
+        const saleTargetSuccess =
+          newSaleTargetFillup >= slaeTargetUserFind?.sale_target;
+        const brandSaleTargetSuccess =
+          newBrandSaleTargetFillup >= slaeTargetUserFind?.brand_sale_target;
+
+        // Update the SaleTargetModel with calculated increments
+        await SaleTargetModel.updateOne(
+          {
+            user_id: user_id,
+            sale_target_start_date: { $lte: today },
+            sale_target_end_date: { $gte: today },
+          },
+          {
+            $inc: {
+              sale_target_fillup: saleFillupIncrement,
+              brand_sale_target_fillup: brandFillupIncrement,
             },
-            {
-              $inc: {
-                sale_target_filup: +total_measurement_count,
-              },
-              sale_target_success: true,
+            $set: {
+              ...(saleTargetSuccess && { sale_target_success: true }),
+              ...(brandSaleTargetSuccess && {
+                brand_sale_target_success: true,
+              }),
             },
-            { session }
-          );
-        } else {
-          await SaleTargetModel.updateOne(
-            {
-              user_id: user_id,
-              sale_target_start_date: { $lte: today },
-              sale_target_end_date: { $gte: today },
-            },
-            {
-              $inc: { sale_target_filup: +total_measurement_count },
-            },
-            { session }
-          );
-        }
+          },
+          { session }
+        );
       }
 
       const updatedData: any = {

@@ -13,6 +13,9 @@ const userSchema = new Schema<IUserInterface>(
     user_password: {
       type: String,
     },
+    joining_date:{
+      type: String
+    },
     user_address: {
       type: String,
     },

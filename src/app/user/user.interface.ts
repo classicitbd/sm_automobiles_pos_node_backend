@@ -5,6 +5,7 @@ export interface IUserInterface {
   _id?: any;
   user_name?: string;
   user_phone?: string;
+  joining_date?: string;
   user_password?: string;
   user_status?: "active" | "in-active";
   user_address?: string;
@@ -15,4 +16,9 @@ export interface IUserInterface {
   user_role_id?: Types.ObjectId | IRoleInterface;
 }
 
-export const userSearchableField = ["user_name", "user_phone", "user_address"];
+export const userSearchableField = [
+  "user_name",
+  "user_phone",
+  "user_address",
+  "joining_date",
+];

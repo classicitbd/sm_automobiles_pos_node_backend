@@ -21,6 +21,8 @@ import ProductModel from "../product/product.model";
 import SupplierModel from "../supplier/supplier.model";
 import { postSupplierMoneyAddServices } from "../supplier_add_money/supplier_money_add.services";
 import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
+import LedgerModel from "../ledger/ledger.model";
+import { postLedgerServices } from "../ledger/ledger.service";
 
 // Generate a unique invoice_id
 export const generateinvoice_id = async () => {
@@ -74,7 +76,10 @@ export const postStockManage: RequestHandler = async (
     await ProductModel.updateOne(
       { _id: productObjectId },
       {
-        $inc: { product_quantity: parseFloat(requestData?.product_quantity), total_purchase: parseFloat(requestData?.product_quantity) },
+        $inc: {
+          product_quantity: parseFloat(requestData?.product_quantity),
+          total_purchase: parseFloat(requestData?.product_quantity),
+        },
         $set: {
           product_updated_by: requestData?.stock_publisher_id,
           product_buying_price: parseFloat(requestData?.product_buying_price),
@@ -93,13 +98,37 @@ export const postStockManage: RequestHandler = async (
       expense_amount: requestData?.total_amount,
       expense_supplier_id: requestData?.supplier_id,
       expense_publisher_id: requestData?.stock_publisher_id,
-      expense_date: new Date()?.toISOString()?.split('T')[0],
+      expense_date: new Date()?.toISOString()?.split("T")[0],
     };
 
     await postExpenseWhenProductStockAddServices(
       sendDataInExpenceCreate,
       session
     );
+
+    // add balance in ledger
+    const ledgerData: any = await LedgerModel.findOne({})
+      .sort({ _id: -1 })
+      .session(session);
+    if (ledgerData) {
+      const updateLedgerData = {
+        ledger_title: "Product Purchase",
+        ledger_category: "Expense",
+        ledger_debit: requestData?.total_amount,
+        ledger_balance: ledgerData?.ledger_balance - requestData?.total_amount,
+        ledger_publisher_id: requestData?.stock_publisher_id,
+      };
+      await postLedgerServices(updateLedgerData, session);
+    } else {
+      const updateLedgerData = {
+        ledger_title: "Product Purchase",
+        ledger_category: "Expense",
+        ledger_debit: requestData?.total_amount,
+        ledger_balance: requestData?.total_amount,
+        ledger_publisher_id: requestData?.stock_publisher_id,
+      };
+      await postLedgerServices(updateLedgerData, session);
+    }
 
     // Commit transaction
     await session.commitTransaction();

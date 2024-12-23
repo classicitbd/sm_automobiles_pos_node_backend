@@ -1,6 +1,5 @@
 import ApiError from "../../errors/ApiError";
 import OrderModel from "../order/order.model";
-import UserModel from "../user/user.model";
 import {
   ISaleTargetInterface,
   saleTargetSearchableField,
@@ -40,6 +39,7 @@ export const findAllSaleTargetServices = async (
         "sale_target_publisher_id",
         "sale_target_updated_by",
         "user_id",
+        "brand_id",
       ])
       .sort({ _id: -1 })
       .skip(skip)
@@ -70,6 +70,7 @@ export const findAUserAllSaleTargetServices = async (
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findSaleTarget: ISaleTargetInterface[] | [] =
     await SaleTargetModel.find(whereCondition)
+      .populate("brand_id")
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
@@ -85,7 +86,7 @@ export const findAUserASaleTargetReportServices = async (
 ): Promise<ISaleTargetInterface[] | [] | any> => {
   const saleTargetDetails: any = await SaleTargetModel.findOne({
     _id: sale_target_id,
-  })
+  });
   if (!saleTargetDetails) throw new ApiError(400, "Sale Target Not Found !");
   const sale_target_start_date = saleTargetDetails?.sale_target_start_date;
   const sale_target_end_date = saleTargetDetails?.sale_target_end_date;

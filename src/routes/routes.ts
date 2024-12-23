@@ -25,6 +25,7 @@ import { ProductPriceUpdateHistoryRoutes } from "../app/product_price_update_his
 import { CashRoutes } from "../app/cash/cash.routes";
 import { CashBalanceUpdateHistoryRoutes } from "../app/cashBalanceUpdateHistory/cashBalanceUpdateHistory.routes";
 import { BankBalanceUpdateHistoryRoutes } from "../app/bankBalanceUpdateHistory/bankBalanceUpdateHistory.routes";
+import { LedgerRoutes } from "../app/ledger/ledger.routes";
 
 const router = express.Router();
 
@@ -116,6 +117,10 @@ const moduleRoutes = [
   {
     path: "/income",
     route: IncomeRoutes,
+  },
+  {
+    path: "/ledger",
+    route: LedgerRoutes,
   },
   {
     path: "/order",

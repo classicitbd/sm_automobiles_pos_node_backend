@@ -10,6 +10,8 @@ import {
 } from "./cash.services";
 import { postCashBalanceUpdateHistoryServices } from "../cashBalanceUpdateHistory/cashBalanceUpdateHistory.services";
 import mongoose from "mongoose";
+import LedgerModel from "../ledger/ledger.model";
+import { postLedgerServices } from "../ledger/ledger.service";
 
 // Find A Cash
 export const findACash: RequestHandler = async (
@@ -43,6 +45,30 @@ export const updateCash: RequestHandler = async (
     if (!requestData?._id) {
       const createCashAmountdata = await postCashServices(requestData);
       if (createCashAmountdata) {
+        // add balance in ledger
+        const ledgerData: any = await LedgerModel.findOne({})
+          .sort({ _id: -1 })
+          .session(session);
+        if (ledgerData) {
+          const updateLedgerData = {
+            ledger_title: "Cash Add",
+            ledger_category: "Revenue",
+            ledger_credit: requestData?.cash_balance,
+            ledger_balance:
+              ledgerData?.ledger_balance + requestData?.cash_balance,
+            ledger_publisher_id: requestData?.cash_publisher_id,
+          };
+          await postLedgerServices(updateLedgerData, session);
+        } else {
+          const updateLedgerData = {
+            ledger_title: "Cash Add",
+            ledger_category: "Revenue",
+            ledger_credit: requestData?.cash_balance,
+            ledger_balance: requestData?.cash_balance,
+            ledger_publisher_id: requestData?.cash_publisher_id,
+          };
+          await postLedgerServices(updateLedgerData, session);
+        }
         // Commit transaction
         await session.commitTransaction();
         session.endSession();
@@ -70,6 +96,24 @@ export const updateCash: RequestHandler = async (
         priceUpdateHistoryData,
         session
       );
+      // add balance in ledger
+      const ledgerData: any = await LedgerModel.findOne({})
+        .sort({ _id: -1 })
+        .session(session);
+      if (ledgerData) {
+        const updateLedgerData = {
+          ledger_title: "Cash Add",
+          ledger_category: "Revenue",
+          ledger_credit: (requestData?.cash_balance - requestData?.previous_balance),
+          ledger_balance:
+            ledgerData?.ledger_balance +
+            (requestData?.cash_balance - requestData?.previous_balance),
+          ledger_publisher_id: requestData?.cash_updated_by,
+        };
+        await postLedgerServices(updateLedgerData, session);
+      } else {
+        throw new ApiError(400, "Ledger Create Failed !");
+      }
       // Commit transaction
       await session.commitTransaction();
       session.endSession();
