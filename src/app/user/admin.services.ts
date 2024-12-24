@@ -9,6 +9,18 @@ export const postUserServices = async (
   return createUser;
 };
 
+// Find a User for verify token
+export const checkAUserExitsForVerify = async (
+  user_phone: any
+): Promise<IUserInterface | any> => {
+  const findUser: IUserInterface | any = await UserModel.findOne({
+    user_phone: user_phone,
+  })
+    .populate("user_role_id")
+    .select("-__v");
+  return findUser;
+};
+
 // Find a User User
 export const findAUserServices = async (
   _id: any
