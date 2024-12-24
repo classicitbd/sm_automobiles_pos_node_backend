@@ -12,10 +12,10 @@ const router = express.Router();
 router
   .route("/")
   .get(findAllProductUnit)
-  .post(verifyToken, postProductUnit)
-  .patch(verifyToken, updateProductUnit);
+  .post(verifyToken("unit_post"), postProductUnit)
+  .patch(verifyToken("unit_patch"), updateProductUnit);
 
 // get all ProductUnit in dashboard
-router.route("/dashboard").get(verifyToken, findAllDashboardProductUnit);
+router.route("/dashboard").get(verifyToken("unit_dashboard_show"), findAllDashboardProductUnit);
 
 export const ProductUnitRoutes = router;

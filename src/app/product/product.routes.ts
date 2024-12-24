@@ -15,14 +15,14 @@ router
   .route("/")
   .get(findAllProduct)
   .post(
-    verifyToken,
+    verifyToken("product_post"),
     FileUploadHelper.ImageUpload.fields([
       { name: "product_image", maxCount: 1 },
     ]),
     postProduct
   )
   .patch(
-    verifyToken,
+    verifyToken("product_patch"),
     FileUploadHelper.ImageUpload.fields([
       { name: "product_image", maxCount: 1 },
     ]),
@@ -30,7 +30,7 @@ router
   );
 
 // get all Product in Dashboard
-router.route("/dashboard").get(verifyToken, findAllDashboardProduct);
+router.route("/dashboard").get(verifyToken("product_dashboard_show"), findAllDashboardProduct);
 
 // get a Product details
 router.route("/:product_id").get(findAProductDetails);

@@ -62,20 +62,3 @@ export const findARoleInUserServices = async (
   });
   return findRole;
 };
-
-export const deleteRoleServices = async (
-  _id: string
-): Promise<IRoleInterface | any> => {
-  const deleteRoleInfo: IRoleInterface | null =
-    await RoleModel.findOne({ _id: _id });
-  if (!deleteRoleInfo) {
-    throw new ApiError(400, "Role Not Found !");
-  }
-  const Role = await RoleModel.deleteOne(
-    { _id: _id },
-    {
-      runValidators: true,
-    }
-  );
-  return Role;
-};

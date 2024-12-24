@@ -10,10 +10,10 @@ import {
 const router = express.Router();
 
 // Create, Get Bank
-router.route("/").get(findAllBank).post(postBank).patch(updateBank);
+router.route("/").get(findAllBank).post(verifyToken("bank_post"), postBank).patch(verifyToken("bank_patch"),updateBank);
 
 // get all Bank in dashboard
-router.route("/dashboard").get(verifyToken, findAllDashboardBank);
+router.route("/dashboard").get(verifyToken("bank_dashboard_show"), findAllDashboardBank);
 
 // get a Bank
 router.route("/:_id").get(findABank);

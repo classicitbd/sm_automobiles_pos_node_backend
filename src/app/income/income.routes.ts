@@ -6,6 +6,6 @@ const router = express.Router();
 // Create, Get Income
 router
   .route("/")
-  .get(verifyToken, findAllIncome)
+  .get(verifyToken("income_show"), findAllIncome)
 
 export const IncomeRoutes = router;

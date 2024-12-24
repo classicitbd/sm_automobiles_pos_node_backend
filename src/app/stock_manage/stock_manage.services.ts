@@ -110,34 +110,6 @@ export const findASupplierAllStockInvoiceServices = async (
   return findStockManage;
 };
 
-// Find allDashboard stock
-export const findAllDashboardStockDetailsServices = async (
-  limit: number,
-  skip: number,
-  searchTerm: any
-): Promise<any> => {
-  const andCondition: any[] = [];
-  if (searchTerm) {
-    andCondition.push({
-      $or: stockManageSearchableField.map((field) => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: "i",
-        },
-      })),
-    });
-  }
-
-  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
-  const findStockManage: any = await StockManageModel.find(whereCondition)
-    .populate(["stock_publisher_id", "product_id", "supplier_id"])
-    .sort({ _id: -1 })
-    .skip(skip)
-    .limit(limit)
-    .select("-__v");
-  return findStockManage;
-};
-
 // Find allAP stock
 export const findAllAPStockDetailsServices = async (
   limit: number,
@@ -165,22 +137,4 @@ export const findAllAPStockDetailsServices = async (
     .limit(limit)
     .select("-__v");
   return findStockManage;
-};
-
-// Update a StockManage
-export const updateStockManageServices = async (
-  data: IStockManageInterface,
-  _id: string
-): Promise<IStockManageInterface | any> => {
-  const updateStockManageInfo: IStockManageInterface | null =
-    await StockManageModel.findOne({
-      _id: _id,
-    });
-  if (!updateStockManageInfo) {
-    return {};
-  }
-  const StockManage = await StockManageModel.updateOne({ _id: _id }, data, {
-    runValidators: true,
-  });
-  return StockManage;
 };

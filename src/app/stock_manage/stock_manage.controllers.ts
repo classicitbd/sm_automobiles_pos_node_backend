@@ -8,12 +8,10 @@ import {
 } from "./stock_manage.interface";
 import {
   findAllAPStockDetailsServices,
-  findAllDashboardStockDetailsServices,
   findAllStockDetailsInAProductServices,
   findASupplierAllStockDetailsServices,
   findASupplierAllStockInvoiceServices,
   postStockManageServices,
-  updateStockManageServices,
 } from "./stock_manage.services";
 import mongoose, { Types } from "mongoose";
 import StockManageModel from "./stock_manage.model";
@@ -265,46 +263,6 @@ export const findASupplierAllStockInvoice: RequestHandler = async (
   }
 };
 
-// Find All dashboard StockManage
-export const findAllDashboardStockDetails: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IStockManageInterface | any> => {
-  try {
-    const { page, limit, searchTerm } = req.query;
-    const pageNumber = Number(page);
-    const limitNumber = Number(limit);
-    const skip = (pageNumber - 1) * limitNumber;
-    const result: IStockManageInterface[] | any =
-      await findAllDashboardStockDetailsServices(limitNumber, skip, searchTerm);
-
-    const andCondition: any[] = [];
-    if (searchTerm) {
-      andCondition.push({
-        $or: stockManageSearchableField.map((field) => ({
-          [field]: {
-            $regex: searchTerm,
-            $options: "i",
-          },
-        })),
-      });
-    }
-    const whereCondition =
-      andCondition.length > 0 ? { $and: andCondition } : {};
-    const total = await StockManageModel.countDocuments(whereCondition);
-    return sendResponse<IStockManageInterface>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "StockManage Found Successfully !",
-      data: result,
-      totalData: total,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
-
 // Find All AP StockManage
 export const findAllAPStockDetails: RequestHandler = async (
   req: Request,
@@ -340,32 +298,6 @@ export const findAllAPStockDetails: RequestHandler = async (
       data: result,
       totalData: total,
     });
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-// Update A StockManage
-export const updateStockManage: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IStockManageInterface | any> => {
-  try {
-    const requestData = req.body;
-    const result: IStockManageInterface | any = await updateStockManageServices(
-      requestData,
-      requestData?._id
-    );
-    if (result?.modifiedCount > 0) {
-      return sendResponse<IStockManageInterface>(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Stock Update Successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Stock Update Failed !");
-    }
   } catch (error: any) {
     next(error);
   }

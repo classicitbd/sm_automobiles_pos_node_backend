@@ -55,6 +55,19 @@ export const findAllACustomerCheckServices = async (
   return findCheck;
 };
 
+// Find all AOrder Check
+export const findAllAOrderCheckServices = async (
+  order_id: string
+): Promise<ICheckInterface[] | [] | any> => {
+  const findCheck: ICheckInterface[] | [] = await CheckModel.find({
+    order_id: order_id,
+  })
+    .populate("bank_id")
+    .sort({ _id: -1 })
+    .select("-__v");
+  return findCheck;
+};
+
 // Find all  Check publish a user
 export const findAllCheckPublishAUserServices = async (
   limit: number,
@@ -99,7 +112,6 @@ export const findAllCheckPublishAUserServices = async (
   return findCheck;
 };
 
-
 // Find all dashboard Check
 export const findAllDashboardCheckServices = async (
   limit: number,
@@ -135,7 +147,6 @@ export const findAllDashboardCheckServices = async (
     .select("-__v");
   return findCheck;
 };
-
 
 // Find all Check In Payment
 export const findAllCheckInPaymentServices = async (
@@ -182,7 +193,6 @@ export const findAllDueDashboardCheckServices = async (
   skip: number,
   searchTerm: any
 ): Promise<ICheckInterface[] | []> => {
-
   const todayDate = new Date().toISOString().split("T")[0];
 
   const startOfDay = new Date();
@@ -190,13 +200,13 @@ export const findAllDueDashboardCheckServices = async (
 
   const searchCondition = searchTerm
     ? {
-      $or: checkSearchableField.map((field) => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: "i",
-        },
-      })),
-    }
+        $or: checkSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      }
     : {};
 
   const findCheck: ICheckInterface[] | [] = await CheckModel.find({
@@ -238,7 +248,6 @@ export const findAllDueDashboardCheckServices = async (
   return findCheck;
 };
 
-
 // Find all Todaydashboard Check
 export const findAllTodayDashboardCheckServices = async (
   limit: number,
@@ -256,13 +265,13 @@ export const findAllTodayDashboardCheckServices = async (
   // Build search term condition
   const searchCondition = searchTerm
     ? {
-      $or: checkSearchableField.map((field) => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: "i",
-        },
-      })),
-    }
+        $or: checkSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      }
     : {};
 
   // Query with conditional logic based on `payment_method`
@@ -306,7 +315,6 @@ export const findAllTodayDashboardCheckServices = async (
 
   return findCheck;
 };
-
 
 // export const findAllTodayDashboardCheckServices = async (
 //   limit: number,

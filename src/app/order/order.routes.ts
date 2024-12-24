@@ -21,32 +21,32 @@ const router = express.Router();
 // Create, Get Order
 router
   .route("/")
-  .get(verifyToken, findAllACustomerOrder)
-  .post(verifyToken, postOrder)
-  .patch(verifyToken, updateOrder);
+  .get(findAllACustomerOrder)
+  .post(verifyToken("order_post"), postOrder)
+  .patch(verifyToken("order_patch"), updateOrder);
 
 // get all Order in dashboard
-router.route("/dashboard").get(verifyToken, findAllDashboardOrder);
+router.route("/dashboard").get(verifyToken("order_dashboard_show"), findAllDashboardOrder);
 
 // get all Order in AR
-router.route("/ar_order").get(verifyToken, findAllAROrder);
+router.route("/ar_order").get(verifyToken("customer_ar_show"), findAllAROrder);
 
 // Find All profit Order in account
-router.route("/profit").get(verifyToken, findAllProfitOrder);
+router.route("/profit").get(verifyToken("profit_show"), findAllProfitOrder);
 
 // get all Order in management
-router.route("/management_order").get(verifyToken, findAllManagementOrder);
+router.route("/management_order").get(verifyToken("management_order_show"), findAllManagementOrder);
 
 // get all Order in Account
-router.route("/account_order").get(verifyToken, findAllAccountOrder);
+router.route("/account_order").get(verifyToken("account_order_show"), findAllAccountOrder);
 
 // get all Order in warehouse
-router.route("/warehouse_order").get(verifyToken, findAllWarehouseOrder);
+router.route("/warehouse_order").get(verifyToken("warehouse_order_show"), findAllWarehouseOrder);
 
 // get all Order in out of warehouse
 router
   .route("/out_of_warehouse_order")
-  .get(verifyToken, findAllOutOfWarehouseOrder);
+  .get(verifyToken("out_of_warehouse_order_show"), findAllOutOfWarehouseOrder);
 
 // get all self Order for create a payment
 router

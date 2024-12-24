@@ -6,6 +6,6 @@ const router = express.Router();
 // Create, Get Ledger
 router
   .route("/")
-  .get(verifyToken, findAllLedger)
+  .get(verifyToken("ledger_show"), findAllLedger)
 
 export const LedgerRoutes = router;

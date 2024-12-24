@@ -14,14 +14,14 @@ const router = express.Router();
 router
   .route("/")
   .get(findAllActiveCustomer)
-  .post(verifyToken, postCustomer)
-  .patch(verifyToken, updateCustomer);
+  .post(verifyToken("customer_post"), postCustomer)
+  .patch(verifyToken("customer_patch"), updateCustomer);
 
 // get all self Customer in dashboard
-router.route("/self_customer").get(verifyToken, findAllSelfCustomer);
+router.route("/self_customer").get(findAllSelfCustomer);
 
 // get all Customer in dashboard
-router.route("/dashboard").get(verifyToken, findAllDashboardCustomer);
+router.route("/dashboard").get(verifyToken("customer_dashboard_show"), findAllDashboardCustomer);
 
 // get a Customer
 router.route("/:_id").get(findACustomer);

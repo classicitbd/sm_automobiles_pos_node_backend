@@ -4,7 +4,6 @@ import ApiError from "../../errors/ApiError";
 import sendResponse from "../../shared/sendResponse";
 import { IRoleInterface } from "./role.interface";
 import {
-  deleteRoleServices,
   findARoleInUserServices,
   findARoleSlugServices,
   findAllDashboardRoleServices,
@@ -91,36 +90,6 @@ export const updateRole: RequestHandler = async (
       });
     } else {
       throw new ApiError(400, "Role Update Failed !");
-    }
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-// Delete aRole
-export const deleteARole: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IRoleInterface | any> => {
-  try {
-    const data = req.body;
-    const _id = data?._id;
-    const roleExistInUser: IUserInterface[] | any =
-      await findARoleInUserServices(_id);
-    if (roleExistInUser) {
-      throw new ApiError(400, "Role Exist In User Registration !");
-    }
-    const result: IRoleInterface[] | any = await deleteRoleServices(_id);
-
-    if (result?.deletedCount > 0) {
-      return sendResponse<IRoleInterface>(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Role Delete Successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Role Delete Failed !");
     }
   } catch (error: any) {
     next(error);

@@ -11,7 +11,7 @@ const router = express.Router();
 router
   .route("/")
   .get(findAllCategory)
-  .post(verifyToken, postCategory)
-  .patch(verifyToken, updateCategory);
+  .post(verifyToken("category_post"), postCategory)
+  .patch(verifyToken("category_patch"), updateCategory);
 
 export const CategoryRoutes = router;

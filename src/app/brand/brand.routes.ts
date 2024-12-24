@@ -4,6 +4,10 @@ import { findAllBrand, postBrand, updateBrand } from "./brand.controllers";
 const router = express.Router();
 
 // Create, Get Brand
-router.route("/").get(findAllBrand).post(postBrand).patch(updateBrand);
+router
+  .route("/")
+  .get(findAllBrand)
+  .post(verifyToken("brand_post"), postBrand)
+  .patch(verifyToken("brand_patch"), updateBrand);
 
 export const BrandRoutes = router;

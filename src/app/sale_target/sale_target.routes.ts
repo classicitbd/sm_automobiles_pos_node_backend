@@ -14,13 +14,13 @@ const router = express.Router();
 router
   .route("/")
   .get(findAllSaleTarget)
-  .post(verifyToken, postSaleTarget)
-  .patch(verifyToken, updateSaleTarget);
+  .post(verifyToken("sale_target_post"), postSaleTarget)
+  .patch(verifyToken("sale_target_patch"), updateSaleTarget);
 
 // find a user all SaleTarget
 router
   .route("/a_sale_target_report/:sale_target_id")
-  .get(verifyToken, findAUserASaleTargetReport);
+  .get(findAUserASaleTargetReport);
 
 // find a user all SaleTarget details
 router
@@ -28,6 +28,6 @@ router
   .get(findAUserASaleTargetDetails);
 
 // find a user all SaleTarget
-router.route("/:user_id").get(verifyToken, findAUserAllSaleTarget);
+router.route("/:user_id").get(findAUserAllSaleTarget);
 
 export const SaleTargetRoutes = router;

@@ -6,6 +6,7 @@ import { checkSearchableField, ICheckInterface } from "./check.interface";
 import CheckModel from "./check.model";
 import {
   findAllACustomerCheckServices,
+  findAllAOrderCheckServices,
   findAllCheckInPaymentServices,
   findAllCheckPublishAUserServices,
   findAllDashboardCheckServices,
@@ -125,6 +126,31 @@ export const findAllACustomerCheck: RequestHandler = async (
       message: "Check Found Successfully !",
       data: result,
       totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find All AOrder Check
+export const findAllAOrderCheck: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ICheckInterface | any> => {
+  try {
+    const { order_id }: any = req.query;
+    if (!order_id) {
+      throw new ApiError(400, "Order Id Is Required !");
+    }
+    const result: ICheckInterface[] | any = await findAllAOrderCheckServices(
+      order_id
+    );
+    return sendResponse<ICheckInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Check Found Successfully !",
+      data: result,
     });
   } catch (error: any) {
     next(error);

@@ -4,6 +4,6 @@ import { findACash, updateCash } from "./cash.controllers";
 const router = express.Router();
 
 // Create, Get Cash
-router.route("/").get(findACash).patch(verifyToken, updateCash);
+router.route("/").get(findACash).patch(verifyToken("cash_patch"), updateCash);
 
 export const CashRoutes = router;

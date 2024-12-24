@@ -12,10 +12,10 @@ const router = express.Router();
 router
   .route("/")
   .get(findAllSupplier)
-  .post(verifyToken, postSupplier)
-  .patch(verifyToken, updateSupplier)
+  .post(verifyToken("supplier_post"), postSupplier)
+  .patch(verifyToken("supplier_patch"), updateSupplier)
 
 // get all Supplier in dashboard
-router.route("/dashboard").get(verifyToken, findAllDashboardSupplier);
+router.route("/dashboard").get(verifyToken("supplier_dashboard_show"), findAllDashboardSupplier);
 
 export const SupplierRoutes = router;
