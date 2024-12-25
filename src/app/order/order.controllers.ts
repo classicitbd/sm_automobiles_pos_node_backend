@@ -692,9 +692,10 @@ export const updateOrder: RequestHandler = async (
           slaeTargetUserFind?.brand_sale_target_fillup + brandFillupIncrement;
 
         const saleTargetSuccess =
-          newSaleTargetFillup >= slaeTargetUserFind?.sale_target;
+          newSaleTargetFillup >= slaeTargetUserFind?.sale_target * 0.8;
         const brandSaleTargetSuccess =
-          newBrandSaleTargetFillup >= slaeTargetUserFind?.brand_sale_target;
+          newBrandSaleTargetFillup >=
+          slaeTargetUserFind?.brand_sale_target * 0.8;
 
         // Update the SaleTargetModel with calculated increments
         await SaleTargetModel.updateOne(

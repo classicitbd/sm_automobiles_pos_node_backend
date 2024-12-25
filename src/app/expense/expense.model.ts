@@ -12,6 +12,10 @@ const expenseSchema = new Schema<IExpenseInterface>(
       type: Schema.Types.ObjectId,
       ref: "suppliers",
     },
+    salary_user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
     expense_voucher: {
       type: String,
     },

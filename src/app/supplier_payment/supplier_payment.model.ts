@@ -25,7 +25,6 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
     supplier_id: {
       type: Schema.Types.ObjectId,
       ref: "suppliers",
-      required: true,
     },
     payment_bank_id: {
       type: Schema.Types.ObjectId,
@@ -38,9 +37,12 @@ const supplierPaymentSchema = new Schema<ISupplierPaymentInterface>(
     invoice_id: {
       type: Schema.Types.ObjectId,
       ref: "stocks",
-      required: true,
     },
-    supplier_payment_status:{
+    salary_user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
+    supplier_payment_status: {
       required: true,
       type: String,
       enum: ["paid", "unpaid"],

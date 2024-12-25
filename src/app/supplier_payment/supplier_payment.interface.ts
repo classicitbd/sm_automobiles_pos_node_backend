@@ -12,9 +12,10 @@ export interface ISupplierPaymentInterface {
   supplier_payment_method: "cash" | "check";
   supplier_payment_status: "paid" | "unpaid";
   transaction_id: string;
-  supplier_id: Types.ObjectId | ISupplierInterface;
+  supplier_id?: Types.ObjectId | ISupplierInterface;
+  salary_user_id?: Types.ObjectId | IUserInterface;
   payment_bank_id?: Types.ObjectId | IBankInterface;
-  invoice_id: Types.ObjectId | IStockManageInterface;
+  invoice_id?: Types.ObjectId | IStockManageInterface;
   reference_id?: string;
   supplier_payment_publisher_id: Types.ObjectId | IUserInterface;
   supplier_payment_updated_by?: Types.ObjectId | IUserInterface;

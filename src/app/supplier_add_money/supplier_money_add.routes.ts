@@ -6,6 +6,6 @@ const router = express.Router();
 // Create, Get SupplierMoneyAdd
 router
   .route("/")
-  .get(verifyToken, findASupplierMoneyAddHistory)
+  .get(findASupplierMoneyAddHistory)
 
 export const SupplierMoneyAddRoutes = router;

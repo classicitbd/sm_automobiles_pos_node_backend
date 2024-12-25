@@ -9,7 +9,8 @@ export interface IBankOutInterface {
   bank_out_amount: number;
   bank_out_title: string;
   bank_out_ref_no: string;
-  invoice_id: Types.ObjectId | IStockManageInterface;
+  invoice_id?: Types.ObjectId | IStockManageInterface;
+  salary_user_id?: Types.ObjectId | IUserInterface;
   bank_out_publisher_id: Types.ObjectId | IUserInterface;
   bank_out_updated_by?: Types.ObjectId | IUserInterface;
 }

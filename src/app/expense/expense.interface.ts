@@ -10,6 +10,7 @@ export interface IExpenseInterface {
   expense_title: string;
   expense_amount: number;
   expense_voucher?: string;
+  salary_user_id?: Types.ObjectId | IUserInterface;
   expense_date?: string;
   expense_supplier_id?: Types.ObjectId | ISupplierInterface;
   expense_product_id?: Types.ObjectId | IProductInterface;
