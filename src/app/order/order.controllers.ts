@@ -749,7 +749,7 @@ export const updateOrder: RequestHandler = async (
         message: "Order Update Successfully !",
       });
     } else {
-      if (requestData?.order_status == "account") {
+      if (requestData?.order_status == "management") {
         // payment add in income list
         const incomeData = {
           income_title: "Customer payment",

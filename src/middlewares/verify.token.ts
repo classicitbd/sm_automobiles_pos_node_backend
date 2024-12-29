@@ -38,12 +38,19 @@ export const verifyToken = (permission: string): RequestHandler => {
       const verifyUser = await checkAUserExitsForVerify(user_phone);
 
       // Check if the role_type value in verifyUser.user_role_id is true
-      const isRoleTypeAllowed = verifyUser?.user_role_id[permission] === true;
+      // const isRoleTypeAllowed = verifyUser?.user_role_id[permission] === true;
 
+      const roleData = verifyUser?.user_role_id?.toObject ? verifyUser?.user_role_id?.toObject() : verifyUser?.user_role_id;
+
+      // if (
+      //   verifyUser?.user_phone == user_phone &&
+      //   verifyUser?.user_status == "active" &&
+      //   isRoleTypeAllowed
+      // ) {
       if (
         verifyUser?.user_phone == user_phone &&
         verifyUser?.user_status == "active" &&
-        isRoleTypeAllowed
+        roleData?.[permission]
       ) {
         req.user = decoded;
         next();
