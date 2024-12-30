@@ -45,6 +45,11 @@ export const postOrder: RequestHandler = async (
   try {
     const requestData = req.body;
 
+    const order_publisher_id = requestData;
+    if (!order_publisher_id) {
+      throw new ApiError(400, "Order Publisher Id Required!");
+    }
+
     // Generate order ID and add to request data
     const order_id = await generateOrderId();
     req.body.order_id = order_id;
