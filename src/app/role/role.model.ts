@@ -17,6 +17,10 @@ const roleSchema = new Schema<IRoleInterface>(
       type: Schema.Types.ObjectId,
       ref: "users",
     },
+    employee_route_show: {
+      type: Boolean,
+      default: false,
+    },
     dashboard_show: {
       type: Boolean,
       default: false,

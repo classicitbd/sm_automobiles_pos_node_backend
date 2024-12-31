@@ -6,6 +6,7 @@ export interface IRoleInterface {
   role_name: string;
   role_publisher_id: Types.ObjectId | IUserInterface;
   role_updated_by?: Types.ObjectId | IUserInterface;
+  employee_route_show: true | false;
   dashboard_show: true | false;
   category_post: true | false;
   category_patch: true | false;
