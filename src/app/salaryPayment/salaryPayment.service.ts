@@ -73,7 +73,11 @@ export const findAUserAllSalaryPaymentServices = async (
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findsalaryPayment: ISalaryPaymentInterface[] | [] =
     await SalaryPaymentModel.find(whereCondition)
-      .populate(["payment_publisher_id", "payment_updated_by", "bank_id"])
+      .populate([
+        "payment_publisher_id",
+        "payment_updated_by",
+        "payment_bank_id",
+      ])
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
