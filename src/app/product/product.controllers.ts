@@ -230,12 +230,17 @@ export const findAllDashboardProduct: RequestHandler = async (
   next: NextFunction
 ): Promise<IProductInterface | any> => {
   try {
-    const { page, limit, searchTerm } = req.query;
+    const { page, limit, searchTerm, brand_id }: any = req.query;
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
     const result: IProductInterface[] | any =
-      await findAllDashboardProductServices(limitNumber, skip, searchTerm);
+      await findAllDashboardProductServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        brand_id
+      );
 
     const andCondition: any[] = [];
     if (searchTerm) {
@@ -247,6 +252,15 @@ export const findAllDashboardProduct: RequestHandler = async (
           },
         })),
       });
+    }
+    if (
+      brand_id !== "undefined" &&
+      brand_id !== undefined &&
+      brand_id !== "null" &&
+      brand_id !== null &&
+      brand_id !== ""
+    ) {
+      andCondition.push({ brand_id: brand_id });
     }
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};
@@ -315,18 +329,18 @@ export const updateProduct: RequestHandler = async (
           product_updated_price: requestData?.product_updated_price,
           product_quantity: requestData?.product_quantity,
           product_id: requestData?._id,
-          price_update_publisher_id: requestData?.price_update_publisher_id
-        }
+          price_update_publisher_id: requestData?.price_update_publisher_id,
+        };
         const sendData = {
           product_price: requestData?.product_updated_price,
-          product_updated_by: requestData?.price_update_publisher_id
-        }
-        await postProductPriceUpdateHistoryServices(priceUpdateHistorydata, session);
-        const result: IProductInterface | any = await updateProductPriceServices(
-          sendData,
-          requestData?._id,
+          product_updated_by: requestData?.price_update_publisher_id,
+        };
+        await postProductPriceUpdateHistoryServices(
+          priceUpdateHistorydata,
           session
         );
+        const result: IProductInterface | any =
+          await updateProductPriceServices(sendData, requestData?._id, session);
         if (result?.modifiedCount > 0) {
           // Commit transaction
           await session.commitTransaction();

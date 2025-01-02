@@ -86,7 +86,6 @@ export const findAUserAllSalaryPaymentInAInvoiceServices = async (
   limit: number,
   skip: number,
   searchTerm: any,
-  user_id: any,
   salary_id: any
 ): Promise<ISalaryPaymentInterface[] | [] | any> => {
   const andCondition = [];
@@ -100,7 +99,6 @@ export const findAUserAllSalaryPaymentInAInvoiceServices = async (
       })),
     });
   }
-  andCondition.push({ user_id: user_id });
   andCondition.push({ salary_id: salary_id });
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findsalaryPayment: ISalaryPaymentInterface[] | [] =

@@ -334,8 +334,8 @@ export const findAUserAllSalaryPaymentInAInvoice: RequestHandler = async (
   next: NextFunction
 ): Promise<ISalaryPaymentInterface | any> => {
   try {
-    const { page, limit, searchTerm, user_id, salary_id }: any = req.query;
-    if (!user_id || !salary_id) {
+    const { page, limit, searchTerm, salary_id }: any = req.query;
+    if (!salary_id) {
       throw new ApiError(400, "User id and salary id required");
     }
     const pageNumber = Number(page);
@@ -346,7 +346,6 @@ export const findAUserAllSalaryPaymentInAInvoice: RequestHandler = async (
         limitNumber,
         skip,
         searchTerm,
-        user_id,
         salary_id
       );
     const andCondition = [];
@@ -360,7 +359,6 @@ export const findAUserAllSalaryPaymentInAInvoice: RequestHandler = async (
         })),
       });
     }
-    andCondition.push({ user_id: user_id });
     andCondition.push({ salary_id: salary_id });
     const whereCondition =
       andCondition.length > 0 ? { $and: andCondition } : {};

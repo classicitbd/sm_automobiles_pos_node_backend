@@ -101,7 +101,8 @@ export const findAllProductServices = async (
 export const findAllDashboardProductServices = async (
   limit: number,
   skip: number,
-  searchTerm: any
+  searchTerm: any,
+  brand_id: any
 ): Promise<IProductInterface[] | []> => {
   const andCondition = [];
   if (searchTerm) {
@@ -113,6 +114,15 @@ export const findAllDashboardProductServices = async (
         },
       })),
     });
+  }
+  if (
+    brand_id !== "undefined" &&
+    brand_id !== undefined &&
+    brand_id !== "null" &&
+    brand_id !== null &&
+    brand_id !== ""
+  ) {
+    andCondition.push({ brand_id: brand_id });
   }
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
   const findProduct: IProductInterface[] | [] = await ProductModel.find(
