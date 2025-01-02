@@ -87,6 +87,7 @@ export const findAllPaidSupplierPaymentServices = async (
         "payment_bank_id",
         "supplier_payment_publisher_id",
         "supplier_payment_updated_by",
+        "salary_user_id",
       ])
       .sort({ _id: -1 })
       .skip(skip)
@@ -155,6 +156,7 @@ export const findAllDashboardSupplierPaymentServices = async (
         "payment_bank_id",
         "supplier_payment_publisher_id",
         "supplier_payment_updated_by",
+        "salary_user_id",
       ])
       .sort({ _id: -1 })
       .skip(skip)
@@ -191,6 +193,7 @@ export const findAllCheckInSupplierPaymentServices = async (
         "payment_bank_id",
         "supplier_payment_publisher_id",
         "supplier_payment_updated_by",
+        "salary_user_id",
       ])
       .sort({ _id: -1 })
       .skip(skip)

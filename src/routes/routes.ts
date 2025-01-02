@@ -27,6 +27,7 @@ import { CashBalanceUpdateHistoryRoutes } from "../app/cashBalanceUpdateHistory/
 import { BankBalanceUpdateHistoryRoutes } from "../app/bankBalanceUpdateHistory/bankBalanceUpdateHistory.routes";
 import { LedgerRoutes } from "../app/ledger/ledger.routes";
 import { SalaryRoutes } from "../app/salary/salary.routes";
+import { SalaryPaymentRoutes } from "../app/salaryPayment/salaryPayment.routes";
 
 const router = express.Router();
 
@@ -142,6 +143,10 @@ const moduleRoutes = [
   {
     path: "/salary",
     route: SalaryRoutes,
+  },
+  {
+    path: "/salary_payment",
+    route: SalaryPaymentRoutes,
   },
 ];
 

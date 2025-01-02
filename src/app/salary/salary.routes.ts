@@ -7,12 +7,13 @@ import {
   postAllUserSalary,
   postMultipleUserSalary,
   postSalary,
+  updateSalary,
 } from "./salary.controller";
 const router = express.Router();
 
 // Create, Get a user all Salary
 // router.route("/").post(verifyToken("salary_post"), postSalary);
-router.route("/").get(findAUserAllSalary).post(postSalary);
+router.route("/").get(findAUserAllSalary).post(postSalary).patch(updateSalary);
 
 // create multiple user salary
 router.route("/multiple_user").post(postMultipleUserSalary);
@@ -24,6 +25,6 @@ router.route("/all_user").post(postAllUserSalary);
 router.route("/a_user_a_salary_details").get(findAUserASalaryDetails);
 
 // find all dashboard salary
-router.route("/dashboard").post(findAllDashboardSalary);
+router.route("/dashboard").get(findAllDashboardSalary);
 
 export const SalaryRoutes = router;

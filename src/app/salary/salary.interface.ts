@@ -9,7 +9,6 @@ export interface ISalaryInterface {
   commision_id?: Types.ObjectId | ISaleTargetInterface;
   commision_amount: number;
   basic_salary: number;
-  total_salary: number;
   add_or_deduct_amount: number;
   grand_total_amount: number;
   received_amount: number;

@@ -14,7 +14,7 @@ const salarySchema = new Schema<ISalaryInterface>(
     },
     commision_id: {
       type: Schema.Types.ObjectId,
-      ref: "sale_targets",
+      ref: "saletargets",
     },
     commision_amount: {
       required: true,
@@ -22,11 +22,6 @@ const salarySchema = new Schema<ISalaryInterface>(
       default: 0,
     },
     basic_salary: {
-      required: true,
-      type: Number,
-      default: 0,
-    },
-    total_salary: {
       required: true,
       type: Number,
       default: 0,

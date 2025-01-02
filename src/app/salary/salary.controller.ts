@@ -103,15 +103,16 @@ export const postSalary: RequestHandler = async (
         requestData.commision_amount =
           firstHalf * first_half_amount_per_unit +
           secondHalf * second_half_amount_per_unit;
-        requestData.total_salary =
-          requestData.commision_amount + requestData.basic_salary;
-        requestData.grand_total_amount = requestData.total_salary;
-        requestData.due_amount = requestData.grand_total_amount;
+        requestData.grand_total_amount =
+          requestData?.commision_amount + requestData?.basic_salary;
+        requestData.due_amount = requestData?.grand_total_amount;
+      } else {
+        requestData.grand_total_amount = requestData?.basic_salary;
+        requestData.due_amount = requestData?.grand_total_amount;
       }
     } else {
-      requestData.total_salary = requestData.basic_salary;
-      requestData.grand_total_amount = requestData.total_salary;
-      requestData.due_amount = requestData.grand_total_amount;
+      requestData.grand_total_amount = requestData?.basic_salary;
+      requestData.due_amount = requestData?.grand_total_amount;
     }
 
     const result = await postSalaryServices(requestData, session);
@@ -146,10 +147,10 @@ export const postMultipleUserSalary: RequestHandler = async (
   session.startTransaction();
   try {
     const requestData = req.body;
-    const { salary_month, users } = requestData;
+    const { users } = requestData;
 
     for (const user of users) {
-      const { user_id } = user;
+      const { user_id, salary_month } = user;
 
       const alreadySalaryGenerate = await SalaryModel.exists({
         user_id,
@@ -158,8 +159,6 @@ export const postMultipleUserSalary: RequestHandler = async (
       if (alreadySalaryGenerate) {
         continue;
       }
-
-      user.salary_month = salary_month;
 
       // Get the first day of the salary month
       const startOfSalaryMonth = new Date(`${salary_month}-01T00:00:00Z`);
@@ -229,14 +228,15 @@ export const postMultipleUserSalary: RequestHandler = async (
           user.commision_amount =
             firstHalf * first_half_amount_per_unit +
             secondHalf * second_half_amount_per_unit;
-          user.total_salary = user.commision_amount + user.basic_salary;
-          user.grand_total_amount = user.total_salary;
-          user.due_amount = user.grand_total_amount;
+          user.grand_total_amount = user?.commision_amount + user?.basic_salary;
+          user.due_amount = user?.grand_total_amount;
+        } else {
+          user.grand_total_amount = user?.basic_salary;
+          user.due_amount = user?.grand_total_amount;
         }
       } else {
-        user.total_salary = user.basic_salary;
-        user.grand_total_amount = user.total_salary;
-        user.due_amount = user.grand_total_amount;
+        user.grand_total_amount = user?.basic_salary;
+        user.due_amount = user?.grand_total_amount;
       }
 
       const result = await postSalaryServices(user, session);
@@ -272,9 +272,11 @@ export const postAllUserSalary: RequestHandler = async (
   session.startTransaction();
   try {
     const requestData = req.body;
-    const { salary_month } = requestData;
+    const { salary_month, salary_publisher_id } = requestData;
 
-    const users = await UserModel.find({}).session(session);
+    const users = await UserModel.find({ user_status: "active" }).session(
+      session
+    );
     if (!users) {
       throw new ApiError(400, "User Not Found!");
     }
@@ -285,6 +287,7 @@ export const postAllUserSalary: RequestHandler = async (
         user_phone: user?.user_phone,
         salary_month,
         basic_salary: user?.user_salary,
+        salary_publisher_id,
       };
 
       const alreadySalaryGenerate: any = await SalaryModel.exists({
@@ -363,15 +366,16 @@ export const postAllUserSalary: RequestHandler = async (
           sendData.commision_amount =
             firstHalf * first_half_amount_per_unit +
             secondHalf * second_half_amount_per_unit;
-          sendData.total_salary =
-            sendData.commision_amount + sendData.basic_salary;
-          sendData.grand_total_amount = sendData.total_salary;
-          sendData.due_amount = sendData.grand_total_amount;
+          sendData.grand_total_amount =
+            sendData?.commision_amount + sendData?.basic_salary;
+          sendData.due_amount = sendData?.grand_total_amount;
+        } else {
+          sendData.grand_total_amount = sendData?.basic_salary;
+          sendData.due_amount = sendData?.grand_total_amount;
         }
       } else {
-        sendData.total_salary = sendData.basic_salary;
-        sendData.grand_total_amount = sendData.total_salary;
-        sendData.due_amount = sendData.grand_total_amount;
+        sendData.grand_total_amount = sendData?.basic_salary;
+        sendData.due_amount = sendData?.grand_total_amount;
       }
 
       const result = await postSalaryServices(sendData, session);
@@ -408,11 +412,8 @@ export const findAllDashboardSalary: RequestHandler = async (
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-    const result: ISalaryInterface[] | any = await findAllDashboardSalaryServices(
-      limitNumber,
-      skip,
-      searchTerm
-    );
+    const result: ISalaryInterface[] | any =
+      await findAllDashboardSalaryServices(limitNumber, skip, searchTerm);
     const andCondition = [];
     if (searchTerm) {
       andCondition.push({

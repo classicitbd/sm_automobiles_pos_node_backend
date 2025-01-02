@@ -53,6 +53,8 @@ export const postSalaryPayment: RequestHandler = async (
   session.startTransaction();
   try {
     const requestData = req.body;
+    const invoice_id = await generatetrnxId();
+    requestData.invoice_id = invoice_id;
 
     const result = await postSalaryPaymentServices(requestData, session);
 
@@ -82,7 +84,7 @@ export const postSalaryPayment: RequestHandler = async (
         supplier_payment_amount: requestData?.pay_amount,
         supplier_payment_method: "check",
         supplier_payment_status: "paid",
-        transaction_id: await generatetrnxId(),
+        transaction_id: invoice_id,
         salary_user_id: requestData?.user_id,
         payment_bank_id: requestData?.payment_bank_id,
         reference_id: requestData?.reference_id,
@@ -128,10 +130,11 @@ export const postSalaryPayment: RequestHandler = async (
       //   store salary out from cash history
       const sendData: any = {
         supplier_payment_title: "Salary Payment",
+        supplier_payment_date: requestData?.payment_date,
         supplier_payment_amount: requestData?.pay_amount,
         supplier_payment_method: "cash",
         supplier_payment_status: "paid",
-        transaction_id: await generatetrnxId(),
+        transaction_id: invoice_id,
         salary_user_id: requestData?.user_id,
         supplier_payment_publisher_id: requestData?.payment_publisher_id,
       };
@@ -198,7 +201,7 @@ export const postSalaryPayment: RequestHandler = async (
         ledger_category: "Expense",
         ledger_debit: requestData?.pay_amount,
         ledger_balance: ledgerData?.ledger_balance - requestData?.pay_amount,
-        ledger_publisher_id: requestData?.stock_publisher_id,
+        ledger_publisher_id: requestData?.payment_publisher_id,
       };
       await postLedgerServices(updateLedgerData, session);
     } else {
@@ -207,7 +210,7 @@ export const postSalaryPayment: RequestHandler = async (
         ledger_category: "Expense",
         ledger_debit: requestData?.pay_amount,
         ledger_balance: requestData?.pay_amount,
-        ledger_publisher_id: requestData?.stock_publisher_id,
+        ledger_publisher_id: requestData?.payment_publisher_id,
       };
       await postLedgerServices(updateLedgerData, session);
     }

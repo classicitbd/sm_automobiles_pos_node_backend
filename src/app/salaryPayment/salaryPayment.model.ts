@@ -32,7 +32,6 @@ const salaryPaymentSchema = new Schema<ISalaryPaymentInterface>(
       ref: "banks",
     },
     reference_id: {
-      required: true,
       type: String,
     },
     payment_date: {

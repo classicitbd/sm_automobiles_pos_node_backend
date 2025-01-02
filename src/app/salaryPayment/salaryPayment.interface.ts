@@ -10,8 +10,8 @@ export interface ISalaryPaymentInterface {
   user_phone: string;
   invoice_id: string;
   payment_type: "cash" | "check";
-  payment_bank_id: Types.ObjectId | IBankInterface;
-  reference_id: string;
+  payment_bank_id?: Types.ObjectId | IBankInterface;
+  reference_id?: string;
   payment_date: string;
   pay_amount: number;
   payment_note?: string;
