@@ -85,7 +85,7 @@ export const findAUserASalaryDetailsServices = async (
 ): Promise<ISalaryInterface[] | [] | any> => {
   const SalaryDetails: any = await SalaryModel.findOne({
     _id: salary_id,
-  }).populate(["salary_publisher_id", "salary_updated_by", "commision_id"]);
+  }).populate(["salary_publisher_id", "salary_updated_by", "commision_id", "user_id"]);
   return SalaryDetails;
 };
 

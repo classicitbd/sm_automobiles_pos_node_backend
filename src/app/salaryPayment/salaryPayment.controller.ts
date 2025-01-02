@@ -2,9 +2,17 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 import ApiError from "../../errors/ApiError";
-import { ISalaryPaymentInterface } from "./salaryPayment.interface";
+import {
+  ISalaryPaymentInterface,
+  salaryPaymentSearchableField,
+} from "./salaryPayment.interface";
 import mongoose from "mongoose";
-import { postSalaryPaymentServices } from "./salaryPayment.service";
+import {
+  findAUserAllSalaryPaymentInAInvoiceServices,
+  findAUserAllSalaryPaymentServices,
+  findDashboardSalaryPaymentServices,
+  postSalaryPaymentServices,
+} from "./salaryPayment.service";
 import SupplierPaymentModel from "../supplier_payment/supplier_payment.model";
 import { ISupplierPaymentInterface } from "../supplier_payment/supplier_payment.interface";
 import { postSupplierPaymentServices } from "../supplier_payment/supplier_payment.services";
@@ -15,6 +23,7 @@ import SalaryModel from "../salary/salary.model";
 import { postExpenseWhenProductStockAddServices } from "../expense/expense.services";
 import LedgerModel from "../ledger/ledger.model";
 import { postLedgerServices } from "../ledger/ledger.service";
+import SalaryPaymentModel from "./salaryPayment.model";
 
 // Generate a unique trnxId
 const generatetrnxId = async () => {
@@ -227,6 +236,143 @@ export const postSalaryPayment: RequestHandler = async (
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
+    next(error);
+  }
+};
+
+// Find  dashboardSalaryPayment
+export const findDashboardSalaryPayment: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISalaryPaymentInterface | any> => {
+  try {
+    const { page, limit, searchTerm } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ISalaryPaymentInterface[] | any =
+      await findDashboardSalaryPaymentServices(limitNumber, skip, searchTerm);
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: salaryPaymentSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await SalaryPaymentModel.countDocuments(whereCondition);
+    return sendResponse<ISalaryPaymentInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "SalaryPayment Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find a user all SalaryPayment history
+export const findAUserAllSalaryPayment: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISalaryPaymentInterface | any> => {
+  try {
+    const { page, limit, searchTerm, user_id }: any = req.query;
+    if (!user_id) {
+      throw new ApiError(400, "User id required");
+    }
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ISalaryPaymentInterface[] | any =
+      await findAUserAllSalaryPaymentServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        user_id
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: salaryPaymentSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ user_id: user_id });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await SalaryPaymentModel.countDocuments(whereCondition);
+    return sendResponse<ISalaryPaymentInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "SalaryPayment Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+// Find a user all SalaryPayment history in a salary create
+export const findAUserAllSalaryPaymentInAInvoice: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<ISalaryPaymentInterface | any> => {
+  try {
+    const { page, limit, searchTerm, user_id, salary_id }: any = req.query;
+    if (!user_id || !salary_id) {
+      throw new ApiError(400, "User id and salary id required");
+    }
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const result: ISalaryPaymentInterface[] | any =
+      await findAUserAllSalaryPaymentInAInvoiceServices(
+        limitNumber,
+        skip,
+        searchTerm,
+        user_id,
+        salary_id
+      );
+    const andCondition = [];
+    if (searchTerm) {
+      andCondition.push({
+        $or: salaryPaymentSearchableField.map((field) => ({
+          [field]: {
+            $regex: searchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
+    andCondition.push({ user_id: user_id });
+    andCondition.push({ salary_id: salary_id });
+    const whereCondition =
+      andCondition.length > 0 ? { $and: andCondition } : {};
+    const total = await SalaryPaymentModel.countDocuments(whereCondition);
+    return sendResponse<ISalaryPaymentInterface>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "SalaryPayment Found Successfully !",
+      data: result,
+      totalData: total,
+    });
+  } catch (error: any) {
     next(error);
   }
 };

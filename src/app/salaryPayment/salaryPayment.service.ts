@@ -17,8 +17,8 @@ export const postSalaryPaymentServices = async (
   return createsalaryPayment;
 };
 
-// Find all salaryPayment
-export const findAllSalaryPaymentServices = async (
+// Find Dashboard salaryPayment
+export const findDashboardSalaryPaymentServices = async (
   limit: number,
   skip: number,
   searchTerm: any
@@ -41,7 +41,7 @@ export const findAllSalaryPaymentServices = async (
         "payment_publisher_id",
         "payment_updated_by",
         "user_id",
-        "bank_id",
+        "payment_bank_id",
         "salary_id",
       ])
       .sort({ _id: -1 })

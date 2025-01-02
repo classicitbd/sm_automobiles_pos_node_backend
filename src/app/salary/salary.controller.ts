@@ -401,7 +401,7 @@ export const postAllUserSalary: RequestHandler = async (
   }
 };
 
-// Find All Salary
+// Find All Dashboard Salary
 export const findAllDashboardSalary: RequestHandler = async (
   req: Request,
   res: Response,
